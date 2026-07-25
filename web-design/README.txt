@@ -6,6 +6,35 @@ HOW TO RUN
 Unzip, then double-click index.html. Opens in Chrome.
 No install, no Node, no server, no build step.
 
+For the installable/offline (PWA) features and the lottery panel to work,
+the site must be served over http(s) — a service worker and fetch() cannot
+run from a file:// URL. Everything still WORKS from file://; those two
+enhancements just switch off and the site degrades cleanly to plain pages.
+
+
+PRODUCTION-FINAL PASS (what was added)
+--------------------------------------
+- SEO: per-page <title>/description, canonical URLs, Open Graph + Twitter
+  cards, robots.txt, sitemap.xml. (Canonical/OG use the placeholder domain
+  www.knightsbridgenews.com.au — change it to the real domain before launch,
+  it appears in the HTML heads, sitemap.xml, robots.txt and the JSON-LD.)
+- Structured data: schema.org Store/LocalBusiness JSON-LD on the home and
+  contact pages — real address, phone, geo (approx, confirm before launch),
+  opening hours and the 4.2/147 rating as AggregateRating.
+- PWA: site.webmanifest, service worker (sw.js) that precaches the shell for
+  offline, own-drawn favicon set (favicon.svg/.ico, apple-touch-icon,
+  192/512/maskable PNGs) and an Open Graph image (assets/social/og-image.png).
+  All icons are original artwork in the shop's three colours.
+- Accessibility (WCAG 2.1 AA): no-JS fallback shell, accessible inline form
+  errors on Contact, deferred scripts, no layout shift, palette contrast kept
+  (#FF6E63 for red on dark). Skip link, landmarks and carousels unchanged.
+- Lottery seam for a later agent: data/lottery.json + data/README.md +
+  js/lottery.js render a hidden home-hero panel that fills from the JSON and
+  hides if it is absent. Own SVG badge only — no trademarked logos or scraped
+  posters. See data/README.md for the full contract.
+- Page scripts moved out of inline <script> into js/page-*.js so every page
+  can defer its JavaScript.
+
 
 WHAT'S NEW IN THIS VERSION
 --------------------------

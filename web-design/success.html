@@ -4,13 +4,37 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Order complete — Knightsbridge Newsagency</title>
+<meta name="description" content="Thanks for your order at Knightsbridge Newsagency — we'll have it ready to collect in store at Castle Hill NSW.">
+<meta name="robots" content="noindex, follow">
+<link rel="canonical" href="https://www.knightsbridgenews.com.au/success.html">
+<meta name="theme-color" content="#ffffff">
+<meta name="color-scheme" content="light">
+
+<!-- Icons & PWA -->
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<meta name="application-name" content="Knightsbridge Newsagency">
+<meta name="apple-mobile-web-app-title" content="Knightsbridge">
+
+<!-- Fonts (progressive enhancement; the CSS falls back to system fonts offline) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="demo-banner">Demo build — data is stored in this browser and payments are simulated. Stock is managed in the owner app.</div>
+
+<noscript>
+  <div class="noscript-shell">
+    <h2>Thank you for your order</h2>
+    <p>We'll have your items ready at the shop. <a href="shop.html">Back to the shop</a> · <a href="index.html">Home</a>.</p>
+  </div>
+</noscript>
+
 <header class="masthead" id="site-header"></header>
 <main id="main">
   <section class="message-page">
@@ -21,26 +45,13 @@
   <p style="text-align:center"><a class="btn btn-primary" href="shop.html">Back to the shop</a></p>
 </main>
 <footer class="site-footer" id="site-footer"></footer>
-<script src="js/art.js"></script>
-<script src="js/carousel.js"></script>
-<script src="js/app.js"></script>
-<script src="js/photo-picker.js"></script>
-<script src="js/images.js"></script>
-<script src="js/reviews.js"></script>
-<script>
-  renderShell('home');
-  const raw = sessionStorage.getItem('kn.lastReceipt');
-  if (raw) {
-    const r = JSON.parse(raw);
-    document.getElementById('receipt').innerHTML = `
-      <section class="receipt">
-        <h2>Order receipt</h2>
-        <p><strong>Paid via:</strong> ${esc(r.payment_method)}</p>
-        <ul>${r.items.map(i => `<li>${esc(i.name)} × ${i.qty} — ${money(i.price_cents * i.qty)}</li>`).join('')}</ul>
-        <p><strong>Total: ${money(r.total_cents)} AUD</strong></p>
-        ${r.heldNames?.length ? `<p class="notice notice-warning"><strong>Low-stock alert triggered</strong> for: ${r.heldNames.map(esc).join(', ')}. In production an email would be sent to the owner and these items are now hidden from customers until restocked.</p>` : ''}
-      </section>`;
-  }
-</script>
+
+<script src="js/art.js" defer></script>
+<script src="js/carousel.js" defer></script>
+<script src="js/app.js" defer></script>
+<script src="js/photo-picker.js" defer></script>
+<script src="js/images.js" defer></script>
+<script src="js/reviews.js" defer></script>
+<script src="js/page-success.js" defer></script>
 </body>
 </html>

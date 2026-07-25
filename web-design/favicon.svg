@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Knightsbridge Newsagency">
+  <!-- Own artwork. Palette is the shop's only: red #E1251B, black #111111, white.
+       Bold "K" with an offset-print registration ghost — the site's house motif. -->
+  <rect width="512" height="512" rx="102" fill="#E1251B"/>
+  <!-- black registration ghost, offset -->
+  <g fill="none" stroke="#111111" stroke-width="86" stroke-linecap="round" stroke-linejoin="round" transform="translate(13 17)">
+    <path d="M144 92 L144 420"/>
+    <path d="M150 262 L399 88"/>
+    <path d="M150 252 L416 434"/>
+  </g>
+  <!-- white K -->
+  <g fill="none" stroke="#FFFFFF" stroke-width="86" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M144 92 L144 420"/>
+    <path d="M150 262 L399 88"/>
+    <path d="M150 252 L416 434"/>
+  </g>
+</svg>

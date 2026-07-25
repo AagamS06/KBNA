@@ -4,13 +4,37 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Your basket — Knightsbridge Newsagency</title>
+<meta name="description" content="Review the items in your basket and check out — reserve online and collect in store at Knightsbridge Newsagency, Castle Hill NSW.">
+<meta name="robots" content="noindex, follow">
+<link rel="canonical" href="https://www.knightsbridgenews.com.au/cart.html">
+<meta name="theme-color" content="#ffffff">
+<meta name="color-scheme" content="light">
+
+<!-- Icons & PWA -->
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<meta name="application-name" content="Knightsbridge Newsagency">
+<meta name="apple-mobile-web-app-title" content="Knightsbridge">
+
+<!-- Fonts (progressive enhancement; the CSS falls back to system fonts offline) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="demo-banner">Demo build — data is stored in this browser and payments are simulated. Stock is managed in the owner app.</div>
+
+<noscript>
+  <div class="noscript-shell">
+    <h2>Your basket</h2>
+    <p>The basket needs JavaScript. Browse the <a href="shop.html">shop</a> or <a href="contact.html">contact us</a> — Shop 5, 159 Ridgecrop Drive, Castle Hill NSW 2154 · <a href="tel:+61296341591">02 9634 1591</a>.</p>
+  </div>
+</noscript>
+
 <header class="masthead" id="site-header"></header>
 <main id="main">
   <div class="section-head">
@@ -20,87 +44,13 @@
   <div id="cart-body"></div>
 </main>
 <footer class="site-footer" id="site-footer"></footer>
-<script src="js/art.js"></script>
-<script src="js/carousel.js"></script>
-<script src="js/app.js"></script>
-<script src="js/photo-picker.js"></script>
-<script src="js/images.js"></script>
-<script src="js/reviews.js"></script>
-<script>
-  renderShell('cart');
 
-  function render() {
-    const lines = store.cartLines();
-    const total = lines.reduce((s, l) => s + l.price_cents * l.qty, 0);
-    const body = document.getElementById('cart-body');
-
-    if (!lines.length) {
-      body.innerHTML = `
-        <p>Your basket is empty.</p>
-        <p><a class="btn btn-primary btn-arrow" href="shop.html">Browse the shop</a></p>`;
-      return;
-    }
-
-    body.innerHTML = `
-      <table class="cart-table">
-        <caption class="visually-hidden">Items in your basket</caption>
-        <thead><tr><th>Item</th><th>Price</th><th>Quantity</th><th>Subtotal</th></tr></thead>
-        <tbody>
-          ${lines.map(l => `
-            <tr>
-              <th scope="row">${esc(l.name)}</th>
-              <td>${money(l.price_cents)}</td>
-              <td>
-                <div class="qty-form">
-                  <label class="visually-hidden" for="q-${l.id}">Quantity of ${esc(l.name)}</label>
-                  <input id="q-${l.id}" type="number" min="0" max="${l.stock}" value="${l.qty}" data-qty="${l.id}">
-                </div>
-              </td>
-              <td>${money(l.price_cents * l.qty)}</td>
-            </tr>`).join('')}
-        </tbody>
-        <tfoot><tr><th scope="row" colspan="3">Total (AUD)</th><td class="cart-total">${money(total)}</td></tr></tfoot>
-      </table>
-
-      <section class="pay-options" aria-labelledby="pay-h">
-        <h2 id="pay-h">Choose how to pay</h2>
-        <p class="notice">Live card / PayPal processing needs a server — this browser demo simulates the payment so you can see the whole flow (stock decrement, low-stock hold, order recorded in the owner portal).</p>
-        <div class="pay-grid">
-          <div class="pay-card">
-            <h3>Card payment (Stripe)</h3>
-            <p>In production this would open Stripe Checkout.</p>
-            <button class="btn btn-primary btn-block" id="pay-stripe">Simulate card payment</button>
-          </div>
-          <div class="pay-card">
-            <h3>PayPal</h3>
-            <p>In production this would show PayPal Smart Buttons.</p>
-            <button class="btn btn-primary btn-block" id="pay-paypal">Simulate PayPal payment</button>
-          </div>
-        </div>
-      </section>`;
-  }
-
-  function pay(method) {
-    const result = store.fulfilOrder(method);
-    if (!result) return;
-    const heldNames = result.lowStock.map(p => p.name);
-    sessionStorage.setItem('kn.lastReceipt', JSON.stringify({ ...result.order, heldNames }));
-    location.href = 'success.html';
-  }
-
-  document.addEventListener('input', e => {
-    const id = e.target.dataset?.qty;
-    if (!id) return;
-    store.setCartQty(id, parseInt(e.target.value, 10) || 0);
-    renderShell('cart');
-    render();
-  });
-  document.addEventListener('click', e => {
-    if (e.target.id === 'pay-stripe') pay('stripe');
-    if (e.target.id === 'pay-paypal') pay('paypal');
-  });
-
-  render();
-</script>
+<script src="js/art.js" defer></script>
+<script src="js/carousel.js" defer></script>
+<script src="js/app.js" defer></script>
+<script src="js/photo-picker.js" defer></script>
+<script src="js/images.js" defer></script>
+<script src="js/reviews.js" defer></script>
+<script src="js/page-cart.js" defer></script>
 </body>
 </html>

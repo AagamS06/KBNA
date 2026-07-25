@@ -569,6 +569,8 @@ nav.tag-strip { margin-bottom: 2.4rem; }   /* filter rail on the shop page */
 .field input:focus, .field textarea:focus { border-color: var(--ink); }
 .field textarea { min-height: 8rem; }
 .hint { margin: 0; font-size: .87rem; color: var(--ink-soft); }
+.field-error { font-size: .87rem; font-weight: 700; color: var(--hot-ink); }
+.field [aria-invalid="true"] { border-color: var(--hot-ink); }
 .field-row { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); }
 fieldset.field { border: 1px solid var(--line); border-radius: var(--r-card); padding: 1.4rem; margin: 0; background: var(--card); }
 .radio-list { display: flex; flex-wrap: wrap; gap: .4rem .9rem; margin-bottom: .9rem; }
@@ -615,6 +617,69 @@ address a { display: inline-flex; align-items: center; min-height: 44px; }
 .receipt { background: var(--card); border: 1px solid var(--line); border-radius: var(--r-card); padding: 1.8rem; margin: 1.5rem auto; max-width: 40rem; }
 .receipt h2 { margin-top: 0; }
 .reset-row { margin-top: 3rem; padding-top: 1.4rem; border-top: 1px solid var(--line); }
+
+/* ---------------- Lottery panel (home hero seam) ----------------
+   Rendered from data/lottery.json by js/lottery.js. Ships hidden; the
+   renderer reveals it only when valid data loads. See data/README.md. */
+.lottery-band { background: var(--canvas-2); border-bottom: 1px solid var(--line); }
+.lottery-inner {
+  display: grid; gap: 1.6rem 2rem; align-items: center;
+  grid-template-columns: 1fr;
+}
+.lottery-head { display: flex; flex-direction: column; gap: 1rem; }
+.lottery-badge { max-width: 15rem; }
+.lottery-badge-svg, .lottery-badge-img {
+  width: 100%; height: auto; border-radius: var(--r-card);
+}
+.lottery-game { margin: 0; }
+.lottery-draw { margin: .4rem 0 1.2rem; color: var(--ink-soft); font-weight: 600; font-family: var(--display); }
+.lottery-balls {
+  list-style: none; margin: 0 0 1.1rem; padding: 0;
+  display: flex; flex-wrap: wrap; align-items: center; gap: .6rem;
+}
+.lottery-ball {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 3rem; height: 3rem; padding: 0 .5rem;
+  border-radius: var(--pill);
+  background: var(--hot-btn); color: #fff;
+  font-family: var(--display); font-weight: 800; font-size: 1.15rem; letter-spacing: -.02em;
+}
+.lottery-ball--supp { background: #fff; color: var(--hot-ink); border: 2px solid var(--hot-ink); }
+.lottery-ball--pb { background: var(--ink); color: #fff; }
+.lottery-divider { font-family: var(--display); font-weight: 800; color: var(--ink-soft); font-size: 1.3rem; padding: 0 .1rem; }
+.lottery-jackpot {
+  margin: 0 0 1.2rem; display: inline-block;
+  font-family: var(--display); font-weight: 700; font-size: .9rem;
+  background: var(--hot-wash); color: var(--hot-ink); border-radius: var(--pill); padding: .35rem 1rem;
+}
+.lottery-actions { margin-bottom: .6rem; }
+.lottery-updated { margin: 0; font-size: .8rem; color: var(--ink-soft); }
+.lottery-poster { border-radius: var(--r-card); overflow: hidden; }
+.lottery-poster img { width: 100%; height: auto; border-radius: var(--r-card); background: var(--ink); }
+.lottery-disclaimer {
+  max-width: var(--wrap); margin: 1.6rem auto 0; padding: 0;
+  font-size: .8rem; color: var(--ink-soft);
+}
+@media (min-width: 46rem) {
+  .lottery-inner { grid-template-columns: auto 1fr; }
+  .lottery-poster { grid-column: 1 / -1; }
+}
+@media (min-width: 62rem) {
+  .lottery-inner { grid-template-columns: 15rem 1fr 18rem; align-items: center; }
+  .lottery-poster { grid-column: auto; }
+}
+
+/* ---------------- No-JS fallback shell ----------------
+   The header, footer and product lists are built by JavaScript. With JS off
+   the pages would be near-empty, so this gives the core details and links. */
+.noscript-shell {
+  max-width: var(--wrap); margin: 0 auto; padding: 1.6rem 1rem;
+  border-bottom: 1px solid var(--line);
+}
+.noscript-shell h2 { margin: 0 0 .6rem; font-size: 1.3rem; }
+.noscript-shell ul { margin: .6rem 0 0; padding-left: 1.1rem; }
+.noscript-shell nav ul { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: .3rem 1.1rem; }
+.noscript-shell a { min-height: 44px; display: inline-flex; align-items: center; }
 
 /* ---------------- Footer ---------------- */
 .site-footer { background: var(--ink); color: var(--dim); padding: var(--band-y) 1rem 1.8rem; }

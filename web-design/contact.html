@@ -3,14 +3,84 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Contact us — Knightsbridge Newsagency</title>
+<title>Contact &amp; opening hours — Knightsbridge Newsagency, Castle Hill</title>
+<meta name="description" content="Find Knightsbridge Newsagency at Shop 5, 159 Ridgecrop Drive, Castle Hill NSW 2154. Phone 02 9634 1591. Open weekdays 8am–6pm, weekends 8am–4pm.">
+<link rel="canonical" href="https://www.knightsbridgenews.com.au/contact.html">
+<meta name="theme-color" content="#ffffff">
+<meta name="color-scheme" content="light">
+
+<!-- Icons & PWA -->
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<meta name="application-name" content="Knightsbridge Newsagency">
+<meta name="apple-mobile-web-app-title" content="Knightsbridge">
+
+<!-- Open Graph / Twitter -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Knightsbridge Newsagency">
+<meta property="og:locale" content="en_AU">
+<meta property="og:title" content="Contact &amp; opening hours — Knightsbridge Newsagency">
+<meta property="og:description" content="Shop 5, 159 Ridgecrop Drive, Castle Hill NSW 2154. Phone 02 9634 1591. Open 7 days.">
+<meta property="og:url" content="https://www.knightsbridgenews.com.au/contact.html">
+<meta property="og:image" content="https://www.knightsbridgenews.com.au/assets/social/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Knightsbridge Newsagency — Castle Hill NSW.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Contact — Knightsbridge Newsagency">
+<meta name="twitter:description" content="Shop 5, 159 Ridgecrop Drive, Castle Hill NSW 2154. Phone 02 9634 1591. Open 7 days.">
+<meta name="twitter:image" content="https://www.knightsbridgenews.com.au/assets/social/og-image.png">
+
+<!-- Fonts (progressive enhancement; the CSS falls back to system fonts offline) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": ["Store", "LocalBusiness"],
+  "additionalType": "https://en.wikipedia.org/wiki/Newsagent's_shop",
+  "@id": "https://www.knightsbridgenews.com.au/#store",
+  "name": "Knightsbridge Newsagency",
+  "url": "https://www.knightsbridgenews.com.au/",
+  "telephone": "+61 2 9634 1591",
+  "image": "https://www.knightsbridgenews.com.au/assets/social/og-image.png",
+  "priceRange": "$",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Shop 5, 159 Ridgecrop Drive",
+    "addressLocality": "Castle Hill",
+    "addressRegion": "NSW",
+    "postalCode": "2154",
+    "addressCountry": "AU"
+  },
+  "geo": { "@type": "GeoCoordinates", "latitude": -33.7360, "longitude": 150.9764 },
+  "hasMap": "https://www.google.com/maps/search/?api=1&query=Knightsbridge%20Newsagency%2C%20Shop%205%2C%20159%20Ridgecrop%20Drive%2C%20Castle%20Hill%20NSW%202154",
+  "openingHoursSpecification": [
+    { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"], "opens": "08:00", "closes": "18:00" },
+    { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Saturday", "Sunday"], "opens": "08:00", "closes": "16:00" }
+  ],
+  "aggregateRating": { "@type": "AggregateRating", "ratingValue": "4.2", "reviewCount": "147", "bestRating": "5", "worstRating": "1" }
+}
+</script>
 </head>
 <body>
 <div class="demo-banner">Demo build — data is stored in this browser and payments are simulated. Stock is managed in the owner app.</div>
+
+<noscript>
+  <div class="noscript-shell">
+    <h2>Knightsbridge Newsagency</h2>
+    <p>Shop 5, 159 Ridgecrop Drive, Castle Hill NSW 2154 · <a href="tel:+61296341591">02 9634 1591</a></p>
+    <p>Open Monday to Friday 8am–6pm, Saturday and Sunday 8am–4pm.</p>
+    <p>The contact form needs JavaScript — please call, or email <a href="mailto:owner@knightsbridgenews.com.au">owner@knightsbridgenews.com.au</a>.</p>
+  </div>
+</noscript>
+
 <header class="masthead" id="site-header"></header>
 <main id="main">
   <div class="section-head">
@@ -23,10 +93,26 @@
       <h2 id="form-h">Send us a message</h2>
       <p class="notice">Without a server this form can't reach Resend directly. It opens your email app pre-filled instead. (When deployed with Node, the same form posts straight to the owner's inbox via Resend.)</p>
       <form class="stacked-form" id="contact-form" novalidate>
-        <div class="field"><label for="c-name">Your name (required)</label><input id="c-name" required></div>
-        <div class="field"><label for="c-email">Email address (required)</label><input id="c-email" type="email" required></div>
-        <div class="field"><label for="c-phone">Phone (optional)</label><input id="c-phone" type="tel"></div>
-        <div class="field"><label for="c-message">Your message (required)</label><textarea id="c-message" rows="6" required></textarea></div>
+        <div class="field">
+          <label for="c-name">Your name (required)</label>
+          <input id="c-name" name="name" autocomplete="name" required aria-required="true" aria-describedby="err-name">
+          <span class="field-error" id="err-name" role="alert" hidden></span>
+        </div>
+        <div class="field">
+          <label for="c-email">Email address (required)</label>
+          <input id="c-email" name="email" type="email" autocomplete="email" required aria-required="true" aria-describedby="err-email">
+          <span class="field-error" id="err-email" role="alert" hidden></span>
+        </div>
+        <div class="field">
+          <label for="c-phone">Phone (optional)</label>
+          <input id="c-phone" name="phone" type="tel" autocomplete="tel" aria-describedby="err-phone">
+          <span class="field-error" id="err-phone" role="alert" hidden></span>
+        </div>
+        <div class="field">
+          <label for="c-message">Your message (required)</label>
+          <textarea id="c-message" name="message" rows="6" required aria-required="true" aria-describedby="err-message"></textarea>
+          <span class="field-error" id="err-message" role="alert" hidden></span>
+        </div>
         <button class="btn btn-primary" type="submit">Send message</button>
       </form>
     </section>
@@ -44,43 +130,13 @@
   </div>
 </main>
 <footer class="site-footer" id="site-footer"></footer>
-<script src="js/art.js"></script>
-<script src="js/carousel.js"></script>
-<script src="js/app.js"></script>
-<script src="js/photo-picker.js"></script>
-<script src="js/images.js"></script>
-<script src="js/reviews.js"></script>
-<script>
-  renderShell('contact');
 
-  document.getElementById('visit-address').innerHTML =
-    `${BUSINESS.name}<br>${BUSINESS.street}<br>${BUSINESS.suburb}<br>
-     <a href="${BUSINESS_LINKS.phone}">${BUSINESS.phone}</a>`;
-
-  document.getElementById('hours-list').innerHTML =
-    BUSINESS.hours.map(([days, time]) => `<li>${esc(days)} — ${esc(time)}</li>`).join('');
-
-  document.getElementById('online-links').innerHTML = [
-    ['Open in Google Maps', BUSINESS_LINKS.maps],
-    [`Read our ${REVIEW_SUMMARY.count} Google reviews`, BUSINESS_LINKS.reviews],
-    ['Write us a Google review', BUSINESS_LINKS.writeReview],
-    ['Our page on the Knightsbridge Shopping Centre site', BUSINESS_LINKS.centre],
-    ['Our Yelp listing', BUSINESS_LINKS.yelp],
-    ['Check your Lotto numbers at the Lott', BUSINESS_LINKS.lott]
-  ].map(([label, href]) =>
-    `<li><a href="${href}" target="_blank" rel="noopener">${esc(label)}</a></li>`
-  ).join('');
-
-  document.getElementById('contact-form').addEventListener('submit', e => {
-    e.preventDefault();
-    const name = document.getElementById('c-name').value.trim();
-    const email = document.getElementById('c-email').value.trim();
-    const phone = document.getElementById('c-phone').value.trim();
-    const msg = document.getElementById('c-message').value.trim();
-    if (!name || !email || !msg) { alert('Please fill in name, email and message.'); return; }
-    const body = `From: ${name} <${email}>\nPhone: ${phone || 'not provided'}\n\n${msg}`;
-    location.href = `mailto:${store.owner().email}?subject=${encodeURIComponent('Website enquiry from ' + name)}&body=${encodeURIComponent(body)}`;
-  });
-</script>
+<script src="js/art.js" defer></script>
+<script src="js/carousel.js" defer></script>
+<script src="js/app.js" defer></script>
+<script src="js/photo-picker.js" defer></script>
+<script src="js/images.js" defer></script>
+<script src="js/reviews.js" defer></script>
+<script src="js/page-contact.js" defer></script>
 </body>
 </html>
