@@ -1,0 +1,19 @@
+# Flutter / Dart
+app/.dart_tool/
+app/.flutter-plugins
+app/.flutter-plugins-dependencies
+app/build/
+app/.idea/
+app/android/
+app/ios/
+app/linux/
+app/macos/
+app/windows/
+app/web/
+app/pubspec.lock
+**/*.g.dart
+# OS / editor
+.DS_Store
+Thumbs.db
+# scratch
+_archive/

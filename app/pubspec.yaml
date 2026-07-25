@@ -1,0 +1,103 @@
+name: knightsbridge_owner
+description: >-
+  Knightsbridge Newsagency — the shop owner's counter tool. Manage stock,
+  prices, holds and view online orders. Local-first; works fully offline.
+publish_to: "none"
+version: 1.0.0+14
+
+environment:
+  # PopScope.onPopInvokedWithResult (add_edit_item_screen.dart) landed in
+  # Flutter 3.24 / Dart 3.5; the old 3.22/3.4 floor would fail to compile it.
+  sdk: ">=3.5.0 <4.0.0"
+  flutter: ">=3.24.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # --- State management -------------------------------------------------
+  # Riverpod (recommended by the brief). Chosen over Provider/Bloc because
+  # it gives compile-safe, testable providers with no BuildContext coupling,
+  # and its family/AsyncNotifier primitives map cleanly onto "load, mutate,
+  # re-read" against a local repository. We deliberately use the hand-written
+  # Notifier API (not riverpod_generator) so the project builds with a plain
+  # `flutter pub get` — no build_runner / code-gen step to run in VS Code.
+  flutter_riverpod: ^2.5.1
+
+  # --- Local-first storage ----------------------------------------------
+  # sqflite chosen over drift and hive:
+  #   * drift is the nicest ORM but requires build_runner code generation,
+  #     which adds a mandatory codegen step before the app will compile.
+  #     The brief wants "runs with flutter run" with no extra ceremony.
+  #   * hive is a document store; the architecture doc models stock as an
+  #     APPEND-ONLY LEDGER (stock_movements) with a derived stock_cached.
+  #     That is a relational shape (a movements table joined to products),
+  #     which SQL expresses naturally and a key/value store does not.
+  #   * sqflite is plain SQL, zero code-gen, first-party-quality, and lets
+  #     us implement the ledger + recalc exactly as 01-architecture.md §2.4
+  #     specifies. When the Supabase backend is added later, the same SQL
+  #     shapes port across almost verbatim.
+  sqflite: ^2.3.3
+  # Desktop support so the app also runs from VS Code on Windows/macOS/Linux
+  # for demoing without a phone/emulator (mobile uses sqflite's native impl).
+  sqflite_common_ffi: ^2.3.3
+  path: ^1.9.0
+  path_provider: ^2.1.3
+
+  # --- Design system ----------------------------------------------------
+  # google_fonts pulls Plus Jakarta Sans + Atkinson Hyperlegible. For a
+  # production release these two families should be bundled as assets (see
+  # README "Fonts") so there is no first-run network fetch or fallback flash,
+  # exactly as the design system mandates; google_fonts supports that too.
+  google_fonts: ^6.2.1
+
+  # --- Photo integration (03-photo-integration.md) ----------------------
+  # image_picker: the system pickers, which is the whole point of the spec.
+  #   ImageSource.gallery -> PHPickerViewController (iOS) / Android Photo
+  #   Picker — both PROMPT-FREE (no NSPhotoLibraryUsageDescription, no
+  #   READ_MEDIA_IMAGES). ImageSource.camera -> the system camera. First-party
+  #   Flutter plugin, so no bespoke platform channels to maintain.
+  image_picker: ^1.1.2
+  # flutter_image_compress: native downscale + JPEG re-encode. The re-encode is
+  #   what strips EXIF/GPS (keepExif:false) and bakes EXIF orientation
+  #   (autoCorrectionAngle) — §5.4/§5.5. Preferred over the pure-Dart `image`
+  #   package: native = fast/low-memory on 12 MP photos, and it can decode HEIC
+  #   where the platform can (iOS; Android API 28+).
+  flutter_image_compress: ^2.3.0
+  # http: the one Openverse REST call for "Find one for me".
+  http: ^1.2.2
+
+  # --- Utilities --------------------------------------------------------
+  intl: ^0.19.0        # en-AU dates + AUD currency formatting
+  collection: ^1.18.0  # groupBy for the orders list
+  uuid: ^4.4.0         # client-generated ids + idempotency keys (sync seam);
+                       # also names stored photo files (data/image_pipeline.dart)
+
+dev_dependencies:
+  flutter_lints: ^4.0.0
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+  # To bundle the fonts instead of fetching them at runtime, drop the .ttf
+  # files under assets/fonts/ and declare them here, then flip
+  # `GoogleFonts.config.allowRuntimeFetching = false` in main.dart. See README.
+  #
+  # fonts:
+  #   - family: Plus Jakarta Sans
+  #     fonts:
+  #       - asset: assets/fonts/PlusJakartaSans-Regular.ttf
+  #       - asset: assets/fonts/PlusJakartaSans-Medium.ttf
+  #         weight: 500
+  #       - asset: assets/fonts/PlusJakartaSans-SemiBold.ttf
+  #         weight: 600
+  #       - asset: assets/fonts/PlusJakartaSans-Bold.ttf
+  #         weight: 700
+  #       - asset: assets/fonts/PlusJakartaSans-ExtraBold.ttf
+  #         weight: 800
+  #   - family: Atkinson Hyperlegible
+  #     fonts:
+  #       - asset: assets/fonts/AtkinsonHyperlegible-Regular.ttf
+  #       - asset: assets/fonts/AtkinsonHyperlegible-Bold.ttf
+  #         weight: 700

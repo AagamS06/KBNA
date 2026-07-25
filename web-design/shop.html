@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shop — Knightsbridge Newsagency</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="demo-banner">Demo build — data is stored in this browser and payments are simulated. Stock is managed in the owner app.</div>
+<header class="masthead" id="site-header"></header>
+<main id="main">
+  <div class="section-head">
+    <span class="eyebrow">Everything we stock</span>
+    <h1>Shop</h1>
+    <p>Reserve online and collect at the counter. Prices are the same as in store.</p>
+  </div>
+  <nav aria-label="Filter by category" class="tag-strip">
+    <ul class="tag-list" id="tag-filter"></ul>
+  </nav>
+  <p id="added-msg" class="notice notice-success" role="status" aria-live="polite" hidden style="margin-top:1.5rem"></p>
+  <p id="empty-msg" hidden>No items in this category right now. <a href="shop.html">See everything we stock.</a></p>
+  <ul class="product-grid" id="product-grid"></ul>
+</main>
+<footer class="site-footer" id="site-footer"></footer>
+
+<script src="js/art.js"></script>
+<script src="js/carousel.js"></script>
+<script src="js/app.js"></script>
+<script src="js/photo-picker.js"></script>
+<script src="js/images.js"></script>
+<script src="js/reviews.js"></script>
+<script>
+  renderShell('shop');
+  const activeTag = new URLSearchParams(location.search).get('tag') || '';
+
+  document.getElementById('tag-filter').innerHTML =
+    `<li><a class="tag-chip ${!activeTag ? 'is-active' : ''}" href="shop.html" ${!activeTag ? 'aria-current="true"' : ''}>Everything</a></li>` +
+    store.distinctTags().map(t =>
+      `<li><a class="tag-chip ${activeTag === t ? 'is-active' : ''}" href="shop.html?tag=${encodeURIComponent(t)}" ${activeTag === t ? 'aria-current="true"' : ''}>${esc(t)}</a></li>`).join('');
+
+  function render() {
+    const all = store.activeProducts();
+    const list = activeTag ? all.filter(p => p.tag === activeTag) : all;
+    document.getElementById('empty-msg').hidden = list.length > 0;
+    document.getElementById('product-grid').innerHTML = list.map(productCardHTML).join('');
+  }
+
+  document.addEventListener('click', e => {
+    const id = e.target.closest('[data-add]')?.dataset.add;
+    if (!id) return;
+    store.addToCart(id);
+    const msg = document.getElementById('added-msg');
+    msg.textContent = 'Added to basket.';
+    msg.hidden = false;
+    renderShell('shop');
+    render();
+  });
+
+  render();
+</script>
+</body>
+</html>

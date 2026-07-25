@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Order complete — Knightsbridge Newsagency</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="demo-banner">Demo build — data is stored in this browser and payments are simulated. Stock is managed in the owner app.</div>
+<header class="masthead" id="site-header"></header>
+<main id="main">
+  <section class="message-page">
+    <h1>Thank you for your order!</h1>
+    <p>Your payment was received. We'll have your items ready at the shop — see you soon at Knightsbridge Shopping Village.</p>
+  </section>
+  <div id="receipt"></div>
+  <p style="text-align:center"><a class="btn btn-primary" href="shop.html">Back to the shop</a></p>
+</main>
+<footer class="site-footer" id="site-footer"></footer>
+<script src="js/art.js"></script>
+<script src="js/carousel.js"></script>
+<script src="js/app.js"></script>
+<script src="js/photo-picker.js"></script>
+<script src="js/images.js"></script>
+<script src="js/reviews.js"></script>
+<script>
+  renderShell('home');
+  const raw = sessionStorage.getItem('kn.lastReceipt');
+  if (raw) {
+    const r = JSON.parse(raw);
+    document.getElementById('receipt').innerHTML = `
+      <section class="receipt">
+        <h2>Order receipt</h2>
+        <p><strong>Paid via:</strong> ${esc(r.payment_method)}</p>
+        <ul>${r.items.map(i => `<li>${esc(i.name)} × ${i.qty} — ${money(i.price_cents * i.qty)}</li>`).join('')}</ul>
+        <p><strong>Total: ${money(r.total_cents)} AUD</strong></p>
+        ${r.heldNames?.length ? `<p class="notice notice-warning"><strong>Low-stock alert triggered</strong> for: ${r.heldNames.map(esc).join(', ')}. In production an email would be sent to the owner and these items are now hidden from customers until restocked.</p>` : ''}
+      </section>`;
+  }
+</script>
+</body>
+</html>
