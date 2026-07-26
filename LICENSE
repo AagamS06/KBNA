@@ -1,0 +1,26 @@
+Copyright © 2026 Knightsbridge Newsagency. All rights reserved.
+
+This repository and its contents — the website, the owner application, the
+design specifications, and all associated code and assets — are the proprietary
+property of Knightsbridge Newsagency.
+
+No part of this repository may be copied, reproduced, modified, distributed,
+published, or used to create derivative works, in whole or in part, without the
+prior written permission of the owner.
+
+Permission is granted only to the owner and to contractors explicitly engaged
+by the owner, and only for the purpose of building, deploying, and maintaining
+the Knightsbridge Newsagency website and app.
+
+Third-party components remain under their own licences:
+- Product and gallery photographs sourced via Openverse are used under their
+  individual Creative Commons licences; attribution is retained in the code.
+- Open-source packages (Flutter, Riverpod, and the dependencies listed in
+  app/pubspec.yaml) remain under their respective licences.
+- Lottery winning numbers and jackpot figures are facts, retrieved from the
+  official Lott results feed; no lottery posters or trademarked logos are
+  reproduced.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT.
