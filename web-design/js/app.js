@@ -15,7 +15,12 @@ const SEED_PRODUCTS = [
   { name: 'Crayola Coloured Pencils (12 pack)', description: 'Full colour set for school or home.', price_cents: 649, stock: 14, low_stock_threshold: 4, tag: 'Stationery' },
   { name: 'A4 Spiral Notebook 120pg', description: 'Ruled pages, sturdy cover.', price_cents: 425, stock: 22, low_stock_threshold: 6, tag: 'Stationery' },
   { name: 'Gift Wrap Roll — Assorted', description: '3 metres of quality wrap.', price_cents: 495, stock: 16, low_stock_threshold: 5, tag: 'Gifts' },
-  { name: 'Scented Candle — Vanilla', description: 'Popular local gift line.', price_cents: 1295, stock: 6, low_stock_threshold: 3, tag: 'Gifts' }
+  { name: 'Scented Candle — Vanilla', description: 'Popular local gift line.', price_cents: 1295, stock: 6, low_stock_threshold: 3, tag: 'Gifts' },
+  { name: 'The Big Book of Crosswords', description: 'Chunky puzzle magazine — weeks of crosswords and quizzes.', price_cents: 895, stock: 18, low_stock_threshold: 5, tag: 'Magazine' },
+  { name: 'Parker Jotter Ballpoint Pen', description: 'Stainless steel barrel — a proper everyday pen.', price_cents: 2495, stock: 10, low_stock_threshold: 3, tag: 'Stationery' },
+  { name: 'Plush Teddy Bear', description: 'Soft cuddly bear — a last-minute gift sorted.', price_cents: 1995, stock: 9, low_stock_threshold: 3, tag: 'Toys' },
+  { name: 'Gift Bag — Medium (Assorted)', description: 'Sturdy paper gift bag with rope handles.', price_cents: 350, stock: 30, low_stock_threshold: 8, tag: 'Gifts' },
+  { name: 'Instant Scratch-Its Ticket', description: 'Grab a scratchie at the counter and have a go.', price_cents: 500, stock: 50, low_stock_threshold: 10, tag: 'Lottery' }
 ];
 
 /* The shop's contact address, used by the enquiry form. There is deliberately
@@ -183,7 +188,9 @@ function renderShell(currentPage) {
   // owner's mobile app. See _archive/owner.html for the retired portal.
   const nav = [
     { href: 'index.html', label: 'Home', key: 'home' },
-    { href: 'shop.html', label: 'Shop', key: 'shop' },
+    { href: 'products.html', label: 'Products', key: 'products' },
+    { href: 'services.html', label: 'Services', key: 'services' },
+    { href: 'about.html', label: 'About us', key: 'about' },
     { href: 'contact.html', label: 'Contact us', key: 'contact' },
     { href: 'cart.html', label: `Basket <span class="cart-count" aria-label="${cartCount} items in basket">${cartCount}</span>`, key: 'cart' }
   ];
@@ -207,9 +214,11 @@ function renderShell(currentPage) {
         </ul>
       </section>
       <section aria-labelledby="f-shop">
-        <h2 id="f-shop">Shop</h2>
+        <h2 id="f-shop">Products</h2>
         <ul class="footer-links">
-          <li><a href="shop.html">All items</a></li>
+          <li><a href="products.html">All products</a></li>
+          <li><a href="services.html">Services</a></li>
+          <li><a href="about.html">About us</a></li>
           <li><a href="cart.html">Your basket</a></li>
           <li><a href="contact.html">Contact us</a></li>
         </ul>

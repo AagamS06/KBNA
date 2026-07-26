@@ -1,11 +1,11 @@
-/* Shop page wiring. Loaded with `defer` after the shared libraries. */
-renderShell('shop');
+/* Products page wiring. Loaded with `defer` after the shared libraries. */
+renderShell('products');
 const activeTag = new URLSearchParams(location.search).get('tag') || '';
 
 document.getElementById('tag-filter').innerHTML =
-  `<li><a class="tag-chip ${!activeTag ? 'is-active' : ''}" href="shop.html" ${!activeTag ? 'aria-current="true"' : ''}>Everything</a></li>` +
+  `<li><a class="tag-chip ${!activeTag ? 'is-active' : ''}" href="products.html" ${!activeTag ? 'aria-current="true"' : ''}>Everything</a></li>` +
   store.distinctTags().map(t =>
-    `<li><a class="tag-chip ${activeTag === t ? 'is-active' : ''}" href="shop.html?tag=${encodeURIComponent(t)}" ${activeTag === t ? 'aria-current="true"' : ''}>${esc(t)}</a></li>`).join('');
+    `<li><a class="tag-chip ${activeTag === t ? 'is-active' : ''}" href="products.html?tag=${encodeURIComponent(t)}" ${activeTag === t ? 'aria-current="true"' : ''}>${esc(t)}</a></li>`).join('');
 
 function render() {
   const all = store.activeProducts();
@@ -21,7 +21,7 @@ document.addEventListener('click', e => {
   const msg = document.getElementById('added-msg');
   msg.textContent = 'Added to basket.';
   msg.hidden = false;
-  renderShell('shop');
+  renderShell('products');
   render();
 });
 

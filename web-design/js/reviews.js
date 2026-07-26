@@ -95,103 +95,134 @@ function starsHTML(rating, extraClass = '') {
   return `<span class="stars ${extraClass}" aria-hidden="true">${stars}</span>`;
 }
 
-/** Markup for the rating summary block above the slideshow. */
-function ratingSummaryHTML() {
-  const { rating, count, source } = REVIEW_SUMMARY;
+/* Small monochrome verified tick. Deliberately NOT Google's multicolour "G":
+   the mark and wording stay neutral so we don't reproduce a trademark. */
+const VERIFIED_TICK =
+  `<svg class="review-verified" viewBox="0 0 20 20" width="15" height="15" aria-hidden="true" focusable="false">
+     <circle cx="10" cy="10" r="10" fill="currentColor"></circle>
+     <path d="M5.8 10.4l2.6 2.6 5.8-5.9" fill="none" stroke="#0E0E0E" stroke-width="2.1"
+           stroke-linecap="round" stroke-linejoin="round"></path>
+   </svg>`;
+
+/** One review card for the testimonials grid. `esc()` guards every string. */
+function reviewCardHTML(r, i) {
+  const name = String(r.author || 'Google reviewer').trim() || 'Google reviewer';
+  const initial = esc((name.match(/[A-Za-z0-9]/)?.[0] || 'G').toUpperCase());
+  const when = esc(r.source || 'Google review');
+  const quote = String(r.quote || '');
+
+  // Truncate long quotes at a word boundary and offer a Read more toggle.
+  const LIMIT = 120;
+  let body;
+  if (quote.length > LIMIT) {
+    let cut = quote.slice(0, LIMIT);
+    const sp = cut.lastIndexOf(' ');
+    if (sp > 70) cut = cut.slice(0, sp);
+    body =
+      `<span class="rt-short">${esc(cut)}… </span>` +
+      `<span class="rt-full" hidden>${esc(quote)} </span>` +
+      `<button type="button" class="review-more" data-rmore aria-expanded="false">Read more</button>`;
+  } else {
+    body = esc(quote);
+  }
+
   return `
-    <p class="rating-summary">
-      <span class="rating-score">${rating}</span>
-      ${starsHTML(rating, 'stars-lg')}
-      <span class="visually-hidden">Rated ${rating} out of 5 stars.</span>
-      <span class="rating-meta">
-        from ${count} ${esc(source)} reviews ·
-        <a href="${BUSINESS_LINKS.reviews}" target="_blank" rel="noopener">Read them all on ${esc(source)}</a>
-      </span>
-    </p>`;
+    <figure class="review-card" role="group" aria-roledescription="review"
+            aria-label="Review ${i + 1} by ${esc(name)}">
+      <div class="review-head">
+        <span class="review-avatar" aria-hidden="true">${initial}</span>
+        <span class="review-who">
+          <span class="review-name">${esc(name)}<span class="review-verified-wrap" title="Verified review">${VERIFIED_TICK}<span class="visually-hidden"> — verified review</span></span></span>
+          <span class="review-time">${when}</span>
+        </span>
+      </div>
+      <p class="review-stars">
+        ${starsHTML(r.stars)}
+        <span class="visually-hidden">Rated ${r.stars} out of 5 stars.</span>
+      </p>
+      <p class="review-text">${body}</p>
+      <span class="review-via">via ${esc(REVIEW_SUMMARY.source)}</span>
+    </figure>`;
 }
 
-/** Accessible one-at-a-time review slideshow.
- *  Same contract as the hero carousel: visible pause control, pauses on
- *  hover and keyboard focus, silent while auto-rotating, and switched off
- *  entirely when the visitor asks for reduced motion. */
-function initReviewSlider(mountId, reviews, { interval = 7000 } = {}) {
+/** Testimonials section: dark band, a rating panel on the left and a paged
+ *  grid of our real Google reviews on the right.
+ *
+ *  Auto-rotate keeps the same contract as before — a visible pause control,
+ *  silent while auto-rotating, paused on hover / keyboard focus, and switched
+ *  off entirely for prefers-reduced-motion. The prev/next arrows page through
+ *  the reviews (two cards per page on desktop, one on mobile). */
+function initReviewsSection(mountId, reviews, { interval = 6500 } = {}) {
   const root = document.getElementById(mountId);
   if (!root || !reviews.length) return;
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let index = 0;
+  const wide = window.matchMedia('(min-width: 48rem)');
+  const { rating, source } = REVIEW_SUMMARY;
+
+  let page = 0;
   let timer = null;
   let playing = !reduceMotion;
   let userPaused = false;
 
-  root.setAttribute('role', 'region');
-  root.setAttribute('aria-roledescription', 'carousel');
-  root.setAttribute('aria-label', 'Customer reviews');
-
   root.innerHTML = `
-    <div class="review-track" aria-live="off">
-      ${reviews.map((r, i) => `
-        <div class="review-slide ${i === 0 ? 'is-active' : ''}"
-             role="group" aria-roledescription="slide"
-             aria-label="Review ${i + 1} of ${reviews.length}"
-             ${i === 0 ? '' : 'aria-hidden="true"'}>
-          <figure class="review-card">
-            <p class="review-rating">
-              ${starsHTML(r.stars)}
-              <span class="visually-hidden">Rated ${r.stars} out of 5 stars.</span>
-            </p>
-            <blockquote><p>${esc(r.quote)}</p></blockquote>
-            <figcaption>
-              <footer>
-                <span class="review-author">${esc(r.author)}</span>
-                <span>${esc(r.source)}</span>
-              </footer>
-            </figcaption>
-          </figure>
-        </div>`).join('')}
-    </div>
-    <div class="review-controls">
-      <button class="review-btn" type="button" data-rnav="prev" aria-label="Previous review">
-        <span aria-hidden="true">‹</span>
-      </button>
-      <div class="review-dots" role="tablist" aria-label="Choose review">
-        ${reviews.map((r, i) => `
-          <button class="review-dot ${i === 0 ? 'is-active' : ''}" type="button" role="tab"
-                  data-rdot="${i}" aria-selected="${i === 0}"
-                  aria-label="Review ${i + 1} by ${esc(r.author)}"></button>`).join('')}
+    <div class="testi-header">
+      <div class="testi-intro">
+        <span class="eyebrow">Testimonials</span>
+        <h2 id="reviews-h" class="testi-title">What our<br><span class="testi-accent">customers say</span></h2>
       </div>
-      <button class="review-btn" type="button" data-rnav="next" aria-label="Next review">
-        <span aria-hidden="true">›</span>
-      </button>
-      <button class="review-btn review-play" type="button" data-rnav="toggle"
-              aria-label="${playing ? 'Pause automatic review rotation' : 'Start automatic review rotation'}">
-        <span aria-hidden="true">${playing ? '❚❚' : '▶'}</span>
-      </button>
+      <div class="testi-nav">
+        <button class="testi-arrow" type="button" data-rnav="prev" aria-label="Previous reviews">
+          <span aria-hidden="true">‹</span>
+        </button>
+        <button class="testi-arrow" type="button" data-rnav="next" aria-label="Next reviews">
+          <span aria-hidden="true">›</span>
+        </button>
+        <button class="testi-arrow testi-play" type="button" data-rnav="toggle"
+                aria-label="${playing ? 'Pause automatic review rotation' : 'Start automatic review rotation'}">
+          <span aria-hidden="true">${playing ? '❚❚' : '▶'}</span>
+        </button>
+      </div>
+    </div>
+    <div class="testi-body">
+      <aside class="testi-summary">
+        <span class="rating-score">${esc(rating)}</span>
+        ${starsHTML(rating, 'stars-lg')}
+        <span class="visually-hidden">Rated ${esc(rating)} out of 5 stars.</span>
+        <p class="rating-caption">Rated by locals on ${esc(source)}</p>
+        <a class="btn btn-primary" href="${BUSINESS_LINKS.reviews}" target="_blank" rel="noopener">Review on ${esc(source)}</a>
+      </aside>
+      <div class="testi-cards" role="group" aria-label="Customer reviews" aria-live="off">
+        ${reviews.map(reviewCardHTML).join('')}
+      </div>
     </div>`;
 
-  const slideEls = [...root.querySelectorAll('.review-slide')];
-  const dotEls = [...root.querySelectorAll('.review-dot')];
-  const track = root.querySelector('.review-track');
+  const cardsWrap = root.querySelector('.testi-cards');
+  const cardEls = [...root.querySelectorAll('.review-card')];
   const toggleBtn = root.querySelector('[data-rnav="toggle"]');
 
-  function goTo(next, fromUser = false) {
-    index = (next + reviews.length) % reviews.length;
-    slideEls.forEach((el, i) => {
-      const active = i === index;
-      el.classList.toggle('is-active', active);
-      if (active) el.removeAttribute('aria-hidden'); else el.setAttribute('aria-hidden', 'true');
+  const perView = () => (wide.matches ? 2 : 1);
+  const pageCount = () => Math.max(1, Math.ceil(reviews.length / perView()));
+
+  function render(fromUser = false) {
+    const pv = perView();
+    const pages = pageCount();
+    page = ((page % pages) + pages) % pages;
+    const start = page * pv;
+    cardEls.forEach((el, i) => {
+      const shown = i >= start && i < start + pv;
+      el.classList.toggle('is-shown', shown);
+      el.hidden = !shown;               // drop hidden cards from tab order + a11y tree
     });
-    dotEls.forEach((d, i) => {
-      d.classList.toggle('is-active', i === index);
-      d.setAttribute('aria-selected', String(i === index));
-    });
-    track.setAttribute('aria-live', fromUser ? 'polite' : 'off');
+    cardsWrap.setAttribute('aria-live', fromUser ? 'polite' : 'off');
   }
+
+  function goTo(next, fromUser = false) { page = next; render(fromUser); }
 
   function start() {
     if (reduceMotion || userPaused) return;
     stop();
-    timer = setInterval(() => goTo(index + 1), interval);
+    timer = setInterval(() => goTo(page + 1), interval);
     playing = true;
     syncToggle();
   }
@@ -206,25 +237,40 @@ function initReviewSlider(mountId, reviews, { interval = 7000 } = {}) {
   }
 
   root.addEventListener('click', (e) => {
+    const more = e.target.closest('[data-rmore]');
+    if (more) {
+      const card = more.closest('.review-card');
+      const expanded = more.getAttribute('aria-expanded') === 'true';
+      card.querySelector('.rt-short').hidden = !expanded;
+      card.querySelector('.rt-full').hidden = expanded;
+      more.setAttribute('aria-expanded', String(!expanded));
+      more.textContent = expanded ? 'Read more' : 'Show less';
+      return;
+    }
     const nav = e.target.closest('[data-rnav]')?.dataset.rnav;
-    const dot = e.target.closest('[data-rdot]')?.dataset.rdot;
-    if (dot != null) { goTo(Number(dot), true); if (playing) start(); }
-    if (nav === 'prev') { goTo(index - 1, true); if (playing) start(); }
-    if (nav === 'next') { goTo(index + 1, true); if (playing) start(); }
+    if (nav === 'prev') { goTo(page - 1, true); if (playing) start(); }
+    if (nav === 'next') { goTo(page + 1, true); if (playing) start(); }
     if (nav === 'toggle') {
       if (playing) pause(true);
       else { userPaused = false; start(); }
     }
   });
 
-  root.querySelector('.review-dots').addEventListener('keydown', (e) => {
+  // Left / right arrow keys page through when focus is inside the section.
+  root.addEventListener('keydown', (e) => {
     if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+    if (e.target.closest('.review-more')) return;   // let buttons behave normally
     e.preventDefault();
-    const next = (index + (e.key === 'ArrowRight' ? 1 : -1) + reviews.length) % reviews.length;
-    goTo(next, true);
-    dotEls[next].focus();
+    goTo(page + (e.key === 'ArrowRight' ? 1 : -1), true);
+    if (playing) start();
   });
 
+  // Re-flow when crossing the 1-card / 2-card breakpoint.
+  const onBreakpoint = () => render();
+  if (wide.addEventListener) wide.addEventListener('change', onBreakpoint);
+  else if (wide.addListener) wide.addListener(onBreakpoint);
+
+  // Preserve the original pause-on-hover / pause-on-focus behaviour.
   root.addEventListener('mouseenter', () => stop());
   root.addEventListener('mouseleave', () => { if (playing && !userPaused) start(); });
   root.addEventListener('focusin', () => stop());
@@ -235,5 +281,6 @@ function initReviewSlider(mountId, reviews, { interval = 7000 } = {}) {
     if (document.hidden) stop(); else if (playing && !userPaused) start();
   });
 
+  render();
   if (reduceMotion) { playing = false; syncToggle(); } else { start(); }
 }

@@ -9,7 +9,7 @@ function render() {
   if (!lines.length) {
     body.innerHTML = `
       <p>Your basket is empty.</p>
-      <p><a class="btn btn-primary btn-arrow" href="shop.html">Browse the shop</a></p>`;
+      <p><a class="btn btn-primary btn-arrow" href="products.html">Browse the shop</a></p>`;
     return;
   }
 

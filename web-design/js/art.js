@@ -16,7 +16,7 @@ const HERO_SLIDES = [
     eyebrow: 'Every morning',
     heading: 'Fresh off the press',
     body: 'Papers on the shelf before your coffee cools. Weekday and weekend editions, held for regulars.',
-    cta: { label: 'Shop papers', href: 'shop.html?tag=Paper' },
+    cta: { label: 'Shop papers', href: 'products.html?tag=Paper' },
     accent: '#E1251B',
     svg: () => `
       <svg viewBox="0 0 800 520" role="img" aria-label="Illustration of folded newspapers stacked in front of a rising sun" preserveAspectRatio="xMidYMid slice">
@@ -51,7 +51,7 @@ const HERO_SLIDES = [
     eyebrow: 'Weekly & monthly',
     heading: 'Magazines, puzzles, crosswords',
     body: 'The biggest wall in the shop. Puzzlers, glossies, motoring, craft — and the ones you can never find elsewhere.',
-    cta: { label: 'Shop magazines', href: 'shop.html?tag=Magazine' },
+    cta: { label: 'Shop magazines', href: 'products.html?tag=Magazine' },
     accent: '#A11009',
     svg: () => `
       <svg viewBox="0 0 800 520" role="img" aria-label="Illustration of magazines fanned out with a crossword grid" preserveAspectRatio="xMidYMid slice">
@@ -85,7 +85,7 @@ const HERO_SLIDES = [
     eyebrow: 'For the moments that matter',
     heading: 'Cards, gifts and wrap',
     body: 'Birthdays, sympathy, new baby, just because. Pick the card and the wrap in one stop.',
-    cta: { label: 'Shop cards & gifts', href: 'shop.html?tag=Cards' },
+    cta: { label: 'Shop cards & gifts', href: 'products.html?tag=Cards' },
     accent: '#FFFFFF',
     svg: () => `
       <svg viewBox="0 0 800 520" role="img" aria-label="Illustration of a greeting card envelope with confetti and a wrapped gift" preserveAspectRatio="xMidYMid slice">
@@ -119,7 +119,7 @@ const HERO_SLIDES = [
     eyebrow: 'Have a go',
     heading: 'Lotto, toys and little treats',
     body: 'A lucky shop with a lucky counter. Grab a ticket, a scratchie, or something small for the kids.',
-    cta: { label: 'Shop toys & lotto', href: 'shop.html?tag=Toys' },
+    cta: { label: 'Shop toys & lotto', href: 'products.html?tag=Toys' },
     accent: '#E1251B',
     svg: () => `
       <svg viewBox="0 0 800 520" role="img" aria-label="Illustration of numbered lottery balls and a toy car" preserveAspectRatio="xMidYMid slice">

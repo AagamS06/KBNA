@@ -10,9 +10,7 @@ if (typeof initLotteryPanel === 'function') {
 
 renderGallery('gallery');
 
-document.getElementById('rating-summary').innerHTML = ratingSummaryHTML();
-document.getElementById('write-review-btn').href = BUSINESS_LINKS.writeReview;
-initReviewSlider('review-slider', REVIEWS, { interval: 7000 });
+initReviewsSection('reviews-section', REVIEWS, { interval: 6500 });
 
 // Every figure here is a real, checkable one — the Google rating and
 // review count from reviews.js, and the opening hours from the shop.
@@ -27,8 +25,8 @@ document.getElementById('stat-grid').innerHTML = [
   </li>`).join('');
 
 document.getElementById('tag-list').innerHTML =
-  store.distinctTags().map(t => `<li><a class="tag-chip" href="shop.html?tag=${encodeURIComponent(t)}">${esc(t)}</a></li>`).join('')
-  + `<li><a class="tag-chip" href="shop.html">Everything</a></li>`;
+  store.distinctTags().map(t => `<li><a class="tag-chip" href="products.html?tag=${encodeURIComponent(t)}">${esc(t)}</a></li>`).join('')
+  + `<li><a class="tag-chip" href="products.html">Everything</a></li>`;
 
 function renderPopular() {
   const picks = store.activeProducts().filter(p => !p.held && p.stock > 0).slice(0, 4);

@@ -281,8 +281,6 @@ a:hover { color: var(--hot); }
 }
 .carousel-dot:hover::before { background: #fff; }
 .carousel-dot.is-active::before { background: var(--hot); }
-.carousel-progress { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: rgba(255,255,255,.14); z-index: 3; }
-.carousel-progress span { display: block; height: 100%; width: 0; background: var(--hot); }
 
 @media (min-width: 52rem) {
   .carousel-viewport { min-height: 33rem; }
@@ -417,86 +415,110 @@ nav.tag-strip { margin-bottom: 2.4rem; }   /* filter rail on the shop page */
 }
 .stat-label { display: block; margin-top: .6rem; color: var(--dim); font-size: .95rem; }
 
-/* ---------------- Reviews ---------------- */
-/* NB: no `margin` rule on .reviews — it shares an element with .band-inner,
-   and a plain `margin: 0` here would override that rule's `margin: 0 auto`
-   and pin the whole section to the left of the page. */
-
-.rating-summary {
-  display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
-  gap: .5rem 1.1rem; margin: 0 0 2rem; text-align: center;
-}
-.rating-score {
-  font-family: var(--display); font-weight: 800; font-size: 2.6rem;
-  line-height: 1; letter-spacing: -.04em; color: var(--ink);
-}
-.rating-meta { color: var(--ink-soft); font-size: .95rem; }
-.rating-meta a { font-weight: 700; }
-
+/* ---------------- Stars ---------------- */
 /* Stars are text glyphs (★ / ☆), so they scale with font size, survive a
    stylesheet failure, and can be read aloud from the label we pair them with. */
 .stars { color: var(--hot); letter-spacing: .1em; font-size: 1.15rem; line-height: 1; }
-.stars-lg { font-size: 1.6rem; }
+.stars-lg { font-size: 1.9rem; }
 .stars-dim { color: var(--line); }
+/* On the dark testimonials band, red stars need the lighter shade for contrast. */
+.testimonials .stars { color: var(--hot-dark); }
+.testimonials .stars-dim { color: rgba(255,255,255,.22); }
 
-/* Review slideshow — one card at a time, same a11y contract as the hero. */
-.review-slider { position: relative; }
-.review-track { position: relative; min-height: 21rem; }
-@media (min-width: 40rem) { .review-track { min-height: 15rem; } }
-.review-slide {
-  position: absolute; inset: 0;
-  opacity: 0; visibility: hidden; transition: opacity .5s ease;
+/* ---------------- Testimonials (dark band) ---------------- */
+.testi-header {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  flex-wrap: wrap; gap: 1.2rem; margin: 0 0 2.6rem;
 }
-.review-slide.is-active { opacity: 1; visibility: visible; }
-.review-card {
-  height: 100%; margin: 0;
-  background: var(--card); border: 1px solid var(--line); border-radius: var(--r-card);
-  padding: 2rem 1.9rem 1.8rem; position: relative;
-  display: flex; flex-direction: column; gap: 1rem;
-  text-align: center; align-items: center;
-}
-.review-rating { margin: 0; }
-.review-card blockquote { margin: 0; flex-grow: 1; max-width: 44rem; }
-.review-card blockquote p {
-  margin: 0; font-family: var(--display); font-weight: 500;
-  font-size: clamp(1.05rem, 2.2vw, 1.35rem); line-height: 1.5; letter-spacing: -.015em;
-  color: var(--ink);
-}
-.review-card figcaption { margin: 0; }
-.review-card footer {
-  margin: 0; color: var(--ink-soft); font-size: .9rem;
-  display: flex; flex-wrap: wrap; justify-content: center; gap: .1rem .6rem;
-}
-.review-author { font-weight: 700; color: var(--ink); }
+.testi-intro .eyebrow { margin-bottom: .7rem; }
+.testi-title { font-weight: 800; letter-spacing: -.03em; line-height: 1.04;
+  font-size: clamp(1.8rem, 4vw, 2.7rem); color: #fff; margin: 0; }
+.testi-accent { color: var(--hot-dark); }
 
-.review-controls {
-  display: flex; align-items: center; justify-content: center; gap: .4rem;
-  flex-wrap: wrap; margin-top: 1.4rem;
-}
-.review-btn {
-  width: 48px; height: 48px;
+.testi-nav { display: flex; align-items: center; gap: .5rem; }
+.testi-arrow {
+  width: 48px; height: 48px; flex: none;
   display: inline-flex; align-items: center; justify-content: center;
-  border-radius: var(--pill); border: 1.5px solid var(--line-ui);
-  background: var(--card); color: var(--ink);
-  font-size: 1.2rem; line-height: 1; cursor: pointer;
-  transition: background .16s ease, color .16s ease, border-color .16s ease;
+  border-radius: var(--pill); border: none;
+  background: var(--hot); color: #0E0E0E;
+  font-size: 1.35rem; line-height: 1; cursor: pointer;
+  transition: background .16s ease, transform .16s ease;
 }
-.review-btn:hover { background: var(--ink); border-color: var(--ink); color: #fff; }
-.review-play { font-size: .78rem; }
-.review-dots { display: flex; gap: .2rem; align-items: center; padding: 0 .3rem; }
-.review-dot { width: 44px; height: 44px; padding: 0; cursor: pointer; background: none; border: none; position: relative; }
-.review-dot::before {
-  content: ""; position: absolute; inset: 50% 8px auto 8px; transform: translateY(-50%);
-  height: 4px; border-radius: 4px; background: var(--line-ui); transition: background .2s ease;
-}
-.review-dot:hover::before { background: var(--ink-soft); }
-.review-dot.is-active::before { background: var(--hot); }
+.testi-arrow:hover { background: #fff; }
+.testi-arrow:active { transform: translateY(1px); }
+.testi-play { font-size: .82rem; }
 
-/* On narrow phones the dots would push prev/next onto a second line and
-   split the button group. Drop the whole dot row underneath instead. */
+.testi-body {
+  display: grid; gap: 1.6rem;
+  grid-template-columns: 1fr;
+  align-items: start;
+}
+@media (min-width: 48rem) {
+  .testi-body { grid-template-columns: minmax(14rem, 17rem) 1fr; gap: 2rem; }
+}
+
+/* Left rating panel */
+.testi-summary {
+  display: flex; flex-direction: column; align-items: flex-start; gap: .5rem;
+  background: var(--ink-2); border: 1px solid var(--line-dark);
+  border-radius: var(--r-card); padding: 1.8rem 1.7rem;
+}
+.testi-summary .rating-score {
+  font-family: var(--display); font-weight: 800; font-size: clamp(3rem, 7vw, 4rem);
+  line-height: 1; letter-spacing: -.04em; color: #fff;
+}
+.rating-caption { margin: .2rem 0 1.2rem; color: var(--dim); font-size: .95rem; }
+.testi-summary .btn { width: 100%; }
+
+/* Right card area */
+.testi-cards { display: grid; gap: 1.2rem; grid-template-columns: 1fr; min-width: 0; }
+@media (min-width: 48rem) {
+  .testi-cards { grid-template-columns: repeat(2, 1fr); }
+}
+.review-card {
+  margin: 0; min-width: 0;
+  background: var(--ink-2); border: 1px solid var(--line-dark); border-radius: var(--r-card);
+  padding: 1.5rem 1.5rem 1.3rem;
+  display: flex; flex-direction: column; gap: .85rem;
+}
+.review-card[hidden] { display: none; }
+
+.review-head { display: flex; align-items: center; gap: .75rem; }
+.review-avatar {
+  width: 2.6rem; height: 2.6rem; flex: none;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: var(--pill); background: var(--hot-btn); color: #fff;
+  font-family: var(--display); font-weight: 700; font-size: 1.05rem;
+}
+.review-who { display: flex; flex-direction: column; min-width: 0; }
+.review-name {
+  font-family: var(--display); font-weight: 700; color: #fff; font-size: .98rem;
+  display: inline-flex; align-items: center; gap: .35rem;
+}
+.review-verified-wrap { display: inline-flex; color: var(--hot-dark); }
+.review-verified { display: block; }
+.review-time { color: var(--dim); font-size: .82rem; }
+.review-stars { margin: 0; }
+
+.review-text {
+  margin: 0; color: #EDEDED; font-size: .96rem; line-height: 1.6;
+  flex-grow: 1;
+}
+.review-more {
+  display: inline; padding: 0; margin: 0; border: none; background: none;
+  font: inherit; font-weight: 700; color: var(--hot-dark);
+  cursor: pointer; text-decoration: underline; text-underline-offset: 3px;
+}
+.review-via {
+  color: var(--dim); font-size: .78rem; letter-spacing: .04em;
+  text-transform: uppercase; font-family: var(--display); font-weight: 600;
+}
+
+/* On phones, the header arrows sit under the heading and the play button
+   stays grouped with them; nothing overflows. */
 @media (max-width: 30rem) {
-  .review-controls, .carousel-controls { gap: .3rem; }
-  .review-dots, .carousel-dots { order: 3; flex-basis: 100%; justify-content: center; }
+  .carousel-controls { gap: .3rem; }
+  .carousel-dots { order: 3; flex-basis: 100%; justify-content: center; }
   /* On phones the hero copy needs the full slide, so the controls stop
      floating over it and sit underneath in normal flow instead. */
   .slide-copy { padding-bottom: 2.5rem; }
@@ -504,15 +526,6 @@ nav.tag-strip { margin-bottom: 2.4rem; }   /* filter rail on the shop page */
   /* tallest slide's copy is ~25rem on a narrow phone, plus the 14rem art */
   .carousel-viewport { min-height: 41rem; }
 }
-
-/* Write-a-review call to action */
-.review-cta {
-  margin-top: 2.5rem; text-align: center;
-  background: var(--ink); color: var(--dim);
-  border-radius: var(--r-card); padding: 2.6rem 1.5rem;
-}
-.review-cta h3 { margin: 0 0 .5rem; color: #fff; font-size: clamp(1.3rem, 2.6vw, 1.8rem); letter-spacing: -.025em; }
-.review-cta p { margin: 0 0 1.6rem; color: var(--dim); }
 
 /* Link-out list, used in the footer and on the contact page */
 .link-out-list { list-style: none; margin: 1rem 0 0; padding: 0; display: grid; gap: .4rem; }
@@ -698,3 +711,79 @@ address a { display: inline-flex; align-items: center; min-height: 44px; }
 .footer-links a { display: inline-flex; align-items: center; min-height: 44px; }
 .footer-links li { line-height: 1.5; }
 .footer-fineprint { max-width: var(--wrap); margin: 3rem auto 0; border-top: 1px solid var(--line-dark); padding-top: 1.4rem; font-size: .84rem; color: #8A8A8A; }
+
+/* ---------------- Help chat (js/chatbot.js) ---------------- */
+.cbot { position: fixed; right: 1rem; bottom: 1rem; z-index: 300;
+  display: flex; flex-direction: column; align-items: flex-end; gap: .8rem; }
+
+.cbot-launcher {
+  width: 56px; height: 56px; flex: none; align-self: flex-end;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: none; border-radius: var(--pill); cursor: pointer;
+  background: var(--hot-btn); color: #fff; font-size: 1.5rem; line-height: 1;
+  box-shadow: 0 6px 20px rgba(0,0,0,.28);
+  transition: background .16s ease, transform .16s ease;
+}
+.cbot-launcher:hover { background: var(--ink); }
+.cbot-launcher:active { transform: translateY(1px); }
+.cbot-launcher-icon { pointer-events: none; }
+
+.cbot-panel {
+  width: min(22rem, calc(100vw - 2rem));
+  height: min(31rem, calc(100vh - 6rem));
+  display: flex; flex-direction: column; overflow: hidden;
+  background: var(--canvas); color: var(--ink);
+  border: 1px solid var(--line); border-radius: var(--r-card);
+  box-shadow: 0 18px 50px rgba(0,0,0,.32);
+}
+.cbot-panel[hidden] { display: none; }
+.cbot:not(.cbot-reduce) .cbot-panel { animation: cbot-in .18s ease; }
+@keyframes cbot-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+.cbot-header {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: .5rem; padding: .85rem 1rem; background: var(--ink); color: #fff;
+}
+.cbot-title { font-family: var(--display); font-weight: 700; font-size: 1rem; }
+.cbot-close {
+  width: 36px; height: 36px; flex: none; border: none; cursor: pointer;
+  background: transparent; color: #fff; font-size: 1.5rem; line-height: 1;
+  border-radius: var(--pill);
+}
+.cbot-close:hover { background: rgba(255,255,255,.14); }
+
+.cbot-log {
+  flex: 1 1 auto; overflow-y: auto; padding: 1rem;
+  display: flex; flex-direction: column; gap: .7rem;
+  background: var(--canvas-2);
+}
+.cbot-msg { display: flex; }
+.cbot-bot { justify-content: flex-start; }
+.cbot-user { justify-content: flex-end; }
+.cbot-bubble {
+  max-width: 84%; padding: .65rem .85rem; border-radius: 14px;
+  font-size: .92rem; line-height: 1.5; white-space: normal; word-wrap: break-word;
+}
+.cbot-bot .cbot-bubble { background: #fff; border: 1px solid var(--line); color: var(--ink); border-bottom-left-radius: 4px; }
+.cbot-user .cbot-bubble { background: var(--hot-btn); color: #fff; border-bottom-right-radius: 4px; }
+.cbot-bot .cbot-bubble a { color: var(--hot-ink); font-weight: 700; }
+.cbot-user .cbot-bubble a { color: #fff; }
+
+.cbot-form { display: flex; gap: .5rem; padding: .7rem; border-top: 1px solid var(--line); background: var(--canvas); }
+.cbot-input {
+  flex: 1 1 auto; min-width: 0; min-height: 44px; padding: .5rem .8rem;
+  border: 1.5px solid var(--line-ui); border-radius: var(--pill);
+  font-family: var(--body); font-size: .95rem; color: var(--ink); background: #fff;
+}
+.cbot-input:focus-visible { outline: 3px solid var(--focus); outline-offset: 1px; }
+.cbot-send {
+  width: 44px; height: 44px; flex: none; border: none; cursor: pointer;
+  border-radius: var(--pill); background: var(--hot-btn); color: #fff;
+  font-size: 1.05rem; line-height: 1;
+}
+.cbot-send:hover { background: var(--ink); }
+
+@media (max-width: 30rem) {
+  .cbot { right: .7rem; bottom: .7rem; }
+  .cbot-panel { height: min(28rem, calc(100vh - 5rem)); }
+}

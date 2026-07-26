@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Security headers (also set at the edge via _headers; meta covers static hosts like GitHub Pages) -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self'; connect-src 'self' https://api.openverse.org; manifest-src 'self'; worker-src 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Products — Knightsbridge Newsagency, Castle Hill</title>
+<meta name="description" content="Browse everything Knightsbridge Newsagency stocks — papers, magazines, cards, stationery, gifts, toys and lottery. Reserve online and collect at the counter in Castle Hill NSW.">
+<link rel="canonical" href="https://www.knightsbridgenews.com.au/products.html">
+<meta name="theme-color" content="#ffffff">
+<meta name="color-scheme" content="light">
+
+<!-- Icons & PWA -->
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<meta name="application-name" content="Knightsbridge Newsagency">
+<meta name="apple-mobile-web-app-title" content="Knightsbridge">
+
+<!-- Open Graph / Twitter -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Knightsbridge Newsagency">
+<meta property="og:locale" content="en_AU">
+<meta property="og:title" content="Products — Knightsbridge Newsagency">
+<meta property="og:description" content="Papers, magazines, cards, stationery, gifts, toys and lottery. Reserve online, collect in store.">
+<meta property="og:url" content="https://www.knightsbridgenews.com.au/products.html">
+<meta property="og:image" content="https://www.knightsbridgenews.com.au/assets/social/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Knightsbridge Newsagency — Castle Hill NSW.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Products — Knightsbridge Newsagency">
+<meta name="twitter:description" content="Papers, magazines, cards, stationery, gifts, toys and lottery. Reserve online, collect in store.">
+<meta name="twitter:image" content="https://www.knightsbridgenews.com.au/assets/social/og-image.png">
+
+<!-- Fonts (progressive enhancement; the CSS falls back to system fonts offline) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="demo-banner">Demo build — data is stored in this browser and payments are simulated. Stock is managed in the owner app.</div>
+
+<noscript>
+  <div class="noscript-shell">
+    <h2>Knightsbridge Newsagency — Products</h2>
+    <p>Our stock list needs JavaScript to load. You can still reach us at Shop 5, 159 Ridgecrop Drive, Castle Hill NSW 2154 · <a href="tel:+61296341591">02 9634 1591</a>.</p>
+    <p><a href="index.html">Home</a> · <a href="contact.html">Contact us</a></p>
+  </div>
+</noscript>
+
+<header class="masthead" id="site-header"></header>
+<main id="main">
+  <div class="section-head">
+    <span class="eyebrow">Everything we stock</span>
+    <h1>Products</h1>
+    <p>Reserve online and collect at the counter. Prices are the same as in store.</p>
+  </div>
+  <nav aria-label="Filter by category" class="tag-strip">
+    <ul class="tag-list" id="tag-filter"></ul>
+  </nav>
+  <p id="added-msg" class="notice notice-success" role="status" aria-live="polite" hidden style="margin-top:1.5rem"></p>
+  <p id="empty-msg" hidden>No items in this category right now. <a href="products.html">See everything we stock.</a></p>
+  <ul class="product-grid" id="product-grid"></ul>
+</main>
+<footer class="site-footer" id="site-footer"></footer>
+
+<script src="js/art.js" defer></script>
+<script src="js/carousel.js" defer></script>
+<script src="js/app.js" defer></script>
+<script src="js/photo-picker.js" defer></script>
+<script src="js/images.js" defer></script>
+<script src="js/reviews.js" defer></script>
+<script src="js/chatbot.js" defer></script>
+<script src="js/page-products.js" defer></script>
+</body>
+</html>

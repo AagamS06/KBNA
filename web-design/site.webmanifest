@@ -19,7 +19,7 @@
     { "src": "assets/icons/icon-maskable-512.png", "type": "image/png", "sizes": "512x512", "purpose": "maskable" }
   ],
   "shortcuts": [
-    { "name": "Shop", "url": "shop.html" },
+    { "name": "Products", "url": "products.html" },
     { "name": "Your basket", "url": "cart.html" },
     { "name": "Contact us", "url": "contact.html" }
   ]
