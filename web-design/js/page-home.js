@@ -1,7 +1,17 @@
 /* Home page wiring. Loaded with `defer` after the shared libraries, so every
    global it uses (renderShell, HERO_SLIDES, store, REVIEWS, …) is ready. */
 renderShell('home');
-initHeroCarousel('hero', HERO_SLIDES, { interval: 6500 });
+
+/* Load last night's draw (facts only) BEFORE building the carousel, so the
+   lotto slide can show the real winning numbers + which draw. Fails soft: with
+   no verified data the slide keeps its decorative balls. */
+(async () => {
+  try {
+    const res = await fetch('data/lottery.json', { cache: 'no-store' });
+    if (res.ok) setHeroLotto(await res.json());
+  } catch { /* offline / no file — decorative fallback */ }
+  initHeroCarousel('hero', HERO_SLIDES, { interval: 6500 });
+})();
 
 /* Home hero seam: fills from data/lottery.json if present, stays hidden if not. */
 if (typeof initLotteryPanel === 'function') {

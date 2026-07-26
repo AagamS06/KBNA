@@ -9,6 +9,66 @@
 const ART_INK = '#111111';
 const ART_PAPER = '#FAFAFA';
 
+/* ---------------- Last draw, shown on the lotto hero slide ----------------
+   Populated from data/lottery.json (facts only — numbers, draw, game) before
+   the carousel is built; see js/page-home.js. Null = no verified draw, so the
+   slide falls back to its decorative balls and mentions no draw. */
+let HERO_LOTTO = null;
+function setHeroLotto(data) {
+  if (data && data.verified && Array.isArray(data.winningNumbers) && data.winningNumbers.length) {
+    HERO_LOTTO = data;
+  }
+}
+
+/* Draw the winning numbers as balls. Primary numbers are white balls with a
+   red ring; supplementaries / the Powerball are smaller and ringed differently
+   so they read as extras. Lays 1–7 primaries in a row, extras on a second row. */
+function lottoBallsSVG() {
+  if (!HERO_LOTTO) {
+    // Decorative fallback — the original four balls, no real draw implied.
+    return `<g transform="translate(70 170)">
+      ${[7, 12, 24, 38].map((n, i) => `
+        <g transform="translate(${i * 130} ${i % 2 ? 40 : 0})">
+          <circle cx="60" cy="60" r="58" fill="#FAFAFA"/>
+          <circle cx="60" cy="60" r="58" fill="none" stroke="${['#E1251B', '#111111', '#A11009', '#E1251B'][i]}" stroke-width="9"/>
+          <text x="60" y="76" text-anchor="middle" font-family="Verdana, sans-serif" font-weight="700" font-size="44" fill="#111111">${n}</text>
+        </g>`).join('')}
+    </g>`;
+  }
+
+  const d = HERO_LOTTO;
+  const primary = d.winningNumbers.slice(0, 7);
+  const extras = [];
+  (d.supplementary || []).forEach(n => extras.push({ n, kind: 'supp' }));
+  if (d.powerball != null) extras.push({ n: d.powerball, kind: 'pb' });
+
+  const caption = `${String(d.game || 'Latest draw').toUpperCase()}${d.drawNumber ? ' · DRAW ' + d.drawNumber : ''}`;
+
+  // Fit up to 7 balls across the ~760px art width.
+  const R = 44, gap = (760 - primary.length * (R * 2)) / (primary.length + 1);
+  const ball = (n, x, y, r, extra) => `
+    <g transform="translate(${x} ${y})">
+      <circle cx="${r}" cy="${r}" r="${r}" fill="#FAFAFA"/>
+      <circle cx="${r}" cy="${r}" r="${r}" fill="none" stroke="${extra ? '#A11009' : '#E1251B'}" stroke-width="${r > 30 ? 7 : 5}" ${extra ? 'stroke-dasharray="4 4"' : ''}/>
+      <text x="${r}" y="${r + r * 0.34}" text-anchor="middle" font-family="Verdana, sans-serif" font-weight="700" font-size="${r * 0.95}" fill="#111111">${n}</text>
+    </g>`;
+
+  const primaryRow = primary.map((n, i) =>
+    ball(n, gap + i * (R * 2 + gap), 130, R, false)).join('');
+
+  const extraR = 32;
+  const extrasRow = extras.length
+    ? `<text x="20" y="270" font-family="Verdana, sans-serif" font-weight="700" font-size="20" fill="#D6D6D6">${d.powerball != null ? 'Powerball' : 'Supplementary'}</text>
+       ${extras.map((e, i) => ball(e.n, 20 + i * (extraR * 2 + 16), 285, extraR, true)).join('')}`
+    : '';
+
+  return `
+    <text x="20" y="70" font-family="Verdana, sans-serif" font-weight="700" font-size="30" letter-spacing="1.5" fill="#FF6E63">${esc(caption)}</text>
+    <text x="20" y="102" font-family="Verdana, sans-serif" font-size="19" fill="#D6D6D6">Last draw winning numbers</text>
+    <g transform="translate(0 30)">${primaryRow}</g>
+    <g transform="translate(0 30)">${extrasRow}</g>`;
+}
+
 /* ---------------- Hero slides ---------------- */
 const HERO_SLIDES = [
   {
@@ -122,20 +182,15 @@ const HERO_SLIDES = [
     cta: { label: 'Shop toys & lotto', href: 'products.html?tag=Toys' },
     accent: '#E1251B',
     svg: () => `
-      <svg viewBox="0 0 800 520" role="img" aria-label="Illustration of numbered lottery balls and a toy car" preserveAspectRatio="xMidYMid slice">
+      <svg viewBox="0 0 800 520" role="img" aria-label="${HERO_LOTTO
+        ? esc(`${HERO_LOTTO.game} draw ${HERO_LOTTO.drawNumber || ''} winning numbers: ${HERO_LOTTO.winningNumbers.join(', ')}${HERO_LOTTO.supplementary && HERO_LOTTO.supplementary.length ? ', supplementary ' + HERO_LOTTO.supplementary.join(', ') : ''}${HERO_LOTTO.powerball != null ? ', Powerball ' + HERO_LOTTO.powerball : ''}`)
+        : 'Illustration of numbered lottery balls and a toy car'}" preserveAspectRatio="xMidYMid slice">
         <rect width="800" height="520" fill="#111111"/>
         <g opacity="0.3">
           ${Array.from({ length: 5 }, (_, i) => `<circle cx="${120 + i * 160}" cy="${i % 2 ? 420 : 90}" r="${70 + i * 8}" fill="${['#E1251B', '#FFFFFF', '#A11009'][i % 3]}" opacity="0.35"/>`).join('')}
         </g>
-        <g transform="translate(70 150)">
-          ${[7, 12, 24, 38].map((n, i) => `
-            <g transform="translate(${i * 130} ${i % 2 ? 40 : 0})">
-              <circle cx="60" cy="60" r="58" fill="#FAFAFA"/>
-              <circle cx="60" cy="60" r="58" fill="none" stroke="${['#E1251B', '#111111', '#A11009', '#E1251B'][i]}" stroke-width="9"/>
-              <text x="60" y="76" text-anchor="middle" font-family="Verdana, sans-serif" font-weight="700" font-size="44" fill="#111111">${n}</text>
-            </g>`).join('')}
-        </g>
-        <g transform="translate(500 330)">
+        ${lottoBallsSVG()}
+        <g transform="translate(540 360)">
           <rect x="10" y="34" width="210" height="46" rx="14" fill="#E1251B"/>
           <path d="M46 34 h118 l32 0 v-4 a26 26 0 0 0 -26 -26 h-92 a26 26 0 0 0 -26 26 z" fill="#FF6E63"/>
           <rect x="70" y="12" width="90" height="24" rx="8" fill="#D6D6D6"/>
