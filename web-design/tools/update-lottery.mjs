@@ -14,7 +14,7 @@
  * These return FACTS: winning numbers, draw numbers, draw dates, advertised
  * Division 1 amounts. Facts are fine to store and display.
  *
- * COMPLIANCE (see also ../data/README.md and ../../.github/workflows/README):
+ * COMPLIANCE (see also ../data/README.md and ../../.github/workflows/lottery-update.yml):
  *   - Winning numbers / draw numbers / jackpot amounts are facts -> published.
  *   - We NEVER fetch, hotlink or store any poster or trademarked game logo. The
  *     API returns DrawLogoUrl fields pointing at media.tatts.com images — we
@@ -220,6 +220,10 @@ function buildRecord(result, next, prev, now) {
   }
 
   return {
+    // Only data built from a real operator-feed fetch is ever stamped verified.
+    // js/lottery.js keeps the panel HIDDEN unless verified === true, so a
+    // sample/placeholder/hand-edited file can never be shown as a real draw.
+    verified: true,
     game: game.name,
     drawNumber: result.DrawNumber,
     drawDate: result.DrawDate.slice(0, 10),
@@ -240,7 +244,7 @@ function buildRecord(result, next, prev, now) {
 // unchanged draw doesn't churn a commit every run).
 function contentChanged(next, prev) {
   if (!prev) return true;
-  const keys = ['game', 'drawNumber', 'drawDate', 'winningNumbers', 'supplementary',
+  const keys = ['verified', 'game', 'drawNumber', 'drawDate', 'winningNumbers', 'supplementary',
     'powerball', 'jackpot', 'badgeColour', 'logoSlot', 'posterSlot', 'ctaHref'];
   return keys.some((k) => JSON.stringify(next[k]) !== JSON.stringify(prev?.[k]));
 }
@@ -324,8 +328,14 @@ async function main() {
   return 0;
 }
 
-main().then((code) => process.exit(code)).catch((err) => {
+// Set exitCode rather than force process.exit(): letting the event loop drain
+// naturally lets the fetch/undici sockets close cleanly (a hard exit mid-close
+// trips a libuv assertion on Windows/Node 24). The process still ends promptly
+// once the keep-alive sockets time out — there is no other pending work.
+main().then((code) => {
+  process.exitCode = code;
+}).catch((err) => {
   // Absolute last resort — still fail soft (exit 0, file untouched).
-  console.error(`[fail-soft] unexpected: ${err && err.stack || err}`);
-  process.exit(0);
+  console.error(`[fail-soft] unexpected: ${err && (err.stack || err)}`);
+  process.exitCode = 0;
 });

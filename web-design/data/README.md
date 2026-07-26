@@ -11,17 +11,30 @@ The renderer is `js/lottery.js`, mounted into `#lottery-panel` on the home page.
 
 ## How it behaves
 
-- **File present and valid** → the panel fills in and reveals itself.
+- **File present, `verified: true`, and valid** → the panel fills in and reveals
+  itself.
+- **`verified` is not exactly `true`** (false, missing, or any placeholder /
+  hand-edited file) → the panel stays **hidden**. This is the shipped default
+  (`lottery.json` ships with `verified: false`), and it is the safety gate that
+  guarantees the live site never shows unverified or sample numbers as a real
+  draw. Only `tools/update-lottery.mjs` sets `verified: true`, and only after it
+  has fetched a real draw from the official operator feed.
 - **File missing, empty, malformed, or blocked** (including opening the site
   from `file://`, where `fetch` of a local JSON is blocked) → the panel stays
-  hidden. Nothing breaks, no error is shown. This is the default state shipped.
-- It is **read-only**. `js/lottery.js` never writes the file. A later job
-  (cron, the owner app, a paste-in) overwrites `lottery.json` once a day.
+  hidden. Nothing breaks, no error is shown.
+- It is **read-only**. `js/lottery.js` never writes the file. The daily workflow
+  (`.github/workflows/lottery-update.yml` → `tools/update-lottery.mjs`)
+  overwrites `lottery.json` once a day with a verified draw.
+
+`data/lottery.sample.json` is a committed, genuine example of what a verified
+run writes. The live site fetches `lottery.json`, **not** the sample, so nothing
+in the sample is ever shown.
 
 ## The fields
 
 | Field            | Type            | Required | Notes |
 |------------------|-----------------|----------|-------|
+| `verified`       | boolean         | yes      | **The gate.** Panel renders only when this is exactly `true`. Set to `true` solely by `tools/update-lottery.mjs` after a real operator-feed fetch. Ship any sample/placeholder with `false`. |
 | `game`           | string          | yes      | Game name, e.g. `"Saturday Lotto"`. Drawn into the SVG badge. |
 | `drawNumber`     | integer         | no       | Shown as `Draw 4512`. |
 | `drawDate`       | string (ISO date) | no     | `YYYY-MM-DD`; rendered in en-AU long form. |
@@ -49,6 +62,11 @@ The renderer is `js/lottery.js`, mounted into `#lottery-panel` on the home page.
    local assets, from `file://`.
 4. **Degrade silently.** Any problem loading or parsing the file must leave the
    panel hidden, never half-rendered.
+5. **Never show unverified numbers.** Winning numbers and jackpots are facts and
+   fine to display — but ONLY once the workflow has fetched them and set
+   `verified: true`. The renderer refuses to show anything otherwise. Do not
+   hand-edit `lottery.json` to `verified: true`; that would put unchecked
+   numbers in front of customers.
 
 ## For the next agent
 

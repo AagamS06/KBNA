@@ -1,0 +1,18 @@
+{
+  "_README": "SAMPLE OUTPUT — reference only. This is a genuine, unedited example of what tools/update-lottery.mjs writes to data/lottery.json after a successful fetch from the official operator feed (captured from `node tools/update-lottery.mjs --dry-run`). The live site fetches data/lottery.json, NOT this file, so nothing here is ever shown to customers. It exists to document the exact shape a verified run produces. The `_gateSydneyDate` key is the once-per-Sydney-day gate the script stamps on the file it writes; it is not part of the render contract and js/lottery.js ignores it.",
+
+  "verified": true,
+  "game": "Saturday Lotto",
+  "drawNumber": 4697,
+  "drawDate": "2026-07-25",
+  "winningNumbers": [12, 43, 2, 22, 8, 6],
+  "supplementary": [28, 13],
+  "powerball": null,
+  "jackpot": "Next Saturday Lotto draw Sat, 1 Aug: $10 Million",
+  "badgeColour": "#E1251B",
+  "logoSlot": "",
+  "posterSlot": "",
+  "ctaHref": "https://www.thelott.com/results",
+  "updated": "2026-07-26T12:21:10+10:00",
+  "_gateSydneyDate": "2026-07-26"
+}

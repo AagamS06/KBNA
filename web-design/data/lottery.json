@@ -1,39 +1,42 @@
 {
-  "_README": "Sample data for the home-page lottery panel. See data/README.md for the full contract. JSON has no comment syntax, so the notes below live in _note_* keys that the renderer ignores. Delete them in production if you like — they change nothing.",
+  "_README": "SHIPPED DEFAULT — deliberately HIDDEN. 'verified' is false, so js/lottery.js keeps the home-page lottery panel hidden and no numbers are shown. This is on purpose: a fresh checkout has never run the daily workflow, and the site must NEVER display unverified or placeholder numbers as a real draw. The GitHub Action (.github/workflows/lottery-update.yml) runs tools/update-lottery.mjs once a day, fetches the real draw from the official operator feed, and OVERWRITES this file with verified:true data — only then does the panel appear. See data/README.md for the full contract, and data/lottery.sample.json for an example of what a verified run produces. JSON has no comments; _note_* keys are ignored by the renderer.",
+
+  "verified": false,
+  "_note_verified": "GATE. The panel renders ONLY when this is exactly true. Set to true ONLY by tools/update-lottery.mjs after a successful fetch from the official operator feed. Never hand-set it to true.",
 
   "game": "Saturday Lotto",
   "_note_game": "Plain game name shown on the panel and drawn into the own-made SVG badge. Free text.",
 
-  "drawNumber": 4512,
-  "_note_drawNumber": "Integer draw number. Shown as 'Draw 4512'. Omit or null to hide.",
+  "drawNumber": 0,
+  "_note_drawNumber": "Integer draw number. Shown as 'Draw 4512'. Omit or null to hide. The value here is a placeholder — the panel is hidden while verified is false.",
 
-  "drawDate": "2026-07-25",
+  "drawDate": null,
   "_note_drawDate": "ISO date (YYYY-MM-DD) of the draw. Rendered in en-AU long form.",
 
-  "winningNumbers": [4, 12, 19, 23, 31, 42],
-  "_note_winningNumbers": "Array of the main winning numbers, in draw order. Rendered as number balls.",
+  "winningNumbers": [],
+  "_note_winningNumbers": "Array of the main winning numbers, in draw order. EMPTY in this shipped default — no numbers are shown until the workflow writes a verified draw.",
 
-  "supplementary": [7, 45],
+  "supplementary": [],
   "_note_supplementary": "Optional array of supplementary numbers. Rendered as outlined balls after a divider. Use [] or omit if the game has none.",
 
   "powerball": null,
   "_note_powerball": "Optional single Powerball number (for the Powerball game). null/omit for other games.",
 
-  "jackpot": "Next draw: $5 Million est.",
+  "jackpot": "",
   "_note_jackpot": "Optional free-text line under the numbers. Omit to hide.",
 
   "badgeColour": "#E1251B",
   "_note_badgeColour": "Colour of the own-made SVG badge. MUST be one of the site palette: #E1251B (red), #111111 (black) or #FF6E63 (red-on-dark). Anything else is snapped back to #E1251B by the renderer.",
 
   "logoSlot": "",
-  "_note_logoSlot": "OPTIONAL local asset path under assets/lottery/ for a badge image the owner is licensed to use (e.g. 'assets/lottery/game-badge.svg'). LOCAL FILES ONLY — never an external URL, never a trademarked lottery logo. Left empty (the default), the panel draws its own SVG badge from game + badgeColour.",
+  "_note_logoSlot": "OPTIONAL local asset path under assets/lottery/ for a badge image the owner is licensed to use (e.g. 'assets/lottery/game-badge.svg'). LOCAL FILES ONLY — never an external URL, never a trademarked lottery logo. Left empty (the default), the panel draws its own SVG badge from game + badgeColour. Preserved verbatim by the workflow across refreshes.",
 
   "posterSlot": "",
-  "_note_posterSlot": "OPTIONAL local asset path under assets/lottery/ for an owner-supplied poster image (e.g. 'assets/lottery/current-poster.jpg'). LOCAL FILES ONLY. If the file is missing or empty, the poster slot hides itself cleanly.",
+  "_note_posterSlot": "OPTIONAL local asset path under assets/lottery/ for an owner-supplied poster image (e.g. 'assets/lottery/current-poster.jpg'). LOCAL FILES ONLY. If the file is missing or empty, the poster slot hides itself cleanly. Preserved verbatim by the workflow across refreshes.",
 
-  "ctaHref": "https://www.thelott.com/",
+  "ctaHref": "https://www.thelott.com/results",
   "_note_ctaHref": "Optional link for the 'Check your numbers' button. Omit to hide the button.",
 
-  "updated": "2026-07-25T18:30:00+10:00",
+  "updated": null,
   "_note_updated": "Optional ISO timestamp of when this file was last refreshed. Shown as a small 'Updated …' note."
 }

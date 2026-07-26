@@ -503,7 +503,7 @@ class SupabaseShopRepository implements ShopRepository {
       );
 
   ShopOrder _orderFromRemote(Map<String, dynamic> r) {
-    final rawItems = (r['order_items'] as List?) ?? const [];
+    final rawItems = (r['order_items'] as List<dynamic>?) ?? const [];
     final items = rawItems
         .map((e) => OrderItem(
               productId: e['product_id'] as String,

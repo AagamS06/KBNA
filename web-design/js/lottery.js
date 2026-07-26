@@ -59,7 +59,13 @@ function initLotteryPanel(mountId, src = 'data/lottery.json') {
   fetch(src, { cache: 'no-cache' })
     .then((res) => (res && res.ok ? res.json() : Promise.reject(new Error('no data'))))
     .then((data) => {
-      if (!data || !data.game || !Array.isArray(data.winningNumbers) || !data.winningNumbers.length) {
+      // VERIFIED GATE (non-negotiable): the panel only ever shows numbers that
+      // the daily workflow fetched from the official operator feed and stamped
+      // `verified: true`. Any sample/placeholder/hand-edited file (verified
+      // false or absent) stays HIDDEN, so unverified numbers can never be shown
+      // to a customer as a real draw. See data/README.md.
+      if (!data || data.verified !== true) return;
+      if (!data.game || !Array.isArray(data.winningNumbers) || !data.winningNumbers.length) {
         return; // not enough to show — stay hidden
       }
       renderLotteryPanel(panel, data);

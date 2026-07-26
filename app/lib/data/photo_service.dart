@@ -192,7 +192,7 @@ class SystemPhotoService implements PhotoService {
       throw Exception('Openverse returned ${res.statusCode}');
     }
     final data = jsonDecode(res.body) as Map<String, Object?>;
-    final results = (data['results'] as List?) ?? const [];
+    final results = (data['results'] as List<dynamic>?) ?? const [];
     if (results.isEmpty) return null;
     final hit = results.first as Map<String, Object?>;
     final url = hit['url'] as String?;
