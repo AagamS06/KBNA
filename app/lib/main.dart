@@ -1,14 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'state/auth_controller.dart';
+import 'app/router.dart';
+import 'config/backend_config.dart';
 import 'state/providers.dart';
 import 'theme/app_theme.dart';
-import 'screens/home_shell.dart';
-import 'screens/sign_in_screen.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Supabase is initialised ONLY when a backend was passed via --dart-define.
+  // With no env set this is skipped entirely and the app runs fully on the
+  // local sqflite repository — `flutter run` works exactly as before, offline.
+  if (BackendConfig.isConfigured) {
+    await Supabase.initialize(
+      url: BackendConfig.supabaseUrl,
+      anonKey: BackendConfig.supabaseAnonKey,
+    );
+  }
+
   runApp(const ProviderScope(child: KnightsbridgeApp()));
 }
 
@@ -19,15 +30,15 @@ class KnightsbridgeApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // Best-effort settings for theme mode; defaults until the async load lands.
     final settings = ref.watch(liveSettingsProvider);
-    final signedIn = ref.watch(authProvider.select((s) => s.signedIn));
+    final router = ref.watch(routerProvider);
 
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'Knightsbridge Newsagency',
       debugShowCheckedModeBanner: false,
       themeMode: settings.themeMode,
       theme: KnTheme.light(),
       darkTheme: KnTheme.dark(),
-      home: signedIn ? const HomeShell() : const SignInScreen(),
+      routerConfig: router,
     );
   }
 }

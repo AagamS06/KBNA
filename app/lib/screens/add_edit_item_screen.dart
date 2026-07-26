@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../data/photo_service.dart';
 import '../models/product.dart';
@@ -11,7 +12,6 @@ import '../theme/typography.dart';
 import '../widgets/number_pad_sheet.dart';
 import '../widgets/pill_button.dart';
 import '../widgets/stepper_control.dart';
-import 'category_picker_screen.dart';
 
 /// 2.5 Add / edit item. One form, two modes. Interruptible and forgiving.
 class AddEditItemScreen extends ConsumerStatefulWidget {
@@ -151,7 +151,7 @@ class _AddEditItemScreenState extends ConsumerState<AddEditItemScreen> {
         ));
       }
       if (!mounted) return;
-      Navigator.pop(context);
+      context.pop();
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(widget.isEdit
             ? 'Changes saved.'
@@ -216,13 +216,13 @@ class _AddEditItemScreenState extends ConsumerState<AddEditItemScreen> {
       canPop: !_dirty,
       onPopInvokedWithResult: (didPop, _) async {
         if (didPop) return;
-        if (await _confirmDiscard() && mounted) Navigator.pop(context);
+        if (await _confirmDiscard() && mounted) context.pop();
       },
       child: Scaffold(
         appBar: AppBar(
           leading: TextButton(
             onPressed: () async {
-              if (await _confirmDiscard() && mounted) Navigator.pop(context);
+              if (await _confirmDiscard() && mounted) context.pop();
             },
             child: Text('Cancel',
                 style: KnType.button.copyWith(color: kn.textPrimary)),
@@ -342,7 +342,7 @@ class _AddEditItemScreenState extends ConsumerState<AddEditItemScreen> {
     );
     if (ok == true) {
       await ref.read(productsProvider.notifier).remove(widget.editProductId!);
-      if (mounted) Navigator.pop(context);
+      if (mounted) context.pop();
     }
   }
 
@@ -464,10 +464,10 @@ class _AddEditItemScreenState extends ConsumerState<AddEditItemScreen> {
     return InkWell(
       borderRadius: BorderRadius.circular(KnRadius.control),
       onTap: () async {
-        final chosen = await Navigator.of(context).push<String>(
-          MaterialPageRoute(
-              builder: (_) => CategoryPickerScreen(selected: _tag)),
-        );
+        final q = _tag == null
+            ? ''
+            : '?selected=${Uri.encodeQueryComponent(_tag!)}';
+        final chosen = await context.push<String>('/category$q');
         if (chosen != null) {
           setState(() {
             _tag = chosen;

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../models/order.dart';
 import '../state/providers.dart';
@@ -8,7 +9,6 @@ import '../theme/spacing.dart';
 import '../theme/typography.dart';
 import '../widgets/common.dart';
 import '../widgets/formatting.dart';
-import 'order_detail_screen.dart';
 
 /// 2.6.1 Orders list. Grouped by Today / Yesterday / Earlier, newest first.
 /// Read-only (reserve-and-collect scope).
@@ -92,8 +92,7 @@ class _OrderCard extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         borderRadius: BorderRadius.circular(KnRadius.card),
-        onTap: () => Navigator.of(context).push(MaterialPageRoute(
-            builder: (_) => OrderDetailScreen(orderId: order.id))),
+        onTap: () => context.push('/order/${order.id}'),
         child: Container(
           padding: const EdgeInsets.all(KnSpace.s4),
           decoration: BoxDecoration(

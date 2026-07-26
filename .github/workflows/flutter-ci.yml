@@ -1,0 +1,69 @@
+name: Flutter CI
+
+# Static analysis + tests on every push and PR. The Flutter project lives in
+# app/, so every step sets that as its working directory.
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+defaults:
+  run:
+    working-directory: app
+
+jobs:
+  analyze-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          # Pin to the reviewer-bumped floor (pubspec: flutter >=3.24.0).
+          flutter-version: "3.24.0"
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      # Native folders (android/ios/…) are gitignored and machine-generated;
+      # `flutter analyze`/`test` don't need them, so we do NOT run
+      # `flutter create .` here. Analysis + unit tests run against lib/ + test/.
+      - name: Verify formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Run tests
+        run: flutter test --no-pub
+
+  # ---------------------------------------------------------------------------
+  # Release builds are intentionally NOT in CI: a signed APK/IPA needs the
+  # signing secrets documented in DEPLOYMENT.md. Wire them up as GitHub secrets
+  # (never commit a keystore or .p8) and add a `build` job gated on tags when
+  # you're ready to ship. Sketch:
+  #
+  #   build-android:
+  #     needs: analyze-and-test
+  #     if: startsWith(github.ref, 'refs/tags/v')
+  #     runs-on: ubuntu-latest
+  #     steps:
+  #       - uses: actions/checkout@v4
+  #       - uses: subosito/flutter-action@v2
+  #         with: { flutter-version: "3.24.0", channel: stable }
+  #       - run: flutter create --platforms=android .
+  #         working-directory: app
+  #       - run: |
+  #           echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > app/android/app/upload-keystore.jks
+  #         env: { ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }} }
+  #       - run: flutter build apk --release
+  #           --dart-define=APP_FLAVOR=prod
+  #           --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }}
+  #           --dart-define=SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}
+  #         working-directory: app
+  # ---------------------------------------------------------------------------

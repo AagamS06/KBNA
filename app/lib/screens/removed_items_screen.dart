@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../models/product.dart';
 import '../state/providers.dart';
@@ -8,7 +9,6 @@ import '../theme/spacing.dart';
 import '../theme/typography.dart';
 import '../widgets/common.dart';
 import '../widgets/formatting.dart';
-import 'item_detail_screen.dart';
 
 /// Settings → Removed items. The `active: false` archive — what makes "Remove"
 /// safe. Each row can be restored or permanently deleted.
@@ -51,9 +51,7 @@ class RemovedItemsScreen extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     InkWell(
-                      onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                          builder: (_) =>
-                              ItemDetailScreen(productId: p.id))),
+                      onTap: () => context.push('/item/${p.id}'),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../data/seed_data.dart';
 import '../state/providers.dart';
@@ -67,7 +68,7 @@ class CategoryPickerScreen extends ConsumerWidget {
         ),
       ),
       trailing: isSelected ? Icon(Icons.check, color: kn.textPrimary) : null,
-      onTap: () => Navigator.of(context).pop(tag),
+      onTap: () => context.pop(tag),
     );
   }
 
@@ -98,7 +99,7 @@ class CategoryPickerScreen extends ConsumerWidget {
     );
     if (name != null && name.isNotEmpty) {
       await addTag(ref, name);
-      if (context.mounted) Navigator.of(context).pop(name);
+      if (context.mounted) context.pop(name);
     }
   }
 }

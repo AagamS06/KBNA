@@ -16,7 +16,12 @@ class AppDatabase {
   AppDatabase._();
 
   static const _fileName = 'knightsbridge.db';
-  static const _version = 1;
+  // v2 adds the order lifecycle columns (status/customer/collected_at) and the
+  // `outbox` table the Supabase sync layer drains. Both are additive; a v1
+  // database (a demo install from before sync existed) is migrated in place by
+  // [_onUpgrade] with no data loss, and a local-only app that never sets a
+  // Supabase backend simply never writes to `outbox`.
+  static const _version = 2;
 
   static Database? _db;
 
@@ -45,6 +50,7 @@ class AppDatabase {
         version: _version,
         onConfigure: (db) => db.execute('PRAGMA foreign_keys = ON'),
         onCreate: _onCreate,
+        onUpgrade: _onUpgrade,
       ),
     );
     return _db!;
@@ -96,7 +102,13 @@ class AppDatabase {
         reference      TEXT NOT NULL UNIQUE,
         created_at     TEXT NOT NULL,
         total_cents    INTEGER NOT NULL,
-        payment_method TEXT NOT NULL DEFAULT 'Card'
+        payment_method TEXT NOT NULL DEFAULT 'Card',
+        status         TEXT NOT NULL DEFAULT 'pending',
+        customer_name  TEXT,
+        customer_phone TEXT,
+        customer_email TEXT,
+        note           TEXT,
+        collected_at   TEXT
       )
     ''');
 
@@ -119,13 +131,53 @@ class AppDatabase {
       )
     ''');
 
-    // Simple key/value store for credentials + settings.
+    // Simple key/value store for credentials + settings (and the sync cursor).
     await db.execute('''
       CREATE TABLE kv (
         key   TEXT PRIMARY KEY,
         value TEXT NOT NULL
       )
     ''');
+
+    await _createOutbox(db);
+  }
+
+  /// The outbound sync queue (01-architecture.md §4.2). Strict FIFO by [id].
+  /// Each row names an entity whose CURRENT local state the sync worker pushes
+  /// to Supabase — movements are addressed by their idempotency key (they are
+  /// append-only), products/orders by id (last-write-wins upsert). Empty and
+  /// unused unless a Supabase backend is configured.
+  static Future<void> _createOutbox(Database db) async {
+    await db.execute('''
+      CREATE TABLE outbox (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        entity_type TEXT NOT NULL,   -- 'product' | 'movement' | 'order'
+        entity_id   TEXT NOT NULL,   -- product id, movement idempotency_key, order id
+        operation   TEXT NOT NULL,   -- 'upsert_product' | 'delete_product'
+                                     -- | 'record_movement' | 'update_order'
+        created_at  TEXT NOT NULL,
+        attempts    INTEGER NOT NULL DEFAULT 0,
+        last_error  TEXT,
+        status      TEXT NOT NULL DEFAULT 'pending'  -- pending | done | failed
+      )
+    ''');
+    await db.execute(
+        'CREATE INDEX outbox_status_idx ON outbox(status, id)');
+  }
+
+  static Future<void> _onUpgrade(
+      Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      // Order lifecycle + reserve-and-collect contact fields.
+      await db.execute(
+          "ALTER TABLE orders ADD COLUMN status TEXT NOT NULL DEFAULT 'pending'");
+      await db.execute('ALTER TABLE orders ADD COLUMN customer_name TEXT');
+      await db.execute('ALTER TABLE orders ADD COLUMN customer_phone TEXT');
+      await db.execute('ALTER TABLE orders ADD COLUMN customer_email TEXT');
+      await db.execute('ALTER TABLE orders ADD COLUMN note TEXT');
+      await db.execute('ALTER TABLE orders ADD COLUMN collected_at TEXT');
+      await _createOutbox(db);
+    }
   }
 
   @visibleForTesting

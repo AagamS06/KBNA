@@ -1,18 +1,76 @@
 import 'package:flutter/material.dart' show ThemeMode;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' show Supabase;
 
+import '../config/backend_config.dart';
 import '../data/local_repository.dart';
+import '../data/outbox.dart';
 import '../data/photo_service.dart';
 import '../data/repository.dart';
+import '../data/supabase_repository.dart';
+import '../data/sync_hooks.dart';
+import '../data/syncing_repository.dart';
+import '../models/analytics.dart';
 import '../models/app_settings.dart';
 import '../models/order.dart';
 import '../models/product.dart';
+import '../services/notification_service.dart';
 
-/// The single repository instance. This is the backend seam: to add Supabase
-/// sync later, override this provider with a syncing implementation and nothing
-/// else in the app changes.
+/// The on-device notification service (THE NOTIFICATION SEAM). Local alerts
+/// today; FCM/APNs push slots in behind [PushRegistrar] later with no change
+/// here. No-op on web/Windows and until permission is granted.
+final notificationServiceProvider = Provider<NotificationService>((ref) {
+  // Web has no dart:io; fall back to the no-op there. Everywhere else the local
+  // implementation self-guards unsupported platforms.
+  return LocalNotificationService();
+});
+
+/// Bridges a low-stock ledger crossing to a local notification, gated on the
+/// owner's "Tell me when stock is low" setting.
+class _NotifyingLedgerObserver implements LedgerObserver {
+  _NotifyingLedgerObserver(this._ref);
+  final Ref _ref;
+
+  @override
+  void onLowStockCrossed(String productId) {
+    // Fire-and-forget: the recompute path must not await notification work.
+    Future(() async {
+      final settings = _ref.read(liveSettingsProvider);
+      if (!settings.lowStockAlerts) return;
+      final product = await _ref.read(repositoryProvider).getProduct(productId);
+      if (product == null) return;
+      await _ref.read(notificationServiceProvider).showLowStock(product);
+    }());
+  }
+}
+
+/// The single repository instance — THE BACKEND SEAM.
+///
+/// * No `--dart-define` backend  -> a bare [LocalShopRepository] (exactly as the
+///   app has always run: offline, local-only, no Supabase package touched).
+/// * Backend configured          -> a [SyncingShopRepository] wrapping the same
+///   local store plus a [SupabaseShopRepository], draining an [Outbox].
+///
+/// Either way it's a [ShopRepository]; no screen or controller can tell which.
 final repositoryProvider = Provider<ShopRepository>((ref) {
-  return LocalShopRepository();
+  final observer = _NotifyingLedgerObserver(ref);
+
+  if (!BackendConfig.isConfigured) {
+    return LocalShopRepository(ledgerObserver: observer);
+  }
+
+  final outbox = Outbox();
+  final local =
+      LocalShopRepository(syncHooks: outbox, ledgerObserver: observer);
+  final remote = SupabaseShopRepository(Supabase.instance.client);
+  final syncing = SyncingShopRepository(
+    local: local,
+    remote: remote,
+    outbox: outbox,
+    notifications: ref.read(notificationServiceProvider),
+  );
+  ref.onDispose(syncing.dispose);
+  return syncing;
 });
 
 /// The photo seam. Real integration: system pickers (prompt-free) + the
@@ -248,3 +306,56 @@ Future<void> addTag(WidgetRef ref, String tag) async {
   await repo.addTag(tag);
   ref.invalidate(tagsProvider);
 }
+
+// ======================================================================
+// Order lifecycle (pending -> ready -> collected)
+// ======================================================================
+
+/// Advances an order's status, then refreshes the orders list and this order's
+/// detail. The click-&-collect feature screen calls this; the data path exists
+/// now so that screen has nothing to wire but its UI.
+Future<ShopOrder> setOrderStatus(
+    WidgetRef ref, String id, OrderStatus status) async {
+  final repo = await ref.read(repoReadyProvider.future);
+  final order = await repo.setOrderStatus(id, status);
+  ref.invalidate(ordersProvider);
+  ref.invalidate(orderByIdProvider(id));
+  return order;
+}
+
+// ======================================================================
+// Barcode lookup (for the later scanner UI)
+// ======================================================================
+
+/// Resolves a scanned barcode to a product (null if unknown). Depends on the
+/// products list so a freshly-added barcode is found without a manual refresh.
+final productByBarcodeProvider =
+    FutureProvider.family<Product?, String>((ref, barcode) async {
+  ref.watch(productsProvider);
+  final repo = await ref.watch(repoReadyProvider.future);
+  return repo.getProductByBarcode(barcode);
+});
+
+// ======================================================================
+// Analytics (aggregates over the ledger)
+// ======================================================================
+
+/// A date window. A record type, so it carries value-equality for free — which
+/// is exactly what a `.family` key needs.
+typedef DateWindow = ({DateTime from, DateTime to});
+
+final salesByProductProvider =
+    FutureProvider.family<List<ProductSalesAggregate>, DateWindow>(
+        (ref, window) async {
+  ref.watch(productsProvider);
+  final repo = await ref.watch(repoReadyProvider.future);
+  return repo.salesByProduct(from: window.from, to: window.to);
+});
+
+final salesByDayProvider =
+    FutureProvider.family<List<DailySalesPoint>, DateWindow>(
+        (ref, window) async {
+  ref.watch(productsProvider);
+  final repo = await ref.watch(repoReadyProvider.future);
+  return repo.salesByDay(from: window.from, to: window.to);
+});

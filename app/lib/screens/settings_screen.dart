@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../state/auth_controller.dart';
 import '../state/providers.dart';
@@ -7,8 +8,6 @@ import '../theme/colors.dart';
 import '../theme/spacing.dart';
 import '../theme/typography.dart';
 import '../widgets/pill_button.dart';
-import 'removed_items_screen.dart';
-import 'sign_in_details_screen.dart';
 
 /// 2.7 Settings. Opened a handful of times a year, so it lives behind the gear
 /// on Today rather than taking a permanent tab slot.
@@ -27,22 +26,16 @@ class SettingsScreen extends ConsumerWidget {
       body: ListView(
         children: [
           _group('You'),
-          _disclosure(context, 'Sign-in details', onTap: () {
-            Navigator.of(context).push(MaterialPageRoute(
-                builder: (_) => const SignInDetailsScreen()));
-          }),
+          _disclosure(context, 'Sign-in details',
+              onTap: () => context.push('/settings/account')),
           _switchTile(context, 'Use Face ID to sign in',
               value: settings.faceId, onChanged: settingsCtl.setFaceId),
 
           _group('Your shop'),
-          _disclosure(context, 'Shop details', onTap: () {
-            Navigator.of(context).push(MaterialPageRoute(
-                builder: (_) => const _ShopDetailsScreen()));
-          }),
-          _disclosure(context, 'Categories', onTap: () {
-            Navigator.of(context).push(MaterialPageRoute(
-                builder: (_) => const _CategoriesScreen()));
-          }),
+          _disclosure(context, 'Shop details',
+              onTap: () => context.push('/settings/shop')),
+          _disclosure(context, 'Categories',
+              onTap: () => context.push('/settings/categories')),
 
           _group('Alerts'),
           _switchTile(context, 'Tell me when stock is low',
@@ -75,10 +68,7 @@ class SettingsScreen extends ConsumerWidget {
             'Removed items',
             trailingText:
                 removedAsync.maybeWhen(data: (r) => '${r.length}', orElse: () => ''),
-            onTap: () {
-              Navigator.of(context).push(MaterialPageRoute(
-                  builder: (_) => const RemovedItemsScreen()));
-            },
+            onTap: () => context.push('/settings/removed'),
           ),
 
           _group('Help'),
@@ -287,7 +277,8 @@ class SettingsScreen extends ConsumerWidget {
       ),
     );
     if (ok == true && context.mounted) {
-      Navigator.of(context).popUntil((r) => r.isFirst);
+      // Signing out flips auth state; the router's redirect takes us to the
+      // sign-in gate and clears the navigation stack — no manual pop needed.
       ref.read(authProvider.notifier).signOut();
     }
   }
@@ -351,8 +342,8 @@ class SettingsScreen extends ConsumerWidget {
 }
 
 /// Read-only display of what appears on the website.
-class _ShopDetailsScreen extends StatelessWidget {
-  const _ShopDetailsScreen();
+class ShopDetailsScreen extends StatelessWidget {
+  const ShopDetailsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -379,8 +370,8 @@ class _ShopDetailsScreen extends StatelessWidget {
 
 /// A simple category list (rename/reorder/delete is out of scope for this
 /// build; the picker's "Add a new category" covers creation).
-class _CategoriesScreen extends ConsumerWidget {
-  const _CategoriesScreen();
+class CategoriesScreen extends ConsumerWidget {
+  const CategoriesScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

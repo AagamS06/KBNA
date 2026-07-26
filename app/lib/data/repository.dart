@@ -1,3 +1,4 @@
+import '../models/analytics.dart';
 import '../models/app_settings.dart';
 import '../models/order.dart';
 import '../models/product.dart';
@@ -26,6 +27,10 @@ abstract class ShopRepository {
   Future<List<Product>> getRemovedProducts();
 
   Future<Product?> getProduct(String id);
+
+  /// Look up a product by its scanned barcode (null if unknown). The barcode
+  /// scanner UI is a later feature; this is the data path it will call.
+  Future<Product?> getProductByBarcode(String barcode);
 
   /// Creates a product and records its opening stock as a `count` movement.
   Future<Product> addProduct(ProductDraft draft);
@@ -81,6 +86,25 @@ abstract class ShopRepository {
 
   Future<List<ShopOrder>> getOrders();
   Future<ShopOrder?> getOrder(String id);
+
+  /// Advance an order along its pending -> ready -> collected lifecycle
+  /// (§2.4 `orders.status`). Owner-editable; the app never creates orders.
+  Future<ShopOrder> setOrderStatus(String id, OrderStatus status);
+
+  // --- Analytics (aggregates over the ledger) --------------------------
+
+  /// Units sold and revenue per product over [from, to), newest window wins,
+  /// derived entirely from `kind = 'sale'` movements joined to order lines.
+  Future<List<ProductSalesAggregate>> salesByProduct({
+    required DateTime from,
+    required DateTime to,
+  });
+
+  /// A per-day sales trend over [from, to) for a chart.
+  Future<List<DailySalesPoint>> salesByDay({
+    required DateTime from,
+    required DateTime to,
+  });
 
   // --- Tags / categories ------------------------------------------------
 

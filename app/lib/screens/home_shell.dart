@@ -1,39 +1,38 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../theme/colors.dart';
-import 'orders_screen.dart';
-import 'stock_screen.dart';
-import 'today_screen.dart';
 
 /// The three-item bottom tab bar (§1.1): Today, Stock, Orders. Settings is not
 /// a fourth tab — it lives as a gear on the Today screen.
 ///
-/// An [IndexedStack] preserves each tab's scroll position and state, which is
-/// exactly why a tab bar beats a drawer here (the owner bounces between "what's
-/// low" and "find this item" constantly).
-class HomeShell extends ConsumerStatefulWidget {
-  const HomeShell({super.key});
+/// This is the shell for GoRouter's [StatefulShellRoute.indexedStack]: the
+/// [navigationShell] is itself an IndexedStack across the three branches, so
+/// each tab preserves its scroll position and state (exactly why a tab bar
+/// beats a drawer here — the owner bounces between "what's low" and "find this
+/// item" constantly).
+class HomeShell extends StatelessWidget {
+  const HomeShell({super.key, required this.navigationShell});
 
-  @override
-  ConsumerState<HomeShell> createState() => _HomeShellState();
-}
+  final StatefulNavigationShell navigationShell;
 
-class _HomeShellState extends ConsumerState<HomeShell> {
-  // Default to Stock (index 1) mid-shift would be ideal per the "sticky tab"
-  // rule; on cold start we open on Today, which is the shift-start view.
-  int _index = 0;
-
-  static const _tabs = [TodayScreen(), StockScreen(), OrdersScreen()];
+  void _onSelect(int index) {
+    // `initialLocation: index == currentIndex` re-pops a branch to its root if
+    // the owner taps the tab they're already on — the expected tab-bar gesture.
+    navigationShell.goBranch(
+      index,
+      initialLocation: index == navigationShell.currentIndex,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final kn = context.kn;
     return Scaffold(
-      body: IndexedStack(index: _index, children: _tabs),
+      body: navigationShell,
       bottomNavigationBar: NavigationBar(
-        selectedIndex: _index,
-        onDestinationSelected: (i) => setState(() => _index = i),
+        selectedIndex: navigationShell.currentIndex,
+        onDestinationSelected: _onSelect,
         destinations: [
           NavigationDestination(
             icon: const Icon(Icons.storefront_outlined),

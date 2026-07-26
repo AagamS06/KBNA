@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../models/product.dart';
 import '../state/providers.dart';
@@ -13,7 +14,6 @@ import '../widgets/photo_block.dart';
 import '../widgets/pill_button.dart';
 import '../widgets/status_pill.dart';
 import '../widgets/stepper_control.dart';
-import 'add_edit_item_screen.dart';
 
 /// 2.4 Item detail. The full picture of one item and the launch point for
 /// editing. Read-mostly — the things done in a hurry are already possible from
@@ -136,17 +136,13 @@ class ItemDetailScreen extends ConsumerWidget {
                         'Put this item back',
                         onPressed: () async {
                           await controller.restore(p.id);
-                          if (context.mounted) Navigator.pop(context);
+                          if (context.mounted) context.pop();
                         },
                       )
                     : PillButton(
                         'Edit this item',
                         variant: PillVariant.secondary,
-                        onPressed: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                              builder: (_) =>
-                                  AddEditItemScreen(editProductId: p.id)),
-                        ),
+                        onPressed: () => context.push('/item/${p.id}/edit'),
                       ),
               ),
             ],
@@ -207,7 +203,7 @@ class ItemDetailScreen extends ConsumerWidget {
         _share(context, p);
       case 'remove':
         await controller.remove(p.id);
-        if (context.mounted) Navigator.pop(context);
+        if (context.mounted) context.pop();
     }
   }
 
@@ -328,7 +324,7 @@ class _GoneState extends StatelessWidget {
       icon: Icons.help_outline,
       message: 'This item has been removed.',
       actionLabel: 'Back to stock',
-      onAction: () => Navigator.of(context).pop(),
+      onAction: () => context.pop(),
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../models/order.dart';
 import '../models/product.dart';
@@ -11,7 +12,6 @@ import '../theme/typography.dart';
 import '../widgets/common.dart';
 import '../widgets/formatting.dart';
 import '../widgets/pill_button.dart';
-import 'item_detail_screen.dart';
 
 /// 2.6.2 Order detail. Line items, payment, reference, and — critically — the
 /// auto-hold notice that EXPLAINS why items were taken off the website (the
@@ -120,9 +120,7 @@ class OrderDetailScreen extends ConsumerWidget {
                         onSeeThem: () {
                           // Open the first held item's detail.
                           final id = heldFromThisOrder.first.productId;
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (_) =>
-                                  ItemDetailScreen(productId: id)));
+                          context.push('/item/$id');
                         },
                       ),
                     ],

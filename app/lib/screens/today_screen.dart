@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../models/order.dart';
 import '../models/product.dart';
@@ -11,10 +12,6 @@ import '../widgets/common.dart';
 import '../widgets/formatting.dart';
 import '../widgets/number_pad_sheet.dart';
 import '../widgets/pill_button.dart';
-import 'item_detail_screen.dart';
-import 'order_detail_screen.dart';
-import 'orders_screen.dart';
-import 'settings_screen.dart';
 
 /// 2.2 Today. Answer at a glance: is anything wrong, and what happened while
 /// I wasn't looking?
@@ -61,9 +58,7 @@ class TodayScreen extends ConsumerWidget {
                     icon: const Icon(Icons.settings_outlined),
                     iconSize: 24,
                     tooltip: 'Settings',
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const SettingsScreen()),
-                    ),
+                    onPressed: () => context.push('/settings'),
                   ),
                 ],
               ),
@@ -120,10 +115,8 @@ class TodayScreen extends ConsumerWidget {
                           variant: PillVariant.secondary,
                           fullWidth: false,
                           minHeight: 48,
-                          onPressed: () => Navigator.of(context).push(
-                            MaterialPageRoute(
-                                builder: (_) => const OrdersScreen()),
-                          ),
+                          // Switch to the Orders tab (keeps the bottom bar).
+                          onPressed: () => context.go('/orders'),
                         ),
                       ),
                     ],
@@ -243,8 +236,7 @@ class _AttentionRow extends ConsumerWidget {
     ];
 
     return InkWell(
-      onTap: () => Navigator.of(context).push(MaterialPageRoute(
-          builder: (_) => ItemDetailScreen(productId: product.id))),
+      onTap: () => context.push('/item/${product.id}'),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: KnSpace.s2),
         child: Row(
@@ -325,8 +317,7 @@ class _OrderRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final kn = context.kn;
     return InkWell(
-      onTap: () => Navigator.of(context).push(MaterialPageRoute(
-          builder: (_) => OrderDetailScreen(orderId: order.id))),
+      onTap: () => context.push('/order/${order.id}'),
       child: Padding(
         padding: const EdgeInsets.all(KnSpace.s4),
         child: Row(

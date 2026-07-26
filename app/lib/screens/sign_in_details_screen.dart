@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../models/app_settings.dart';
 import '../state/providers.dart';
@@ -66,7 +67,7 @@ class _SignInDetailsScreenState extends ConsumerState<SignInDetailsScreen> {
     ));
 
     if (!mounted) return;
-    Navigator.pop(context);
+    context.pop();
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
       content: Text(
           "Your sign-in details are saved. You'll use the new ones next time."),

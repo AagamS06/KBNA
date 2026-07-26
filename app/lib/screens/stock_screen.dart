@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../models/product.dart';
 import '../state/providers.dart';
@@ -10,8 +11,6 @@ import '../widgets/common.dart';
 import '../widgets/formatting.dart';
 import '../widgets/number_pad_sheet.dart';
 import '../widgets/stock_row.dart';
-import 'add_edit_item_screen.dart';
-import 'item_detail_screen.dart';
 
 enum StockSort { attention, alpha, price, stockLevel, recent }
 
@@ -187,11 +186,7 @@ class _StockScreenState extends ConsumerState<StockScreen> {
                         product: p,
                         stepperSize: settings.targetSize,
                         buttonsOnLeft: settings.buttonsOnLeft,
-                        onTap: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                              builder: (_) =>
-                                  ItemDetailScreen(productId: p.id)),
-                        ),
+                        onTap: () => context.push('/item/${p.id}'),
                         onIncrement: () {
                           controller.adjustStock(p.id, 1);
                           _snack('Added one ${p.name}.',
@@ -217,11 +212,7 @@ class _StockScreenState extends ConsumerState<StockScreen> {
                             onUndo: () => controller.setHeld(p.id, !nowHeld),
                           );
                         },
-                        onEdit: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                              builder: (_) =>
-                                  AddEditItemScreen(editProductId: p.id)),
-                        ),
+                        onEdit: () => context.push('/item/${p.id}/edit'),
                         onDuplicate: () async {
                           final dup = await controller.duplicate(p.id);
                           _snack('${dup.name} added.');
@@ -271,9 +262,10 @@ class _StockScreenState extends ConsumerState<StockScreen> {
   }
 
   void _openAdd(BuildContext context, {String? prefillName}) {
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => AddEditItemScreen(prefillName: prefillName),
-    ));
+    final q = (prefillName == null || prefillName.isEmpty)
+        ? ''
+        : '?name=${Uri.encodeQueryComponent(prefillName)}';
+    context.push('/add-item$q');
   }
 
   Future<void> _confirmRemove(

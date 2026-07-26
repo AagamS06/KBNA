@@ -4,6 +4,7 @@ import 'package:flutter/material.dart' show ThemeMode;
 import 'package:sqflite/sqflite.dart';
 import 'package:uuid/uuid.dart';
 
+import '../models/analytics.dart';
 import '../models/app_settings.dart';
 import '../models/order.dart';
 import '../models/product.dart';
@@ -11,6 +12,7 @@ import '../models/stock_movement.dart';
 import 'database.dart';
 import 'repository.dart';
 import 'seed_data.dart';
+import 'sync_hooks.dart';
 
 /// Local-first implementation of [ShopRepository] backed by sqflite.
 ///
@@ -20,7 +22,17 @@ import 'seed_data.dart';
 /// applies the auto-hold rule from §2.8 (hide at/below the alert level;
 /// auto-release once restocked above it), preserving a manual hold.
 class LocalShopRepository implements ShopRepository {
-  LocalShopRepository();
+  /// [syncHooks] and [ledgerObserver] are BOTH optional and default to null.
+  /// With both null this class behaves exactly as it always has — the only
+  /// configuration used when no Supabase backend is set. The syncing decorator
+  /// passes a [syncHooks] (to fill the outbox) and the app passes a
+  /// [ledgerObserver] (to raise local low-stock notifications).
+  LocalShopRepository({SyncHooks? syncHooks, LedgerObserver? ledgerObserver})
+      : _syncHooks = syncHooks,
+        _ledgerObserver = ledgerObserver;
+
+  final SyncHooks? _syncHooks;
+  final LedgerObserver? _ledgerObserver;
 
   static const _uuid = Uuid();
   late Database _db;
@@ -87,6 +99,7 @@ class LocalShopRepository implements ShopRepository {
       'stock_cached': 0,
       'updated_at': now.toIso8601String(),
     });
+    await _syncHooks?.onProductChanged(id);
     await _recordMovement(
       productId: id,
       kind: MovementKind.count,
@@ -94,7 +107,18 @@ class LocalShopRepository implements ShopRepository {
       occurredAt: now,
       source: MovementSource.app,
     );
-    return _recalc(id);
+    // A brand-new item's opening count is not a "crossing" worth alerting on.
+    return _recalc(id, notify: false);
+  }
+
+  @override
+  Future<Product?> getProductByBarcode(String barcode) async {
+    final trimmed = barcode.trim();
+    if (trimmed.isEmpty) return null;
+    final rows = await _db.query('products',
+        where: 'barcode = ?', whereArgs: [trimmed], limit: 1);
+    if (rows.isEmpty) return null;
+    return Product.fromRow(rows.first);
   }
 
   @override
@@ -137,6 +161,7 @@ class LocalShopRepository implements ShopRepository {
     }
 
     await _db.update('products', patch, where: 'id = ?', whereArgs: [id]);
+    await _syncHooks?.onProductChanged(id);
     // If the threshold changed, the low/held state may need recomputing.
     if (lowStockThreshold != null) return _recalc(id);
     return (await getProduct(id))!;
@@ -150,6 +175,7 @@ class LocalShopRepository implements ShopRepository {
       where: 'id = ?',
       whereArgs: [id],
     );
+    await _syncHooks?.onProductChanged(id);
   }
 
   @override
@@ -160,12 +186,14 @@ class LocalShopRepository implements ShopRepository {
       where: 'id = ?',
       whereArgs: [id],
     );
+    await _syncHooks?.onProductChanged(id);
   }
 
   @override
   Future<void> deleteProductForever(String id) async {
     // Guard: only ever hard-delete an already-removed row.
     await _db.delete('products', where: 'id = ? AND active = 0', whereArgs: [id]);
+    await _syncHooks?.onProductDeleted(id);
   }
 
   @override
@@ -239,6 +267,7 @@ class LocalShopRepository implements ShopRepository {
       where: 'id = ?',
       whereArgs: [id],
     );
+    await _syncHooks?.onProductChanged(id);
     return (await getProduct(id))!;
   }
 
@@ -270,6 +299,164 @@ class LocalShopRepository implements ShopRepository {
         where: 'order_id = ?', whereArgs: [orderId], orderBy: 'id ASC');
     return rows.map(OrderItem.fromRow).toList();
   }
+
+  @override
+  Future<ShopOrder> setOrderStatus(String id, OrderStatus status) async {
+    await _db.update(
+      'orders',
+      {
+        'status': status.name,
+        'collected_at': status == OrderStatus.collected
+            ? DateTime.now().toIso8601String()
+            : null,
+      },
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+    await _syncHooks?.onOrderChanged(id);
+    return (await getOrder(id))!;
+  }
+
+  // ======================================================================
+  // Analytics (aggregates over the ledger)
+  // ======================================================================
+
+  @override
+  Future<List<ProductSalesAggregate>> salesByProduct({
+    required DateTime from,
+    required DateTime to,
+  }) async {
+    // Units come from the ledger (kind='sale', delta negative). Revenue comes
+    // from the matching order lines' snapshotted price, so a later price change
+    // never rewrites past takings.
+    final rows = await _db.rawQuery(
+      '''
+      SELECT m.product_id AS product_id,
+             p.name       AS name,
+             SUM(-m.delta) AS units,
+             SUM(-m.delta * COALESCE(oi.price_cents, p.price_cents)) AS revenue
+      FROM stock_movements m
+      JOIN products p ON p.id = m.product_id
+      LEFT JOIN order_items oi
+             ON oi.order_id = m.order_id AND oi.product_id = m.product_id
+      WHERE m.kind = 'sale'
+        AND m.occurred_at >= ? AND m.occurred_at < ?
+      GROUP BY m.product_id, p.name
+      ORDER BY units DESC
+      ''',
+      [from.toIso8601String(), to.toIso8601String()],
+    );
+    return rows
+        .map((r) => ProductSalesAggregate(
+              productId: r['product_id'] as String,
+              name: r['name'] as String,
+              unitsSold: (r['units'] as int?) ?? 0,
+              revenueCents: (r['revenue'] as int?) ?? 0,
+            ))
+        .toList();
+  }
+
+  @override
+  Future<List<DailySalesPoint>> salesByDay({
+    required DateTime from,
+    required DateTime to,
+  }) async {
+    // Group by the date portion of occurred_at (ISO-8601 sorts lexically, so a
+    // substring is a valid day key).
+    final rows = await _db.rawQuery(
+      '''
+      SELECT substr(m.occurred_at, 1, 10) AS day,
+             SUM(-m.delta) AS units,
+             SUM(-m.delta * COALESCE(oi.price_cents, p.price_cents)) AS revenue
+      FROM stock_movements m
+      JOIN products p ON p.id = m.product_id
+      LEFT JOIN order_items oi
+             ON oi.order_id = m.order_id AND oi.product_id = m.product_id
+      WHERE m.kind = 'sale'
+        AND m.occurred_at >= ? AND m.occurred_at < ?
+      GROUP BY day
+      ORDER BY day ASC
+      ''',
+      [from.toIso8601String(), to.toIso8601String()],
+    );
+    return rows
+        .map((r) => DailySalesPoint(
+              day: DateTime.parse('${r['day']}T00:00:00'),
+              unitsSold: (r['units'] as int?) ?? 0,
+              revenueCents: (r['revenue'] as int?) ?? 0,
+            ))
+        .toList();
+  }
+
+  // ======================================================================
+  // Sync ingestion (used by SyncingShopRepository when pulling from Supabase).
+  // These write straight to the local tables WITHOUT firing sync hooks — pulled
+  // data must not re-enqueue itself — and are no-ops in a local-only app.
+  // ======================================================================
+
+  /// Upsert a product pulled from the server. Last-write-wins by [updatedAt]
+  /// (§4.4.2): a local edit newer than the server's is kept.
+  Future<void> ingestRemoteProduct(Product remote) async {
+    final local = await getProduct(remote.id);
+    if (local != null && local.updatedAt.isAfter(remote.updatedAt)) return;
+    await _db.insert('products', remote.toRow(),
+        conflictAlgorithm: ConflictAlgorithm.replace);
+  }
+
+  /// Insert a movement pulled from the server if its idempotency key is new.
+  /// Returns true if it was inserted (so the caller knows to recompute).
+  Future<bool> ingestRemoteMovement(StockMovement m) async {
+    final existing = await _db.query('stock_movements',
+        where: 'idempotency_key = ?',
+        whereArgs: [m.idempotencyKey],
+        limit: 1);
+    if (existing.isNotEmpty) return false;
+    final row = m.toRow()
+      ..['id'] = m.id
+      ..['recorded_at'] = DateTime.now().toIso8601String();
+    await _db.insert('stock_movements', row,
+        conflictAlgorithm: ConflictAlgorithm.ignore);
+    return true;
+  }
+
+  /// Upsert an order pulled from the server. Returns true if this order id was
+  /// not seen locally before (a NEW order — the caller may notify).
+  Future<bool> ingestRemoteOrder(ShopOrder order) async {
+    final existing = await _db
+        .query('orders', where: 'id = ?', whereArgs: [order.id], limit: 1);
+    final isNew = existing.isEmpty;
+    await _db.insert('orders', order.toRow(),
+        conflictAlgorithm: ConflictAlgorithm.replace);
+    await _db.delete('order_items',
+        where: 'order_id = ?', whereArgs: [order.id]);
+    for (final item in order.items) {
+      await _db.insert('order_items', item.toRow(order.id));
+    }
+    return isNew;
+  }
+
+  /// Public recompute for the sync layer to call after merging pulled movements
+  /// (union-of-movements + recompute, §4.4.1). notify:false — a pulled remote
+  /// sale is the server's concern to push about, not the local app's.
+  Future<Product> recomputeStock(String id) => _recalc(id, notify: false);
+
+  /// Look up a movement by its idempotency key (the sync worker addresses
+  /// queued movements this way — they are append-only).
+  Future<StockMovement?> movementByKey(String idempotencyKey) async {
+    final rows = await _db.query('stock_movements',
+        where: 'idempotency_key = ?', whereArgs: [idempotencyKey], limit: 1);
+    if (rows.isEmpty) return null;
+    return StockMovement.fromRow(rows.first);
+  }
+
+  /// The pull cursor: the latest `recorded_at` we've pulled from the server.
+  Future<DateTime?> getSyncCursor() async {
+    final v = await _kvGet('sync.cursor');
+    return v == null ? null : DateTime.tryParse(v);
+  }
+
+  Future<void> setSyncCursor(DateTime at) =>
+      _kvSet('sync.cursor', at.toIso8601String());
 
   // ======================================================================
   // Tags
@@ -391,6 +578,9 @@ class LocalShopRepository implements ShopRepository {
     String? orderId,
     String? note,
   }) async {
+    // For the app the client action itself is the idempotency unit. For a web
+    // order we key on order + product so a replay can't double-apply (§4.3).
+    final idempotencyKey = orderId != null ? '$orderId:$productId' : _uuid.v4();
     await _db.insert('stock_movements', {
       'id': _uuid.v4(),
       'product_id': productId,
@@ -402,16 +592,22 @@ class LocalShopRepository implements ShopRepository {
       'source': _sourceToDb(source),
       'order_id': orderId,
       'note': note,
-      // For the app the client action itself is the idempotency unit. For a web
-      // order we key on order + product so a replay can't double-apply (§4.3).
-      'idempotency_key':
-          orderId != null ? '$orderId:$productId' : _uuid.v4(),
+      'idempotency_key': idempotencyKey,
     });
+    // Web-order / system movements are not owner actions to push back up; only
+    // app-sourced movements enter the outbox.
+    if (source == MovementSource.app) {
+      await _syncHooks?.onMovementRecorded(idempotencyKey, productId);
+    }
   }
 
   /// Recompute a product's stock from its ledger and apply the auto-hold rule.
   /// This mirrors recalc_stock() + trg_auto_hold() in 01-architecture.md.
-  Future<Product> _recalc(String id) async {
+  ///
+  /// When [notify] is true and the recompute pushes the item from ABOVE its
+  /// alert level to at/below it (a genuine crossing, not merely "is low"), the
+  /// [LedgerObserver] is told so a local low-stock notification can fire (§5.1).
+  Future<Product> _recalc(String id, {bool notify = true}) async {
     // Baseline: the most recent stocktake.
     final countRows = await _db.query(
       'stock_movements',
@@ -470,6 +666,13 @@ class LocalShopRepository implements ShopRepository {
       where: 'id = ?',
       whereArgs: [id],
     );
+
+    // Fire a low-stock alert only on the downward crossing of an active item.
+    final crossedDown = newStock <= threshold && oldStock > threshold;
+    if (notify && crossedDown && current.active) {
+      _ledgerObserver?.onLowStockCrossed(id);
+    }
+
     return (await getProduct(id))!;
   }
 
@@ -579,8 +782,9 @@ class LocalShopRepository implements ShopRepository {
     }
 
     // Recalculate every seeded product once so stock_cached + held are correct.
+    // notify:false — seeding must not raise a burst of low-stock notifications.
     for (final id in idByLegacy.values) {
-      await _recalc(id);
+      await _recalc(id, notify: false);
     }
 
     // Default credentials + settings.
