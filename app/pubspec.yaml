@@ -98,6 +98,25 @@ dependencies:
   #   last line that builds cleanly on the Flutter 3.24 / AGP toolchain.
   flutter_local_notifications: ^17.2.4
 
+  # --- Barcode scanning --------------------------------------------------
+  # mobile_scanner: the maintained, widely-used barcode/QR scanner. It wraps
+  #   Google's MLKit Barcode Scanning on Android and Apple's Vision/AVFoundation
+  #   on iOS (getUserMedia on web, AVFoundation on macOS), so there is no bespoke
+  #   platform channel to keep alive. Pinned to the 5.x line: it targets the
+  #   Flutter 3.24 / Dart 3.5 floor and exposes the stable
+  #   ValueNotifier<MobileScannerState> torch/lifecycle API the scan screen uses
+  #   (7.x raises the SDK floor). The scan screen only ever instantiates the
+  #   controller on camera-capable platforms (Android/iOS/macOS/web) and
+  #   degrades to manual entry everywhere else, so a bare `flutter run` on a
+  #   Windows/Linux desktop still builds and runs with no camera.
+  #
+  #   PERMISSIONS NOTE (a deliberate change to the app's near-permission-free
+  #   posture): unlike image_picker, mobile_scanner needs a LIVE camera, so it
+  #   declares android.permission.CAMERA in its own manifest and reads
+  #   NSCameraUsageDescription on iOS. That CAMERA line now appears in the merged
+  #   Android manifest by design — see STORE-READINESS.md §6a and PHOTOS.md.
+  mobile_scanner: ^5.2.3
+
   # --- Utilities --------------------------------------------------------
   intl: ^0.19.0        # en-AU dates + AUD currency formatting
   collection: ^1.18.0  # groupBy for the orders list

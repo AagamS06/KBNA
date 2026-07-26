@@ -82,7 +82,7 @@ function renderLotteryPanel(panel, d) {
   // Logo slot: local, owner-licensed image if supplied; else our own SVG badge.
   const badge = d.logoSlot
     ? `<img class="lottery-badge-img" src="${esc(d.logoSlot)}" alt="${esc(d.game)} badge"
-            data-lotto-badge-fallback loading="lazy">`
+            width="300" height="200" data-lotto-badge-fallback loading="lazy">`
     : lotteryBadgeSVG(d.game, d.badgeColour);
 
   const supp = (Array.isArray(d.supplementary) && d.supplementary.length)

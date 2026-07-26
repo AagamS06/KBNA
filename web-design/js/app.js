@@ -200,10 +200,16 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': 
 function productCardHTML(p) {
   const unavailable = p.held || p.stock === 0;
   const low = !unavailable && p.stock <= p.low_stock_threshold + 2;
+  /* width/height reserve the box before the photo loads (no layout shift); the
+     .product-thumb CSS aspect-ratio still governs the rendered size. */
   const art = p.image_url
-    ? `<img src="${esc(p.image_url)}" alt="" loading="lazy" data-art-fallback="${esc(p.tag)}">`
+    ? `<img src="${esc(p.image_url)}" alt="" width="400" height="170" loading="lazy" data-art-fallback="${esc(p.tag)}">`
     : tagThumb(p.tag, p.name);
   const credit = p.image_url && p.image_credit ? imageCreditHTML(p.image_credit) : '';
+  /* The image and the name link through to the deep-linkable detail page. The
+     Add / Check-in-store control stays a real button/link OUTSIDE these links,
+     so we never nest an interactive control inside an anchor. */
+  const detailHref = `product.html?id=${encodeURIComponent(p.id)}`;
 
   /* "Check in store" items (e.g. greeting cards) have too many designs to
      track stock online, so they never show a price or an Add button and can
@@ -225,11 +231,11 @@ function productCardHTML(p) {
   return `
     <li class="product-card">
       <div class="product-thumb">
-        ${art}
+        <a class="product-thumb-link" href="${detailHref}" tabindex="-1" aria-hidden="true">${art}</a>
         <span class="product-tag">${esc(p.tag)}</span>
       </div>
       <div class="product-body">
-        <h2 class="product-name">${esc(p.name)}</h2>
+        <h2 class="product-name"><a href="${detailHref}">${esc(p.name)}</a></h2>
         ${p.description ? `<p class="product-desc">${esc(p.description)}</p>` : ''}
         ${body}
         ${credit}

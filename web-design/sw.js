@@ -7,19 +7,19 @@
 
    Bump CACHE_VERSION whenever the shell assets change to retire old caches. */
 
-const CACHE_VERSION = 'kn-v4';
+const CACHE_VERSION = 'kn-v5';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
 /* Paths are relative to the SW scope, so the site works in a sub-folder too. */
 const SHELL = [
   './',
-  'index.html', 'products.html', 'services.html', 'about.html',
+  'index.html', 'products.html', 'product.html', 'services.html', 'about.html',
   'shop.html', 'cart.html', 'contact.html', 'success.html', '404.html',
   'style.css',
   'js/art.js', 'js/carousel.js', 'js/app.js', 'js/photo-picker.js',
   'js/images.js', 'js/reviews.js', 'js/lottery.js', 'js/chatbot.js',
-  'js/page-home.js', 'js/page-products.js', 'js/page-services.js',
+  'js/page-home.js', 'js/page-products.js', 'js/page-product.js', 'js/page-services.js',
   'js/page-about.js', 'js/page-cart.js',
   'js/page-contact.js', 'js/page-success.js', 'js/page-404.js',
   'site.webmanifest',

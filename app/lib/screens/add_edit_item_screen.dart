@@ -15,10 +15,19 @@ import '../widgets/stepper_control.dart';
 
 /// 2.5 Add / edit item. One form, two modes. Interruptible and forgiving.
 class AddEditItemScreen extends ConsumerStatefulWidget {
-  const AddEditItemScreen({super.key, this.editProductId, this.prefillName});
+  const AddEditItemScreen({
+    super.key,
+    this.editProductId,
+    this.prefillName,
+    this.prefillBarcode,
+  });
 
   final String? editProductId;
   final String? prefillName;
+
+  /// Set when the Stock screen scanned an unknown barcode and jumped here to
+  /// add it — the field is pre-filled so the owner doesn't retype it.
+  final String? prefillBarcode;
 
   bool get isEdit => editProductId != null;
 
@@ -30,6 +39,7 @@ class _AddEditItemScreenState extends ConsumerState<AddEditItemScreen> {
   final _name = TextEditingController();
   final _description = TextEditingController();
   final _price = TextEditingController();
+  final _barcode = TextEditingController();
 
   int _stock = 0;
   int _threshold = 3;
@@ -37,7 +47,6 @@ class _AddEditItemScreenState extends ConsumerState<AddEditItemScreen> {
   bool _showOnWebsite = true; // inverse of `held`
   String? _imageUrl;
   String? _imageCredit;
-  String? _barcode;
 
   bool _loaded = false;
   bool _saving = false;
@@ -53,6 +62,9 @@ class _AddEditItemScreenState extends ConsumerState<AddEditItemScreen> {
     if (widget.prefillName != null) {
       _name.text = widget.prefillName!;
     }
+    if (widget.prefillBarcode != null) {
+      _barcode.text = widget.prefillBarcode!;
+    }
   }
 
   @override
@@ -60,6 +72,7 @@ class _AddEditItemScreenState extends ConsumerState<AddEditItemScreen> {
     _name.dispose();
     _description.dispose();
     _price.dispose();
+    _barcode.dispose();
     super.dispose();
   }
 
@@ -75,7 +88,7 @@ class _AddEditItemScreenState extends ConsumerState<AddEditItemScreen> {
     _showOnWebsite = !p.held;
     _imageUrl = p.imageUrl;
     _imageCredit = p.imageCredit;
-    _barcode = p.barcode;
+    _barcode.text = p.barcode ?? '';
   }
 
   void _markDirty() {
@@ -119,6 +132,8 @@ class _AddEditItemScreenState extends ConsumerState<AddEditItemScreen> {
 
     setState(() => _saving = true);
     final controller = ref.read(productsProvider.notifier);
+    final barcodeText = _barcode.text.trim();
+    final barcode = barcodeText.isEmpty ? null : barcodeText;
     try {
       if (widget.isEdit) {
         await controller.update(
@@ -133,8 +148,8 @@ class _AddEditItemScreenState extends ConsumerState<AddEditItemScreen> {
           clearImageUrl: _imageUrl == null,
           imageCredit: _imageCredit,
           clearImageCredit: _imageCredit == null,
-          barcode: _barcode,
-          clearBarcode: _barcode == null,
+          barcode: barcode,
+          clearBarcode: barcode == null,
         );
       } else {
         await controller.add(ProductDraft(
@@ -147,7 +162,7 @@ class _AddEditItemScreenState extends ConsumerState<AddEditItemScreen> {
           held: !_showOnWebsite,
           imageUrl: _imageUrl,
           imageCredit: _imageCredit,
-          barcode: _barcode,
+          barcode: barcode,
         ));
       }
       if (!mounted) return;
@@ -291,6 +306,12 @@ class _AddEditItemScreenState extends ConsumerState<AddEditItemScreen> {
                   const SizedBox(height: KnSpace.s7),
                   _sectionLabel('Photo'),
                   _photoRow(kn),
+
+                  const SizedBox(height: KnSpace.s7),
+                  _sectionLabel('Barcode'),
+                  _barcodeRow(kn),
+                  _hint('Scan the barcode so you can find this item in a tap '
+                      'at the counter.'),
 
                   if (widget.isEdit) ...[
                     const SizedBox(height: KnSpace.s7),
@@ -495,6 +516,48 @@ class _AddEditItemScreenState extends ConsumerState<AddEditItemScreen> {
         ),
       ),
     );
+  }
+
+  Widget _barcodeRow(KnColors kn) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: _field(
+            _barcode,
+            keyboardType: TextInputType.text,
+            onChanged: (_) => _markDirty(),
+          ),
+        ),
+        const SizedBox(width: KnSpace.s2),
+        SizedBox(
+          height: 52,
+          child: OutlinedButton.icon(
+            onPressed: _scanIntoBarcode,
+            icon: Icon(Icons.qr_code_scanner, size: 20, color: kn.textPrimary),
+            label: Text('Scan',
+                style: KnType.button.copyWith(color: kn.textPrimary)),
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size(88, 52),
+              side: BorderSide(color: kn.textPrimary, width: 1.5),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(KnRadius.control),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _scanIntoBarcode() async {
+    FocusScope.of(context).unfocus();
+    final code = await context.push<String>('/scan');
+    if (!mounted || code == null || code.isEmpty) return;
+    setState(() {
+      _barcode.text = code;
+      _dirty = true;
+    });
   }
 
   Widget _photoRow(KnColors kn) {

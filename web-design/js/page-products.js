@@ -2,6 +2,15 @@
 renderShell('products');
 const activeTag = new URLSearchParams(location.search).get('tag') || '';
 
+/* Reflect the active category in the heading + document title so a filtered
+   view reads as "Products — Cards". The current chip is marked below with
+   is-active + aria-current. */
+if (activeTag) {
+  const h1 = document.querySelector('#main .section-head h1');
+  if (h1) h1.textContent = `Products — ${activeTag}`;
+  document.title = `${activeTag} — Products — Knightsbridge Newsagency, Castle Hill`;
+}
+
 document.getElementById('tag-filter').innerHTML =
   `<li><a class="tag-chip ${!activeTag ? 'is-active' : ''}" href="products.html" ${!activeTag ? 'aria-current="true"' : ''}>Everything</a></li>` +
   store.distinctTags().map(t =>

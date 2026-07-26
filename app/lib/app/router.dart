@@ -9,6 +9,7 @@ import '../screens/item_detail_screen.dart';
 import '../screens/order_detail_screen.dart';
 import '../screens/orders_screen.dart';
 import '../screens/removed_items_screen.dart';
+import '../screens/scan_screen.dart';
 import '../screens/settings_screen.dart';
 import '../screens/sign_in_details_screen.dart';
 import '../screens/sign_in_screen.dart';
@@ -25,6 +26,7 @@ abstract final class Routes {
   static const stock = '/stock';
   static const orders = '/orders';
   static const addItem = '/add-item';
+  static const scan = '/scan';
   static const settings = '/settings';
   static const account = '/settings/account';
   static const shopDetails = '/settings/shop';
@@ -113,7 +115,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: Routes.addItem,
         builder: (context, state) => AddEditItemScreen(
           prefillName: state.uri.queryParameters['name'],
+          prefillBarcode: state.uri.queryParameters['barcode'],
         ),
+      ),
+      // The barcode scanner. A flat, full-screen route (like /add-item) so it
+      // covers the tab bar. It POPS a String — the scanned/typed code — or null.
+      GoRoute(
+        path: Routes.scan,
+        builder: (context, state) => const ScanScreen(),
       ),
       GoRoute(
         path: '/item/:id/edit',

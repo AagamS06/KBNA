@@ -171,6 +171,46 @@ fine.
 
 ---
 
+## 6a. Barcode scanner — camera permission (this DOES add `CAMERA`)
+
+The barcode scanner (`mobile_scanner`, used by `lib/screens/scan_screen.dart`)
+is the **one** feature that needs a **live** camera feed, unlike the photo
+capture which uses the system camera app via `image_picker`. So it changes the
+permission posture on purpose:
+
+**iOS** — reuses the **same** `NSCameraUsageDescription` string from §5. No new
+key. If you did not ship the in-app photo camera you must still add this string,
+or the app hard-crashes the first time the owner opens the scanner:
+
+```xml
+<key>NSCameraUsageDescription</key>
+<string>Knightsbridge uses the camera to scan a product's barcode and to photograph stock items.</string>
+```
+
+**Android** — `mobile_scanner` declares `android.permission.CAMERA` **in its own
+manifest**, so after `flutter create .` the **merged** manifest **will** contain:
+
+```xml
+<uses-permission android:name="android.permission.CAMERA" />
+```
+
+This is expected and correct for a live scanner — do **not** try to strip it.
+The runtime prompt is handled by `mobile_scanner` when the owner first opens the
+scan screen. Because `CAMERA` is now present, `<uses-feature
+android:name="android.hardware.camera">` should stay `android:required="false"`
+(already the case per §6 / PHOTOS.md) so the app still installs on camera-less
+devices — where the scan screen falls back to manual entry.
+
+> Note the split: `READ_MEDIA_*` must still be **absent** (§6) — the photo
+> picker needs none. Only `CAMERA` is added, and only because of the scanner.
+
+**Desktop / web:** the scanner is only ever constructed on Android, iOS, macOS
+and web. On a Windows/Linux `flutter run` it opens directly on the manual-entry
+panel and never touches the camera, so the local build keeps working with no
+camera present.
+
+---
+
 ## 7. Version & build numbers
 
 `pubspec.yaml` → `version: <name>+<build>` (currently `1.0.0+14`).

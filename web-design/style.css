@@ -324,6 +324,10 @@ nav.tag-strip { margin-bottom: 2.4rem; }   /* filter rail on the shop page */
 .product-card:hover { transform: translateY(-4px); border-color: var(--ink); }
 .product-thumb { position: relative; aspect-ratio: 400 / 170; background: var(--ink); }
 .product-thumb svg, .product-thumb img { width: 100%; height: 100%; object-fit: cover; }
+/* The photo/artwork links to the detail page. It's hidden from the a11y tree
+   (aria-hidden + tabindex=-1 in the markup) so the product name below is the
+   single accessible link to the same place — no duplicate, empty image link. */
+.product-thumb-link { display: block; width: 100%; height: 100%; }
 .product-tag {
   position: absolute; top: .8rem; left: .8rem;
   background: var(--hot); color: #fff;
@@ -333,6 +337,8 @@ nav.tag-strip { margin-bottom: 2.4rem; }   /* filter rail on the shop page */
 }
 .product-body { padding: 1.2rem 1.3rem 1.4rem; display: flex; flex-direction: column; gap: .5rem; flex-grow: 1; }
 .product-name { font-family: var(--display); font-weight: 700; font-size: 1.02rem; line-height: 1.35; margin: 0; letter-spacing: -.01em; }
+.product-name a { color: inherit; text-decoration: none; }
+.product-name a:hover { color: var(--hot-ink); text-decoration: underline; }
 .product-desc { margin: 0; color: var(--ink-soft); font-size: .92rem; line-height: 1.6; flex-grow: 1; }
 .product-price { font-family: var(--display); font-weight: 800; font-size: 1.45rem; margin: .2rem 0; letter-spacing: -.03em; }
 .product-low {
@@ -352,6 +358,42 @@ nav.tag-strip { margin-bottom: 2.4rem; }   /* filter rail on the shop page */
   background: transparent; color: var(--ink); border-color: var(--line-ui);
 }
 .btn-instore:hover { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+/* ---------------- Product detail page ---------------- */
+.detail-back { margin: 0 0 1.6rem; }
+.detail-back a {
+  display: inline-flex; align-items: center; min-height: 44px;
+  font-family: var(--display); font-weight: 600; text-decoration: none; color: var(--ink-soft);
+}
+.detail-back a:hover { color: var(--hot-ink); text-decoration: underline; }
+
+.product-detail { display: grid; gap: 1.6rem 2.6rem; grid-template-columns: 1fr; align-items: start; }
+/* Stable box: aspect-ratio reserves the height before the photo loads, so the
+   page never jumps. Generated artwork and photos both fill it via object-fit. */
+.detail-media {
+  position: relative; border-radius: var(--r-card); overflow: hidden;
+  background: var(--ink); aspect-ratio: 3 / 2;
+}
+.detail-media img, .detail-media svg { width: 100%; height: 100%; object-fit: cover; }
+.detail-body { display: flex; flex-direction: column; align-items: flex-start; gap: .85rem; }
+.detail-tag {
+  background: var(--hot); color: #fff; font-family: var(--display);
+  font-size: .66rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+  padding: .3rem .8rem; border-radius: var(--pill);
+}
+.detail-name {
+  font-family: var(--display); font-weight: 800; letter-spacing: -.02em;
+  font-size: clamp(1.6rem, 4vw, 2.3rem); line-height: 1.15; margin: .2rem 0 0;
+}
+.detail-desc { margin: 0; color: var(--ink-soft); font-size: 1.05rem; line-height: 1.7; max-width: 40rem; }
+.product-detail .product-price { font-size: 1.9rem; margin: .4rem 0 .2rem; }
+.product-stock { margin: 0; color: var(--ink-soft); font-size: .95rem; }
+.product-detail .btn { min-width: min(16rem, 100%); margin-top: .4rem; }
+.product-detail .image-credit { margin-top: .4rem; }
+@media (min-width: 46rem) {
+  .detail-back { margin-bottom: 2rem; }
+  .product-detail { grid-template-columns: 1.05fr 1fr; gap: 2.4rem 3rem; align-items: center; }
+}
 
 /* ---------------- Gallery ---------------- */
 .gallery-grid {

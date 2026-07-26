@@ -173,7 +173,7 @@ const GALLERY = [
  *  and the generated category artwork when it isn't. */
 function galleryTileHTML(item, credit) {
   const media = item.src
-    ? `<img src="${esc(item.src)}" alt="${esc(item.caption)}" loading="lazy"
+    ? `<img src="${esc(item.src)}" alt="${esc(item.caption)}" width="800" height="600" loading="lazy"
             data-art-fallback="${esc(item.tag)}">`
     : tagThumb(item.tag, item.caption);
   return `

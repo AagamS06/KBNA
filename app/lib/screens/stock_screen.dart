@@ -132,6 +132,12 @@ class _StockScreenState extends ConsumerState<StockScreen> {
                       ],
                     ),
                   ),
+                  IconButton(
+                    icon: const Icon(Icons.qr_code_scanner),
+                    tooltip: 'Scan a barcode',
+                    onPressed: _scanLookup,
+                  ),
+                  const SizedBox(width: KnSpace.s1),
                   IconButton.filledTonal(
                     icon: const Icon(Icons.add),
                     tooltip: 'Add item',
@@ -266,6 +272,51 @@ class _StockScreenState extends ConsumerState<StockScreen> {
         ? ''
         : '?name=${Uri.encodeQueryComponent(prefillName)}';
     context.push('/add-item$q');
+  }
+
+  /// Scan → look the product up by barcode → open it, or offer to add it. The
+  /// counter's fastest "check a price / adjust stock" path.
+  Future<void> _scanLookup() async {
+    final code = await context.push<String>('/scan');
+    if (!mounted || code == null || code.isEmpty) return;
+
+    final repo = await ref.read(repoReadyProvider.future);
+    final product = await repo.getProductByBarcode(code);
+    if (!mounted) return;
+
+    if (product != null) {
+      context.push('/item/${product.id}');
+      return;
+    }
+
+    final add = await _confirmAddForBarcode(context, code);
+    if (add == true && mounted) {
+      context.push('/add-item?barcode=${Uri.encodeQueryComponent(code)}');
+    }
+  }
+
+  Future<bool?> _confirmAddForBarcode(BuildContext context, String code) {
+    final kn = context.kn;
+    return showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text('No item has that barcode yet',
+            style: KnType.title3.copyWith(color: kn.textPrimary)),
+        content: Text(
+          "Barcode $code isn't on any of your items. Add a new item and we'll "
+          'fill the barcode in for you.',
+          style: KnType.body.copyWith(color: kn.textSecondary),
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Not now')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Add a new item')),
+        ],
+      ),
+    );
   }
 
   Future<void> _confirmRemove(
