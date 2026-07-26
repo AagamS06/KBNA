@@ -27,6 +27,8 @@
   --dim: #A2A2A2;          /* muted text on black = 8.0:1 */
   --canvas: #FFFFFF;
   --canvas-2: #F6F6F6;     /* alternate band */
+  --canvas-3: #D6D6D6;     /* medium-grey feature band. --ink text = 13.3:1,
+                              --ink-soft = 4.6:1, brand-red UI/large = 3.2:1 */
   --card: #FFFFFF;
   --line: #E6E6E6;         /* hairline on light — decorative only */
   --line-dark: rgba(255,255,255,.14);
@@ -84,7 +86,7 @@ img, svg { max-width: 100%; display: block; }
 
 :focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; border-radius: 6px; }
 .band-dark :focus-visible, .hero-carousel :focus-visible,
-.site-footer :focus-visible, .how-it-works :focus-visible,
+.site-footer :focus-visible,
 .review-cta :focus-visible { outline-color: var(--hot-dark); }
 
 @media (prefers-reduced-motion: reduce) {
@@ -154,6 +156,9 @@ main.main-flush { max-width: none; padding: 0; }
 .band { padding: var(--band-y) 1rem; }
 .band-inner { max-width: var(--wrap); margin: 0 auto; }
 .band-soft { background: var(--canvas-2); }
+.band-grey { background: var(--canvas-3); color: var(--ink); }
+.band-grey h2, .band-grey h3, .band-grey strong { color: var(--ink); }
+.band-grey .section-head p { color: var(--ink-soft); }
 .band-dark { background: var(--ink); color: var(--dim); }
 .band-dark h2, .band-dark h3, .band-dark strong { color: #fff; }
 
@@ -336,6 +341,18 @@ nav.tag-strip { margin-bottom: 2.4rem; }   /* filter rail on the shop page */
 }
 .product-held { margin: .2rem 0 0; color: var(--ink-soft); font-style: italic; font-size: .92rem; }
 
+/* "Check in store" cards (e.g. greeting cards): no price, no basket button —
+   an informative note plus a neutral outlined control that points the shopper
+   to the store instead of adding to the basket. */
+.product-instore-note {
+  margin: .2rem 0 0; color: var(--ink-soft); font-size: .9rem; line-height: 1.55;
+}
+.btn-instore {
+  margin-top: auto;                 /* pin to the bottom so cards line up */
+  background: transparent; color: var(--ink); border-color: var(--line-ui);
+}
+.btn-instore:hover { background: var(--ink); color: #fff; border-color: var(--ink); }
+
 /* ---------------- Gallery ---------------- */
 .gallery-grid {
   list-style: none; margin: 0; padding: 0;
@@ -470,18 +487,24 @@ nav.tag-strip { margin-bottom: 2.4rem; }   /* filter rail on the shop page */
 .rating-caption { margin: .2rem 0 1.2rem; color: var(--dim); font-size: .95rem; }
 .testi-summary .btn { width: 100%; }
 
-/* Right card area */
-.testi-cards { display: grid; gap: 1.2rem; grid-template-columns: 1fr; min-width: 0; }
-@media (min-width: 48rem) {
-  .testi-cards { grid-template-columns: repeat(2, 1fr); }
-}
+/* Right card area — one review at a time, full width, gliding in. */
+.testi-cards { display: grid; grid-template-columns: 1fr; min-width: 0; }
 .review-card {
+  grid-area: 1 / 1;                 /* stack all cards; only .is-shown is visible */
   margin: 0; min-width: 0;
   background: var(--ink-2); border: 1px solid var(--line-dark); border-radius: var(--r-card);
   padding: 1.5rem 1.5rem 1.3rem;
   display: flex; flex-direction: column; gap: .85rem;
 }
 .review-card[hidden] { display: none; }
+.review-card.is-shown { animation: reviewSlide .5s cubic-bezier(.2,.7,.3,1); }
+@keyframes reviewSlide {
+  from { opacity: 0; transform: translateX(1.5rem); }
+  to   { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .review-card.is-shown { animation: none; }
+}
 
 .review-head { display: flex; align-items: center; gap: .75rem; }
 .review-avatar {
@@ -560,6 +583,17 @@ nav.tag-strip { margin-bottom: 2.4rem; }   /* filter rail on the shop page */
 .cart-table thead th { background: var(--ink); color: #fff; font-family: var(--display); font-size: .74rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; }
 .cart-table tfoot th, .cart-table tfoot td { border-bottom: none; font-size: 1.1rem; background: var(--canvas-2); }
 .cart-total { font-family: var(--display); font-weight: 800; letter-spacing: -.03em; }
+
+/* Per-line remove control, sitting to the right of the line subtotal. */
+.cart-subtotal-cell { display: flex; align-items: center; justify-content: space-between; gap: .75rem; }
+.cart-remove {
+  flex: none; width: 44px; height: 44px; padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: transparent; border: 1.5px solid var(--line-ui); border-radius: 999px;
+  color: var(--ink-soft); font-size: 1.3rem; line-height: 1; cursor: pointer;
+  transition: background .15s ease, color .15s ease, border-color .15s ease;
+}
+.cart-remove:hover { background: var(--hot-btn); border-color: var(--hot-btn); color: #fff; }
 .qty-form { display: flex; gap: .5rem; align-items: center; }
 .qty-form input[type="number"] { width: 5rem; min-height: 44px; font: inherit; padding: .3rem .6rem; border: 1.5px solid var(--line-ui); border-radius: var(--r-sm); }
 
@@ -600,8 +634,23 @@ fieldset.field { border: 1px solid var(--line); border-radius: var(--r-card); pa
 .notice-warning h2 { margin-top: 0; color: inherit; font-size: 1.3rem; }
 
 /* ---------------- Contact ---------------- */
-.contact-grid { display: grid; gap: 2.5rem; grid-template-columns: 1fr; }
+/* More breathing room on the contact page. */
+.contact-page { padding-top: 1rem; padding-bottom: 5rem; }
+.contact-grid { display: grid; gap: 2.5rem 3rem; grid-template-columns: 1fr; padding: 1rem 0 0; }
 @media (min-width: 48rem) { .contact-grid { grid-template-columns: 3fr 2fr; } }
+.contact-grid section { display: flex; flex-direction: column; }
+
+/* Email-or-mobile group */
+.contact-reach { display: grid; gap: 1rem; }
+.contact-reach > .field { margin: 0; }
+.hint-inline { font-weight: 400; font-size: .85rem; color: var(--ink-soft); }
+
+/* Responsive Google Maps embed */
+.map-embed {
+  margin-top: .6rem; border: 1px solid var(--line); border-radius: var(--r-card);
+  overflow: hidden; aspect-ratio: 16 / 10; background: var(--canvas-2);
+}
+.map-embed iframe { width: 100%; height: 100%; display: block; border: 0; }
 address { font-style: normal; }
 address a { display: inline-flex; align-items: center; min-height: 44px; }
 
@@ -787,3 +836,54 @@ address a { display: inline-flex; align-items: center; min-height: 44px; }
   .cbot { right: .7rem; bottom: .7rem; }
   .cbot-panel { height: min(28rem, calc(100vh - 5rem)); }
 }
+
+/* ============================================================
+   Light-band recolours
+
+   The home Testimonials and "Come and see us" (stats) bands moved onto
+   --canvas-3 medium grey, and "How it works" onto white. The component
+   styles above were authored for the old dark bands (white text, --hot-dark
+   light red, translucent hairlines), so these rules recolour their contents
+   for the light backgrounds. Later in the file = wins by source order.
+
+   Colour rules for the new surfaces:
+     • body text --ink (13:1 on grey), muted --ink-soft (4.6:1 on grey)
+     • red TEXT / small marks use --hot-ink #B3140C (4.8:1 grey, 7:1 white)
+     • star glyphs sit on white cards and use --hot #E1251B (4.7:1 on white)
+     • red UI fills (arrows) use --hot #E1251B — 3.2:1 vs grey, white icon
+       on the fill = 4.7:1 (both clear the 3:1 UI minimum)
+   ============================================================ */
+
+/* --- Testimonials (now grey) --- */
+.band-grey.testimonials .testi-title { color: var(--ink); }
+.band-grey .testi-accent { color: var(--hot-ink); }
+.band-grey .stat-figure { color: var(--hot-ink); }
+.band-grey .stat-label { color: var(--ink-soft); }
+
+/* Arrow / pause controls: brand-red fill, white icon. */
+.band-grey .testi-arrow { background: var(--hot); color: #fff; }
+.band-grey .testi-arrow:hover { background: var(--ink); color: #fff; }
+
+/* Rating panel + review cards become white with a hairline border. */
+.band-grey .testi-summary { background: var(--card); border-color: var(--line); }
+.band-grey .rating-score { color: var(--ink); }
+.band-grey .rating-caption { color: var(--ink-soft); }
+.band-grey .review-card { background: var(--card); border-color: var(--line); }
+.band-grey .review-name { color: var(--ink); }
+.band-grey .review-time,
+.band-grey .review-via { color: var(--ink-soft); }
+.band-grey .review-text { color: var(--ink); }
+.band-grey .review-more { color: var(--hot-ink); }
+.band-grey .review-verified-wrap { color: var(--hot-ink); }
+
+/* Stars sit on the white cards: brand red fill, hairline empty glyphs
+   (overrides the dark-band .testimonials rules above). */
+.band-grey .stars { color: var(--hot); }
+.band-grey .stars-dim { color: var(--line); }
+
+/* --- How it works (now white) --- */
+.how-it-works .steps li {
+  background: var(--card); border-color: var(--line); color: var(--ink-soft);
+}
+.how-it-works .steps li::before { color: var(--hot-ink); }
+.how-it-works .steps strong { color: var(--ink); }

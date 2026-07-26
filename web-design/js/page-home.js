@@ -10,7 +10,7 @@ if (typeof initLotteryPanel === 'function') {
 
 renderGallery('gallery');
 
-initReviewsSection('reviews-section', REVIEWS, { interval: 6500 });
+initReviewsAuto('reviews-section', { interval: 6500 });
 
 // Every figure here is a real, checkable one — the Google rating and
 // review count from reviews.js, and the opening hours from the shop.

@@ -4,6 +4,10 @@
 # (e.g. plain GitHub Pages) the equivalent <meta http-equiv> CSP in each
 # page still applies — see HOSTING-SECURITY.md for per-host setup.
 
+# NOTE: contact.html additionally needs `frame-src https://www.google.com`
+# for its Google Maps embed. It is set in that page's own <meta> CSP so the
+# rest of the site keeps the stricter policy. If you set CSP purely at the
+# edge instead of via meta, add that frame-src for /contact.html only.
 /*
   Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self'; connect-src 'self' https://api.openverse.org; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests
   X-Content-Type-Options: nosniff

@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!-- Security headers (also set at the edge via _headers; meta covers static hosts like GitHub Pages) -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self'; connect-src 'self' https://api.openverse.org; manifest-src 'self'; worker-src 'self'">
+<!-- frame-src for the Google Maps embed is added HERE only (this page); other pages keep the stricter policy. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self'; connect-src 'self' https://api.openverse.org; frame-src https://www.google.com; child-src https://www.google.com; manifest-src 'self'; worker-src 'self'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Contact &amp; opening hours — Knightsbridge Newsagency, Castle Hill</title>
 <meta name="description" content="Find Knightsbridge Newsagency at Shop 5, 159 Ridgecrop Drive, Castle Hill NSW 2154. Phone 02 9634 1591. Open weekdays 8am–6pm, weekends 8am–4pm.">
@@ -85,7 +86,7 @@
 </noscript>
 
 <header class="masthead" id="site-header"></header>
-<main id="main">
+<main id="main" class="contact-page">
   <div class="section-head">
     <span class="eyebrow">Get in touch</span>
     <h1>Contact us</h1>
@@ -101,16 +102,18 @@
           <input id="c-name" name="name" autocomplete="name" required aria-required="true" aria-describedby="err-name">
           <span class="field-error" id="err-name" role="alert" hidden></span>
         </div>
-        <div class="field">
-          <label for="c-email">Email address (required)</label>
-          <input id="c-email" name="email" type="email" autocomplete="email" required aria-required="true" aria-describedby="err-email">
-          <span class="field-error" id="err-email" role="alert" hidden></span>
-        </div>
-        <div class="field">
-          <label for="c-phone">Phone (optional)</label>
-          <input id="c-phone" name="phone" type="tel" autocomplete="tel" aria-describedby="err-phone">
-          <span class="field-error" id="err-phone" role="alert" hidden></span>
-        </div>
+        <fieldset class="field contact-reach">
+          <legend>How can we reach you? <span class="hint-inline">Email or mobile — at least one</span></legend>
+          <div class="field">
+            <label for="c-email">Email address</label>
+            <input id="c-email" name="email" type="email" autocomplete="email" aria-describedby="err-reach">
+          </div>
+          <div class="field">
+            <label for="c-phone">Mobile number</label>
+            <input id="c-phone" name="phone" type="tel" autocomplete="tel" aria-describedby="err-reach">
+          </div>
+          <span class="field-error" id="err-reach" role="alert" hidden></span>
+        </fieldset>
         <div class="field">
           <label for="c-message">Your message (required)</label>
           <textarea id="c-message" name="message" rows="6" required aria-required="true" aria-describedby="err-message"></textarea>
@@ -129,6 +132,15 @@
 
       <h2 id="online-h">Find us online</h2>
       <ul class="link-out-list" id="online-links"></ul>
+
+      <h2 id="map-h">Find us on the map</h2>
+      <div class="map-embed">
+        <iframe
+          title="Map to Knightsbridge Newsagency, Shop 5, 159 Ridgecrop Drive, Castle Hill NSW 2154"
+          src="https://www.google.com/maps?q=Knightsbridge%20Newsagency%2C%20Shop%205%2C%20159%20Ridgecrop%20Drive%2C%20Castle%20Hill%20NSW%202154&output=embed"
+          width="600" height="340" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+          style="border:0"></iframe>
+      </div>
     </section>
   </div>
 </main>

@@ -132,12 +132,15 @@
 
   function fallbackReply() {
     return [
-      "I'm a simple helper, so I might have missed that. I can help with opening " +
-      'hours, where to find us, our services, and whether we stock something.\n\n' +
-      'For anything else, call us on ',
+      "Sorry, I'm not sure about that one — I can help with opening hours, where " +
+      'to find us, our services, and whether we stock something. For anything ' +
+      'else, the best ways are:\n\n',
+      '• Get in touch your way — call ',
       link(BIZ.phone, LINKS.phone || BIZ.phoneHref),
       ' or use our ',
       link('contact page', 'contact.html'),
+      '.\n• Pop in and ask us in store — we love a chat.\n• Or have a look yourself on our ',
+      link('products page', 'products.html'),
       '.'
     ];
   }
@@ -271,18 +274,18 @@
     launcher = el('button', {
       type: 'button', class: 'cbot-launcher',
       'aria-haspopup': 'dialog', 'aria-expanded': 'false',
-      'aria-controls': 'cbot-panel', 'aria-label': 'Open help chat'
+      'aria-controls': 'cbot-panel', 'aria-label': 'Open KBNA Assistant chat'
     });
     launcher.appendChild(el('span', { 'aria-hidden': 'true', class: 'cbot-launcher-icon' }, ['💬']));
 
     panel = el('div', {
       class: 'cbot-panel', id: 'cbot-panel', role: 'dialog',
-      'aria-modal': 'false', 'aria-label': 'Knightsbridge Newsagency help chat'
+      'aria-modal': 'false', 'aria-label': 'KBNA Assistant chat'
     });
     panel.hidden = true;
 
     const header = el('div', { class: 'cbot-header' }, [
-      el('span', { class: 'cbot-title' }, ['Ask us anything']),
+      el('span', { class: 'cbot-title' }, ['KBNA Assistant']),
       (function () {
         const close = el('button', {
           type: 'button', class: 'cbot-close', 'aria-label': 'Close help chat'
@@ -325,7 +328,7 @@
     });
 
     // Greeting, added once so it's read when the panel first opens.
-    addBot(['G\'day! I\'m the Knightsbridge helper. Ask me about opening hours, ' +
+    addBot(['G\'day! I\'m the KBNA Assistant. Ask me about opening hours, ' +
             'where we are, our services, or whether we stock something.']);
   }
 

@@ -150,8 +150,8 @@ function reviewCardHTML(r, i) {
  *
  *  Auto-rotate keeps the same contract as before — a visible pause control,
  *  silent while auto-rotating, paused on hover / keyboard focus, and switched
- *  off entirely for prefers-reduced-motion. The prev/next arrows page through
- *  the reviews (two cards per page on desktop, one on mobile). */
+ *  off entirely for prefers-reduced-motion. The prev/next arrows move through
+ *  the reviews one at a time. */
 function initReviewsSection(mountId, reviews, { interval = 6500 } = {}) {
   const root = document.getElementById(mountId);
   if (!root || !reviews.length) return;
@@ -201,7 +201,8 @@ function initReviewsSection(mountId, reviews, { interval = 6500 } = {}) {
   const cardEls = [...root.querySelectorAll('.review-card')];
   const toggleBtn = root.querySelector('[data-rnav="toggle"]');
 
-  const perView = () => (wide.matches ? 2 : 1);
+  // One review at a time, on every viewport — they slide through gently.
+  const perView = () => 1;
   const pageCount = () => Math.max(1, Math.ceil(reviews.length / perView()));
 
   function render(fromUser = false) {
@@ -283,4 +284,20 @@ function initReviewsSection(mountId, reviews, { interval = 6500 } = {}) {
 
   render();
   if (reduceMotion) { playing = false; syncToggle(); } else { start(); }
+}
+
+/** Load reviews from data/reviews.json if a workflow has published it, else
+ *  fall back to the hand-kept genuine reviews above. Fails soft (offline,
+ *  file://, missing file) — the fallback always works. This is what the
+ *  home page calls; the ≤5-newest Google-reviews Action writes that file. */
+async function initReviewsAuto(mountId, opts) {
+  let reviews = REVIEWS;
+  try {
+    const res = await fetch('data/reviews.json', { cache: 'no-store' });
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length) reviews = data;
+    }
+  } catch { /* offline / no file — keep the hardcoded reviews */ }
+  initReviewsSection(mountId, reviews, opts);
 }

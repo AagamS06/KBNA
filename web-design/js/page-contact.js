@@ -35,9 +35,25 @@ function setError(id, message) {
   }
 }
 
-// Clear a field's error as soon as the visitor starts fixing it.
+const reachErr = document.getElementById('err-reach');
+function setReachError(message) {
+  const email = document.getElementById('c-email');
+  const phone = document.getElementById('c-phone');
+  if (message) {
+    email.setAttribute('aria-invalid', 'true');
+    phone.setAttribute('aria-invalid', 'true');
+    reachErr.textContent = message; reachErr.hidden = false;
+  } else {
+    email.removeAttribute('aria-invalid');
+    phone.removeAttribute('aria-invalid');
+    reachErr.textContent = ''; reachErr.hidden = true;
+  }
+}
+
+// Clear errors as soon as the visitor starts fixing them.
 form.addEventListener('input', (e) => {
-  if (e.target.id) setError(e.target.id, '');
+  if (e.target.id === 'c-email' || e.target.id === 'c-phone') setReachError('');
+  else if (e.target.id) setError(e.target.id, '');
 });
 
 form.addEventListener('submit', e => {
@@ -51,12 +67,26 @@ form.addEventListener('submit', e => {
   const fail = (el, msg) => { setError(el.id, msg); if (!firstBad) firstBad = el; };
 
   if (!name.value.trim()) fail(name, 'Please tell us your name.');
-  if (!email.value.trim()) fail(email, 'Please add an email so we can reply.');
-  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim())) fail(email, 'That email address looks incomplete.');
+
+  // Email OR mobile — at least one; validate email format only if given.
+  const hasEmail = !!email.value.trim();
+  const hasPhone = !!phone.value.trim();
+  if (!hasEmail && !hasPhone) {
+    setReachError('Please give us an email or a mobile number so we can reply.');
+    if (!firstBad) firstBad = email;
+  } else if (hasEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim())) {
+    setReachError('That email address looks incomplete.');
+    if (!firstBad) firstBad = email;
+  }
+
   if (!message.value.trim()) fail(message, 'Please write a short message.');
 
   if (firstBad) { firstBad.focus(); return; }
 
-  const body = `From: ${name.value.trim()} <${email.value.trim()}>\nPhone: ${phone.value.trim() || 'not provided'}\n\n${message.value.trim()}`;
+  const contact = [
+    email.value.trim() && `<${email.value.trim()}>`,
+    phone.value.trim() && `phone ${phone.value.trim()}`
+  ].filter(Boolean).join(', ');
+  const body = `From: ${name.value.trim()} ${contact}\n\n${message.value.trim()}`;
   location.href = `mailto:${store.owner().email}?subject=${encodeURIComponent('Website enquiry from ' + name.value.trim())}&body=${encodeURIComponent(body)}`;
 });

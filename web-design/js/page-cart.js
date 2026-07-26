@@ -28,7 +28,15 @@ function render() {
                 <input id="q-${l.id}" type="number" min="0" max="${l.stock}" value="${l.qty}" data-qty="${l.id}">
               </div>
             </td>
-            <td>${money(l.price_cents * l.qty)}</td>
+            <td>
+              <div class="cart-subtotal-cell">
+                <span>${money(l.price_cents * l.qty)}</span>
+                <button type="button" class="cart-remove" data-remove="${l.id}"
+                        aria-label="Remove ${esc(l.name)} from basket" title="Remove from basket">
+                  <span aria-hidden="true">×</span>
+                </button>
+              </div>
+            </td>
           </tr>`).join('')}
       </tbody>
       <tfoot><tr><th scope="row" colspan="3">Total (AUD)</th><td class="cart-total">${money(total)}</td></tr></tfoot>
@@ -68,6 +76,8 @@ document.addEventListener('input', e => {
   render();
 });
 document.addEventListener('click', e => {
+  const removeId = e.target.closest('[data-remove]')?.dataset.remove;
+  if (removeId) { store.setCartQty(removeId, 0); renderShell('cart'); render(); return; }
   if (e.target.id === 'pay-stripe') pay('stripe');
   if (e.target.id === 'pay-paypal') pay('paypal');
 });

@@ -3,24 +3,62 @@
 
 const DEFAULT_TAGS = ['Magazine', 'Paper', 'Toys', 'Cards', 'Stationery', 'Gifts', 'Lottery'];
 
+/* A "Check in store" card carries checkInStore:true. There are far too many
+   greeting-card designs to track stock online, so these products hide their
+   price/stock and never enter the basket — the card renders a "Check in store"
+   prompt instead. price/stock fields are kept (set to 0) so the product shape
+   stays uniform for the owner app and any code that reads them. */
+const CHECK_IN_STORE_DEFAULTS = { price_cents: 0, stock: 0, low_stock_threshold: 0, checkInStore: true };
+
 const SEED_PRODUCTS = [
+  /* ---- Paper ---- */
   { name: 'The Daily Telegraph (Weekday)', description: "Today's edition, delivered fresh each morning.", price_cents: 260, stock: 40, low_stock_threshold: 10, tag: 'Paper' },
   { name: 'The Sydney Morning Herald (Weekend)', description: 'Saturday edition with all the lift-outs.', price_cents: 450, stock: 30, low_stock_threshold: 8, tag: 'Paper' },
+  { name: 'The Australian (Weekday)', description: 'National daily broadsheet — business, politics and sport.', price_cents: 330, stock: 28, low_stock_threshold: 8, tag: 'Paper' },
+  { name: 'The Weekend Australian', description: 'Saturday edition with the Magazine and Review lift-outs.', price_cents: 480, stock: 22, low_stock_threshold: 6, tag: 'Paper' },
+  { name: 'Hills Shire Times', description: 'Your local Castle Hill and Hills District weekly.', price_cents: 220, stock: 35, low_stock_threshold: 10, tag: 'Paper' },
+  /* ---- Magazine ---- */
   { name: "Woman's Day Magazine", description: 'Latest weekly issue.', price_cents: 620, stock: 15, low_stock_threshold: 4, tag: 'Magazine' },
   { name: 'National Geographic', description: 'Current monthly issue.', price_cents: 1450, stock: 8, low_stock_threshold: 3, tag: 'Magazine' },
   { name: "That's Life Puzzler", description: 'Crosswords and puzzles — a customer favourite.', price_cents: 550, stock: 20, low_stock_threshold: 5, tag: 'Magazine' },
-  { name: 'Birthday Card — Classic Range', description: 'Assorted designs with envelope.', price_cents: 795, stock: 25, low_stock_threshold: 6, tag: 'Cards' },
-  { name: 'Sympathy Card', description: 'Thoughtful designs with envelope.', price_cents: 750, stock: 12, low_stock_threshold: 4, tag: 'Cards' },
+  { name: 'The Big Book of Crosswords', description: 'Chunky puzzle magazine — weeks of crosswords and quizzes.', price_cents: 895, stock: 18, low_stock_threshold: 5, tag: 'Magazine' },
+  { name: 'Better Homes and Gardens', description: 'Monthly issue — home, garden, food and DIY.', price_cents: 890, stock: 12, low_stock_threshold: 4, tag: 'Magazine' },
+  { name: 'TV Week', description: 'Weekly guide, gossip and puzzles.', price_cents: 480, stock: 24, low_stock_threshold: 6, tag: 'Magazine' },
+  { name: 'Australian Geographic', description: 'Bi-monthly — landscapes, wildlife and adventure.', price_cents: 1595, stock: 7, low_stock_threshold: 3, tag: 'Magazine' },
+  /* ---- Toys ---- */
   { name: 'Matchbox Diecast Car', description: 'Assorted models — great little gift.', price_cents: 500, stock: 18, low_stock_threshold: 5, tag: 'Toys' },
+  { name: 'Plush Teddy Bear', description: 'Soft cuddly bear — a last-minute gift sorted.', price_cents: 1995, stock: 9, low_stock_threshold: 3, tag: 'Toys' },
+  { name: 'Wooden Jigsaw Puzzle (100 pieces)', description: 'Chunky pieces — good for little hands.', price_cents: 1250, stock: 11, low_stock_threshold: 3, tag: 'Toys' },
+  { name: 'Deck of Playing Cards', description: 'Standard 52-card deck for games night.', price_cents: 450, stock: 26, low_stock_threshold: 6, tag: 'Toys' },
+  { name: 'Bumper Colouring & Activity Book', description: 'Puzzles, mazes and pictures to colour in.', price_cents: 695, stock: 16, low_stock_threshold: 4, tag: 'Toys' },
+  /* ---- Stationery ---- */
   { name: 'Crayola Coloured Pencils (12 pack)', description: 'Full colour set for school or home.', price_cents: 649, stock: 14, low_stock_threshold: 4, tag: 'Stationery' },
   { name: 'A4 Spiral Notebook 120pg', description: 'Ruled pages, sturdy cover.', price_cents: 425, stock: 22, low_stock_threshold: 6, tag: 'Stationery' },
+  { name: 'Parker Jotter Ballpoint Pen', description: 'Stainless steel barrel — a proper everyday pen.', price_cents: 2495, stock: 10, low_stock_threshold: 3, tag: 'Stationery' },
+  { name: 'HB Pencils (10 pack)', description: 'Everyday graphite pencils for school or office.', price_cents: 380, stock: 30, low_stock_threshold: 8, tag: 'Stationery' },
+  { name: 'Sticky Notes (assorted colours)', description: 'Handy 76mm pads — five colours.', price_cents: 425, stock: 20, low_stock_threshold: 5, tag: 'Stationery' },
+  { name: 'Highlighter Set (4 pack)', description: 'Chisel-tip markers in four bright colours.', price_cents: 550, stock: 18, low_stock_threshold: 5, tag: 'Stationery' },
+  /* ---- Gifts ---- */
   { name: 'Gift Wrap Roll — Assorted', description: '3 metres of quality wrap.', price_cents: 495, stock: 16, low_stock_threshold: 5, tag: 'Gifts' },
   { name: 'Scented Candle — Vanilla', description: 'Popular local gift line.', price_cents: 1295, stock: 6, low_stock_threshold: 3, tag: 'Gifts' },
-  { name: 'The Big Book of Crosswords', description: 'Chunky puzzle magazine — weeks of crosswords and quizzes.', price_cents: 895, stock: 18, low_stock_threshold: 5, tag: 'Magazine' },
-  { name: 'Parker Jotter Ballpoint Pen', description: 'Stainless steel barrel — a proper everyday pen.', price_cents: 2495, stock: 10, low_stock_threshold: 3, tag: 'Stationery' },
-  { name: 'Plush Teddy Bear', description: 'Soft cuddly bear — a last-minute gift sorted.', price_cents: 1995, stock: 9, low_stock_threshold: 3, tag: 'Toys' },
   { name: 'Gift Bag — Medium (Assorted)', description: 'Sturdy paper gift bag with rope handles.', price_cents: 350, stock: 30, low_stock_threshold: 8, tag: 'Gifts' },
-  { name: 'Instant Scratch-Its Ticket', description: 'Grab a scratchie at the counter and have a go.', price_cents: 500, stock: 50, low_stock_threshold: 10, tag: 'Lottery' }
+  { name: 'Photo Frame 6x4', description: 'Simple standing frame for a favourite snap.', price_cents: 1195, stock: 10, low_stock_threshold: 3, tag: 'Gifts' },
+  { name: 'Reed Diffuser — Linen', description: 'Long-lasting home fragrance in a glass bottle.', price_cents: 1650, stock: 8, low_stock_threshold: 3, tag: 'Gifts' },
+  { name: 'Keyring — Assorted', description: 'Little novelty keyrings — pick one at the counter.', price_cents: 650, stock: 24, low_stock_threshold: 6, tag: 'Gifts' },
+  /* ---- Lottery ---- */
+  { name: 'Instant Scratch-Its Ticket', description: 'Grab a scratchie at the counter and have a go.', price_cents: 500, stock: 50, low_stock_threshold: 10, tag: 'Lottery' },
+  { name: 'Powerball Quick Pick (1 game)', description: 'One randomly chosen Powerball entry for the next draw.', price_cents: 145, stock: 60, low_stock_threshold: 15, tag: 'Lottery' },
+  { name: 'Saturday Lotto Quick Pick (1 game)', description: 'One randomly chosen entry for Saturday Lotto.', price_cents: 90, stock: 60, low_stock_threshold: 15, tag: 'Lottery' },
+  { name: 'Oz Lotto Quick Pick (1 game)', description: 'One randomly chosen entry for Tuesday Oz Lotto.', price_cents: 135, stock: 55, low_stock_threshold: 15, tag: 'Lottery' },
+  /* ---- Cards (Check in store — too many designs to track stock) ---- */
+  { name: 'Birthday Card', description: 'A big wall of birthday designs — from kids to milestone ages.', tag: 'Cards', ...CHECK_IN_STORE_DEFAULTS },
+  { name: 'Love Card', description: 'For your someone special, Valentine\'s or just because.', tag: 'Cards', ...CHECK_IN_STORE_DEFAULTS },
+  { name: 'Sympathy Card', description: 'Thoughtful, understated designs for a difficult time.', tag: 'Cards', ...CHECK_IN_STORE_DEFAULTS },
+  { name: 'Thank You Card', description: 'Say thanks properly — singles and value packs.', tag: 'Cards', ...CHECK_IN_STORE_DEFAULTS },
+  { name: 'New Baby Card', description: 'Welcome the new arrival — for a boy, a girl or a surprise.', tag: 'Cards', ...CHECK_IN_STORE_DEFAULTS },
+  { name: 'Congratulations Card', description: 'New job, new home, graduation or a big win.', tag: 'Cards', ...CHECK_IN_STORE_DEFAULTS },
+  { name: 'Anniversary Card', description: 'From first year to golden — plenty to choose from.', tag: 'Cards', ...CHECK_IN_STORE_DEFAULTS },
+  { name: 'Blank Card — Any Occasion', description: 'Blank inside so you can write your own message.', tag: 'Cards', ...CHECK_IN_STORE_DEFAULTS }
 ];
 
 /* The shop's contact address, used by the enquiry form. There is deliberately
@@ -73,7 +111,9 @@ const store = {
     const cart = this.cart();
     return Object.entries(cart).map(([id, qty]) => {
       const p = this.productById(id);
-      if (!p || !p.active || p.held) return null;
+      // checkInStore items can't be reserved online, so they never appear as
+      // a cart line even if an id somehow lingered in storage.
+      if (!p || !p.active || p.held || p.checkInStore) return null;
       return { ...p, qty: Math.min(qty, p.stock) };
     }).filter(l => l && l.qty > 0);
   },
@@ -82,7 +122,9 @@ const store = {
   },
   addToCart(id) {
     const p = this.productById(id);
-    if (!p || !p.active || p.held || p.stock <= 0) return;
+    // Refuse checkInStore items: they aren't stock-tracked and can't be
+    // reserved or paid for online — the shopper comes in to browse them.
+    if (!p || !p.active || p.held || p.checkInStore || p.stock <= 0) return;
     const cart = this.cart();
     cart[id] = Math.min((cart[id] || 0) + 1, p.stock);
     this._write('kn.cart', cart);
@@ -92,7 +134,7 @@ const store = {
     if (qty <= 0) delete cart[id];
     else {
       const p = this.productById(id);
-      if (p) cart[id] = Math.min(qty, p.stock);
+      if (p && !p.checkInStore) cart[id] = Math.min(qty, p.stock);
     }
     this._write('kn.cart', cart);
   },
@@ -162,6 +204,24 @@ function productCardHTML(p) {
     ? `<img src="${esc(p.image_url)}" alt="" loading="lazy" data-art-fallback="${esc(p.tag)}">`
     : tagThumb(p.tag, p.name);
   const credit = p.image_url && p.image_credit ? imageCreditHTML(p.image_credit) : '';
+
+  /* "Check in store" items (e.g. greeting cards) have too many designs to
+     track stock online, so they never show a price or an Add button and can
+     never enter the basket. Instead the card shows an informative control
+     that points the shopper to the store / contact page. */
+  const body = p.checkInStore
+    ? `
+        <p class="product-instore-note">Come in and browse the range — too many designs to list online.</p>
+        <a class="btn btn-instore btn-block" href="contact.html">
+          Check in store<span class="visually-hidden"> for ${esc(p.name)}</span>
+        </a>`
+    : `
+        <p class="product-price"><span class="visually-hidden">Price: </span>${money(p.price_cents)}</p>
+        ${unavailable
+          ? `<p class="product-held">Temporarily unavailable — restocking soon</p>`
+          : `${low ? `<p class="product-low">Only ${p.stock} left</p>` : ''}
+             <button class="btn btn-primary btn-block" data-add="${p.id}">Add <span class="visually-hidden">${esc(p.name)} </span>to basket</button>`}`;
+
   return `
     <li class="product-card">
       <div class="product-thumb">
@@ -171,11 +231,7 @@ function productCardHTML(p) {
       <div class="product-body">
         <h2 class="product-name">${esc(p.name)}</h2>
         ${p.description ? `<p class="product-desc">${esc(p.description)}</p>` : ''}
-        <p class="product-price"><span class="visually-hidden">Price: </span>${money(p.price_cents)}</p>
-        ${unavailable
-          ? `<p class="product-held">Temporarily unavailable — restocking soon</p>`
-          : `${low ? `<p class="product-low">Only ${p.stock} left</p>` : ''}
-             <button class="btn btn-primary btn-block" data-add="${p.id}">Add <span class="visually-hidden">${esc(p.name)} </span>to basket</button>`}
+        ${body}
         ${credit}
       </div>
     </li>`;
