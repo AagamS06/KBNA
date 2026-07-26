@@ -253,6 +253,33 @@ create policy own_devices on devices
 -- authenticated policy is granted, so it is invisible to the app.
 
 -- ============================================================================
+-- Defence in depth. RLS is the primary control, but revoke table-level grants
+-- from anon/public as well, so a future policy mistake can't silently expose a
+-- base table. The website only ever touches the view.
+-- ============================================================================
+revoke all on products        from anon, public;
+revoke all on stock_movements from anon, public;
+revoke all on orders          from anon, public;
+revoke all on order_items     from anon, public;
+revoke all on devices         from anon, public;
+revoke all on alerts_sent     from anon, public;
+
+-- The public view must read `products` with the DEFINER's rights, not the
+-- anon caller's (who is denied above). On PostgreSQL 15+ views default to
+-- security_invoker = true, which would make anon's read fail — pin it off.
+-- (Harmless on older Postgres that lacks the option; drop this line there.)
+alter view public_products set (security_invoker = off);
+
+-- Pin a safe search_path on the trigger functions so a planted object in a
+-- writable schema can't shadow a built-in they call (search-path hijack).
+alter function recalc_stock(uuid)  set search_path = pg_catalog, public;
+alter function trg_recalc_stock()  set search_path = pg_catalog, public;
+alter function trg_auto_hold()     set search_path = pg_catalog, public;
+
+-- ============================================================================
 -- Reminder: disable public sign-ups (Authentication → Providers → Email →
 -- "Enable sign ups" OFF) and provision the two owner accounts by hand (§3.2).
+-- Also: keep the SERVICE ROLE key server-side only (Edge Functions / the
+-- lottery-style Actions), NEVER in the app or the website — it bypasses RLS.
+-- The app ships only the ANON key, which these policies make safe to expose.
 -- ============================================================================

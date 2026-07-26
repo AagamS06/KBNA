@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Security headers (also set at the edge via _headers; meta covers static hosts like GitHub Pages) -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self'; connect-src 'self' https://api.openverse.org; manifest-src 'self'; worker-src 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Order complete — Knightsbridge Newsagency</title>
 <meta name="description" content="Thanks for your order at Knightsbridge Newsagency — we'll have it ready to collect in store at Castle Hill NSW.">
 <meta name="robots" content="noindex, follow">

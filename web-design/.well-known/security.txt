@@ -1,0 +1,5 @@
+# RFC 9116 — how to report a security issue with this website.
+Contact: mailto:owner@knightsbridgenews.com.au
+Expires: 2027-12-31T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://www.knightsbridgenews.com.au/.well-known/security.txt
