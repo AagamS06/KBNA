@@ -7,7 +7,7 @@
 
    Bump CACHE_VERSION whenever the shell assets change to retire old caches. */
 
-const CACHE_VERSION = 'kn-v5';
+const CACHE_VERSION = 'kn-v6';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 

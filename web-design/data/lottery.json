@@ -1,26 +1,27 @@
 {
   "verified": true,
-  "game": "Saturday Lotto",
-  "drawNumber": 4697,
-  "drawDate": "2026-07-25",
+  "game": "Set for Life",
+  "drawNumber": 4007,
+  "drawDate": "2026-07-26",
   "winningNumbers": [
-    12,
     43,
-    2,
-    22,
-    8,
-    6
+    25,
+    35,
+    41,
+    6,
+    44,
+    36
   ],
   "supplementary": [
-    28,
-    13
+    7,
+    23
   ],
   "powerball": null,
-  "jackpot": "Next Saturday Lotto draw Sat, 1 Aug: $10 Million",
-  "badgeColour": "#E1251B",
+  "jackpot": "Next Set for Life draw Mon, 27 July: $4.8 Million",
+  "badgeColour": "#111111",
   "logoSlot": "",
   "posterSlot": "",
   "ctaHref": "https://www.thelott.com/results",
-  "updated": "2026-07-26T22:28:26+10:00",
-  "_gateSydneyDate": "2026-07-26"
+  "updated": "2026-07-27T18:56:54+10:00",
+  "_gateSydneyDate": "2026-07-27"
 }

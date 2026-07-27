@@ -237,7 +237,10 @@ a:hover { color: var(--hot); }
   overflow: hidden;
   background: var(--ink);
 }
-.carousel-viewport { position: relative; min-height: 38rem; }
+/* Cap the slide content on wide screens so the lotto SVG (and its draw
+   numbers/caption) stops scaling up unbounded. The dark .hero-carousel bar
+   still spans full width; only the copy+art inside it is capped and centred. */
+.carousel-viewport { position: relative; min-height: 38rem; max-width: 82rem; margin: 0 auto; }
 .carousel-slide {
   position: absolute; inset: 0;
   display: grid; grid-template-rows: 14rem 1fr;
