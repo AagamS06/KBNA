@@ -248,22 +248,51 @@ function renderShell(currentPage) {
   const cartCount = store.cartCount();
   // No owner entry point here by design — stock is managed only in the
   // owner's mobile app. See _archive/owner.html for the retired portal.
+  // Traditional bar: name left, menu centre, search + basket right.
   const nav = [
     { href: 'index.html', label: 'Home', key: 'home' },
     { href: 'products.html', label: 'Products', key: 'products' },
     { href: 'services.html', label: 'Services', key: 'services' },
     { href: 'about.html', label: 'About us', key: 'about' },
-    { href: 'contact.html', label: 'Contact us', key: 'contact' },
-    { href: 'cart.html', label: `Basket <span class="cart-count" aria-label="${cartCount} items in basket">${cartCount}</span>`, key: 'cart' }
+    { href: 'contact.html', label: 'Contact us', key: 'contact' }
   ];
 
   document.getElementById('site-header').innerHTML = `
     <a class="skip-link" href="#main">Skip to main content</a>
-    <p class="masthead-eyebrow">Knightsbridge Shopping Village · 5/159 Ridgecrop Dr, Castle Hill NSW</p>
-    <p class="masthead-name"><a href="index.html">Knightsbridge<span aria-hidden="true"> </span>Newsagency</a></p>
-    <nav aria-label="Main menu" class="main-nav">
-      <ul>${nav.map(n => `<li><a href="${n.href}" ${n.key === currentPage ? 'aria-current="page"' : ''}>${n.label}</a></li>`).join('')}</ul>
-    </nav>`;
+    <p class="top-banner">Open 7 days · Mon–Fri 8am–6pm, Sat–Sun 8am–4pm · <a href="${BUSINESS_LINKS.phone}">${BUSINESS.phone}</a> · Reserve online, collect in store</p>
+    <div class="nav-bar">
+      <div class="nav-brand">
+        <a class="brand-link" href="index.html">Knightsbridge<span aria-hidden="true"> </span>Newsagency</a>
+        <span class="brand-sub">Castle Hill NSW · Open 7 days</span>
+      </div>
+      <nav class="nav-menu" aria-label="Main menu">
+        <ul>${nav.map(n => `<li><a href="${n.href}" ${n.key === currentPage ? 'aria-current="page"' : ''}>${esc(n.label)}</a></li>`).join('')}</ul>
+      </nav>
+      <div class="nav-tools">
+        <form class="nav-search" role="search" id="nav-search">
+          <label class="visually-hidden" for="nav-search-input">Search this page</label>
+          <input id="nav-search-input" type="search" placeholder="Search…" autocomplete="off"
+                 aria-label="Search this page">
+          <button type="submit" class="nav-search-btn" aria-label="Search">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+              <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/>
+              <line x1="16.5" y1="16.5" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </form>
+        <a class="nav-basket" href="cart.html" ${currentPage === 'cart' ? 'aria-current="page"' : ''}
+           aria-label="Basket, ${cartCount} item${cartCount === 1 ? '' : 's'}">
+          <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false">
+            <path d="M6 7h12l-1 12a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+            <path d="M9 7a3 3 0 0 1 6 0" fill="none" stroke="currentColor" stroke-width="2"/>
+          </svg>
+          <span class="cart-count" aria-hidden="true">${cartCount}</span>
+        </a>
+      </div>
+    </div>
+    <p class="nav-search-status visually-hidden" id="nav-search-status" role="status" aria-live="polite"></p>`;
+
+  if (typeof initNavSearch === 'function') initNavSearch(currentPage);
 
   document.getElementById('site-footer').innerHTML = `
     <div class="footer-grid">
