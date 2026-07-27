@@ -3,6 +3,9 @@
 
 const DEFAULT_TAGS = ['Magazine', 'Paper', 'Toys', 'Cards', 'Stationery', 'Gifts', 'Lottery'];
 
+/* Bump when SEED_PRODUCTS changes shape so the demo catalogue refreshes. */
+const SEED_VERSION = 2;
+
 /* A "Check in store" card carries checkInStore:true. There are far too many
    greeting-card designs to track stock online, so these products hide their
    price/stock and never enter the basket — the card renders a "Check in store"
@@ -11,12 +14,22 @@ const DEFAULT_TAGS = ['Magazine', 'Paper', 'Toys', 'Cards', 'Stationery', 'Gifts
 const CHECK_IN_STORE_DEFAULTS = { price_cents: 0, stock: 0, low_stock_threshold: 0, checkInStore: true };
 
 const SEED_PRODUCTS = [
-  /* ---- Paper ---- */
-  { name: 'The Daily Telegraph (Weekday)', description: "Today's edition, delivered fresh each morning.", price_cents: 260, stock: 40, low_stock_threshold: 10, tag: 'Paper' },
-  { name: 'The Sydney Morning Herald (Weekend)', description: 'Saturday edition with all the lift-outs.', price_cents: 450, stock: 30, low_stock_threshold: 8, tag: 'Paper' },
-  { name: 'The Australian (Weekday)', description: 'National daily broadsheet — business, politics and sport.', price_cents: 330, stock: 28, low_stock_threshold: 8, tag: 'Paper' },
-  { name: 'The Weekend Australian', description: 'Saturday edition with the Magazine and Review lift-outs.', price_cents: 480, stock: 22, low_stock_threshold: 6, tag: 'Paper' },
-  { name: 'Hills Shire Times', description: 'Your local Castle Hill and Hills District weekly.', price_cents: 220, stock: 35, low_stock_threshold: 10, tag: 'Paper' },
+  /* ---- Paper ----
+     `days` = Sydney weekdays this edition is on sale (0=Sun … 6=Sat). The shop
+     shows only today's papers (see store.visibleProducts); e.g. Saturday shows
+     the Saturday Telegraph, Saturday Herald, AFR Weekend and Weekend Australian.
+     A paper with no `days` would show every day. */
+  { name: 'The Daily Telegraph', description: "Today's edition, in early every weekday morning.", price_cents: 200, stock: 40, low_stock_threshold: 10, tag: 'Paper', days: [1, 2, 3, 4, 5] },
+  { name: 'The Saturday Telegraph', description: 'Saturday edition with the weekend lift-outs.', price_cents: 320, stock: 35, low_stock_threshold: 8, tag: 'Paper', days: [6] },
+  { name: 'The Sunday Telegraph', description: 'Sunday edition — news, sport and the magazine.', price_cents: 320, stock: 35, low_stock_threshold: 8, tag: 'Paper', days: [0] },
+  { name: 'The Sydney Morning Herald', description: 'Weekday edition of the Herald.', price_cents: 300, stock: 30, low_stock_threshold: 8, tag: 'Paper', days: [1, 2, 3, 4, 5] },
+  { name: 'The Saturday Herald', description: 'Saturday SMH with all the lift-outs.', price_cents: 450, stock: 28, low_stock_threshold: 8, tag: 'Paper', days: [6] },
+  { name: 'The Sun-Herald', description: 'Sunday edition of the Herald.', price_cents: 320, stock: 28, low_stock_threshold: 8, tag: 'Paper', days: [0] },
+  { name: 'The Australian', description: 'National daily broadsheet — weekday edition.', price_cents: 330, stock: 28, low_stock_threshold: 8, tag: 'Paper', days: [1, 2, 3, 4, 5] },
+  { name: 'The Weekend Australian', description: 'Saturday edition with the Magazine and Review.', price_cents: 480, stock: 22, low_stock_threshold: 6, tag: 'Paper', days: [6] },
+  { name: 'Australian Financial Review', description: 'Weekday business and markets daily.', price_cents: 480, stock: 20, low_stock_threshold: 6, tag: 'Paper', days: [1, 2, 3, 4, 5] },
+  { name: 'AFR Weekend', description: 'The weekend Financial Review — business, life and leisure.', price_cents: 520, stock: 18, low_stock_threshold: 5, tag: 'Paper', days: [6] },
+  { name: 'Hills Shire Times', description: 'Your local Castle Hill and Hills District weekly (Wednesdays).', price_cents: 220, stock: 35, low_stock_threshold: 10, tag: 'Paper', days: [3] },
   /* ---- Magazine ---- */
   { name: "Woman's Day Magazine", description: 'Latest weekly issue.', price_cents: 620, stock: 15, low_stock_threshold: 4, tag: 'Magazine' },
   { name: 'National Geographic', description: 'Current monthly issue.', price_cents: 1450, stock: 8, low_stock_threshold: 3, tag: 'Magazine' },
@@ -45,11 +58,12 @@ const SEED_PRODUCTS = [
   { name: 'Photo Frame 6x4', description: 'Simple standing frame for a favourite snap.', price_cents: 1195, stock: 10, low_stock_threshold: 3, tag: 'Gifts' },
   { name: 'Reed Diffuser — Linen', description: 'Long-lasting home fragrance in a glass bottle.', price_cents: 1650, stock: 8, low_stock_threshold: 3, tag: 'Gifts' },
   { name: 'Keyring — Assorted', description: 'Little novelty keyrings — pick one at the counter.', price_cents: 650, stock: 24, low_stock_threshold: 6, tag: 'Gifts' },
-  /* ---- Lottery ---- */
-  { name: 'Instant Scratch-Its Ticket', description: 'Grab a scratchie at the counter and have a go.', price_cents: 500, stock: 50, low_stock_threshold: 10, tag: 'Lottery' },
-  { name: 'Powerball Quick Pick (1 game)', description: 'One randomly chosen Powerball entry for the next draw.', price_cents: 145, stock: 60, low_stock_threshold: 15, tag: 'Lottery' },
-  { name: 'Saturday Lotto Quick Pick (1 game)', description: 'One randomly chosen entry for Saturday Lotto.', price_cents: 90, stock: 60, low_stock_threshold: 15, tag: 'Lottery' },
-  { name: 'Oz Lotto Quick Pick (1 game)', description: 'One randomly chosen entry for Tuesday Oz Lotto.', price_cents: 135, stock: 55, low_stock_threshold: 15, tag: 'Lottery' },
+  /* ---- Lottery ----
+     Lottery tickets and Instant Scratch-Its are NOT sold online — reselling
+     them online breaches the operator's rules. The Lottery category is kept,
+     but the Products page shows an in-store / official-app message there
+     instead of any product (see js/page-products.js). No Lottery products
+     are seeded. */
   /* ---- Cards (Check in store — too many designs to track stock) ---- */
   { name: 'Birthday Card', description: 'A big wall of birthday designs — from kids to milestone ages.', tag: 'Cards', ...CHECK_IN_STORE_DEFAULTS },
   { name: 'Love Card', description: 'For your someone special, Valentine\'s or just because.', tag: 'Cards', ...CHECK_IN_STORE_DEFAULTS },
@@ -74,10 +88,14 @@ const store = {
   _write(k, v) { localStorage.setItem(k, JSON.stringify(v)); },
 
   init() {
-    if (!localStorage.getItem('kn.products')) {
+    // Re-seed when the catalogue shape changes (day-tagged papers, lottery
+    // removed from sale). Bumping SEED_VERSION refreshes the demo catalogue.
+    if (this._read('kn.seedVersion', 0) !== SEED_VERSION) {
       const seeded = SEED_PRODUCTS.map((p, i) => ({ id: i + 1, active: true, held: false, ...p }));
       this._write('kn.products', seeded);
       this._write('kn.nextId', seeded.length + 1);
+      this._write('kn.seedVersion', SEED_VERSION);
+      this._write('kn.cart', {});
     }
     if (!localStorage.getItem('kn.owner')) this._write('kn.owner', SHOP_CONTACT);
     if (!localStorage.getItem('kn.cart')) this._write('kn.cart', {});
@@ -88,6 +106,17 @@ const store = {
   activeProducts() { return this.products().filter(p => p.active); },
   productById(id) { return this.products().find(p => p.id === Number(id)); },
   saveProducts(list) { this._write('kn.products', list); },
+
+  /* Today's Sydney weekday (0=Sun … 6=Sat), so day-specific papers show only
+     on their day. */
+  todayWeekday() {
+    const s = new Intl.DateTimeFormat('en-US', { timeZone: 'Australia/Sydney', weekday: 'short' }).format(new Date());
+    return { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 }[s];
+  },
+  showsToday(p) { return !Array.isArray(p.days) || p.days.includes(this.todayWeekday()); },
+  /* Products a customer should see right now — active, and (for papers) on sale
+     today. Use this for shopfront rendering; activeProducts stays unfiltered. */
+  visibleProducts() { return this.activeProducts().filter(p => this.showsToday(p)); },
 
   addProduct(p) {
     const list = this.products();

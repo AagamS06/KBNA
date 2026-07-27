@@ -39,7 +39,7 @@ document.getElementById('tag-list').innerHTML =
   + `<li><a class="tag-chip" href="products.html">Everything</a></li>`;
 
 function renderPopular() {
-  const picks = store.activeProducts().filter(p => !p.held && p.stock > 0).slice(0, 4);
+  const picks = store.visibleProducts().filter(p => !p.held && p.stock > 0).slice(0, 4);
   document.getElementById('popular-grid').innerHTML = picks.map(productCardHTML).join('');
 }
 renderPopular();
