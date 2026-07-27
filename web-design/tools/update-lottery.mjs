@@ -204,9 +204,14 @@ function pickResult(drawResults, now) {
 // just the same series as the last result. So after Monday's Weekday Windfall
 // result, "next" is Tuesday's Oz Lotto (with its jackpot), not next Monday.
 // opendraws only returns draws still open (undrawn), so the earliest is next.
+// Never advertise Set for Life as the NEXT draw — it draws nightly, so it would
+// always win on date. The next draw is the closest-dated game from the priority
+// list EXCLUDING Set for Life (date first, then the priority order as a tiebreak
+// when two games draw the same night).
+const NEXT_DRAW_EXCLUDE = new Set(['SetForLife744']);
 function nextDrawOverall(openDraws) {
   const upcoming = (openDraws || [])
-    .filter((d) => GAMES[d.ProductId] && d.DrawDate)
+    .filter((d) => GAMES[d.ProductId] && d.DrawDate && !NEXT_DRAW_EXCLUDE.has(d.ProductId))
     .sort((a, b) =>
       a.DrawDate.localeCompare(b.DrawDate) ||
       (priorityOf(a.ProductId) - priorityOf(b.ProductId)));

@@ -1,20 +1,20 @@
 {
   "verified": true,
   "game": "Set for Life",
-  "drawNumber": 4007,
-  "drawDate": "2026-07-26",
+  "drawNumber": 4008,
+  "drawDate": "2026-07-27",
   "winningNumbers": [
-    43,
-    25,
-    35,
     41,
-    6,
-    44,
-    36
+    19,
+    23,
+    15,
+    4,
+    12,
+    25
   ],
   "supplementary": [
-    7,
-    23
+    28,
+    40
   ],
   "powerball": null,
   "jackpot": "Next draw — Oz Lotto Tue, 28 July: $20 Million",
@@ -24,6 +24,6 @@
   "logoSlot": "",
   "posterSlot": "",
   "ctaHref": "https://www.thelott.com/results",
-  "updated": "2026-07-27T21:21:04+10:00",
+  "updated": "2026-07-27T23:57:01+10:00",
   "_gateSydneyDate": "2026-07-27"
 }
