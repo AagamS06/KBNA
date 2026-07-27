@@ -17,11 +17,13 @@
     23
   ],
   "powerball": null,
-  "jackpot": "Next Set for Life draw Mon, 27 July: $4.8 Million",
+  "jackpot": "Next draw — Weekday Windfall Mon, 27 July: $1 Million",
+  "nextGame": "Weekday Windfall",
+  "nextDrawDate": "2026-07-27",
   "badgeColour": "#111111",
   "logoSlot": "",
   "posterSlot": "",
   "ctaHref": "https://www.thelott.com/results",
-  "updated": "2026-07-27T18:56:54+10:00",
+  "updated": "2026-07-27T19:09:02+10:00",
   "_gateSydneyDate": "2026-07-27"
 }

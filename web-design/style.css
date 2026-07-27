@@ -237,10 +237,11 @@ a:hover { color: var(--hot); }
   overflow: hidden;
   background: var(--ink);
 }
-/* Cap the slide content on wide screens so the lotto SVG (and its draw
-   numbers/caption) stops scaling up unbounded. The dark .hero-carousel bar
-   still spans full width; only the copy+art inside it is capped and centred. */
-.carousel-viewport { position: relative; min-height: 38rem; max-width: 82rem; margin: 0 auto; }
+.carousel-viewport { position: relative; min-height: 38rem; }
+/* The lotto slide's numbers must always be fully visible (never cropped by the
+   background "slice" fit) and must not balloon on wide screens — so its art
+   scales to FIT, on a seamless dark backdrop. Decorative slides keep slice. */
+.slide-art { background: var(--ink); }
 .carousel-slide {
   position: absolute; inset: 0;
   display: grid; grid-template-rows: 14rem 1fr;

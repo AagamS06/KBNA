@@ -190,10 +190,16 @@ function pickResult(drawResults, now) {
   return { result: null, path: 'none' };
 }
 
-function nextDrawFor(openDraws, productId, afterDate) {
+// The next draw OVERALL — the soonest upcoming headline draw of ANY game, not
+// just the same series as the last result. So after Monday's Weekday Windfall
+// result, "next" is Tuesday's Oz Lotto (with its jackpot), not next Monday.
+// opendraws only returns draws still open (undrawn), so the earliest is next.
+function nextDrawOverall(openDraws) {
   const upcoming = (openDraws || [])
-    .filter((d) => d.ProductId === productId && d.DrawDate.slice(0, 10) > afterDate)
-    .sort((a, b) => a.DrawDate.localeCompare(b.DrawDate));
+    .filter((d) => GAMES[d.ProductId] && d.DrawDate)
+    .sort((a, b) =>
+      a.DrawDate.localeCompare(b.DrawDate) ||
+      String(a.ProductId).localeCompare(String(b.ProductId)));
   return upcoming[0] || null;
 }
 
@@ -210,12 +216,16 @@ function buildRecord(result, next, prev, now) {
     supplementary = [];
   }
 
+  // The next draw is whatever draws soonest OVERALL (any game), named with ITS
+  // own game — not the last result's series.
+  const nextGameDef = next && GAMES[next.ProductId] ? GAMES[next.ProductId] : null;
+  const nextGameName = nextGameDef ? nextGameDef.name : '';
   let jackpot = '';
-  if (next) {
+  if (next && nextGameName) {
     const amt = formatMoney(next.Div1Amount);
     if (amt) {
       const est = next.IsDiv1Estimated ? ' est.' : '';
-      jackpot = `Next ${game.name} draw ${shortDate(next.DrawDate.slice(0, 10))}: ${amt}${est}`;
+      jackpot = `Next draw — ${nextGameName} ${shortDate(next.DrawDate.slice(0, 10))}: ${amt}${est}`;
     }
   }
 
@@ -231,6 +241,9 @@ function buildRecord(result, next, prev, now) {
     supplementary,
     powerball,
     jackpot,
+    // The next draw overall (any game), for a front-end that wants it separately.
+    nextGame: nextGameName,
+    nextDrawDate: next ? next.DrawDate.slice(0, 10) : '',
     badgeColour: game.badgeColour,
     // Owner-supplied LOCAL paths — preserved verbatim, never set by this job.
     logoSlot: (prev && typeof prev.logoSlot === 'string') ? prev.logoSlot : '',
@@ -245,7 +258,7 @@ function buildRecord(result, next, prev, now) {
 function contentChanged(next, prev) {
   if (!prev) return true;
   const keys = ['verified', 'game', 'drawNumber', 'drawDate', 'winningNumbers', 'supplementary',
-    'powerball', 'jackpot', 'badgeColour', 'logoSlot', 'posterSlot', 'ctaHref'];
+    'powerball', 'jackpot', 'nextGame', 'nextDrawDate', 'badgeColour', 'logoSlot', 'posterSlot', 'ctaHref'];
   return keys.some((k) => JSON.stringify(next[k]) !== JSON.stringify(prev?.[k]));
 }
 
@@ -297,7 +310,7 @@ async function main() {
     return 0;
   }
 
-  const next = nextDrawFor(open?.Draws, result.ProductId, result.DrawDate.slice(0, 10));
+  const next = nextDrawOverall(open?.Draws);
   const record = buildRecord(result, next, prev, now);
 
   // Sanity: never write an empty/broken record.

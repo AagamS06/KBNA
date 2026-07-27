@@ -184,8 +184,8 @@ const HERO_SLIDES = [
     svg: () => `
       <svg viewBox="0 0 800 520" role="img" aria-label="${HERO_LOTTO
         ? esc(`${HERO_LOTTO.game} draw ${HERO_LOTTO.drawNumber || ''} winning numbers: ${HERO_LOTTO.winningNumbers.join(', ')}${HERO_LOTTO.supplementary && HERO_LOTTO.supplementary.length ? ', supplementary ' + HERO_LOTTO.supplementary.join(', ') : ''}${HERO_LOTTO.powerball != null ? ', Powerball ' + HERO_LOTTO.powerball : ''}`)
-        : 'Illustration of numbered lottery balls and a toy car'}" preserveAspectRatio="xMidYMid slice">
-        <rect width="800" height="520" fill="#111111"/>
+        : 'Illustration of numbered lottery balls and a toy car'}" preserveAspectRatio="xMidYMid meet">
+        <rect x="-400" y="-260" width="1600" height="1040" fill="#111111"/>
         <g opacity="0.3">
           ${Array.from({ length: 5 }, (_, i) => `<circle cx="${120 + i * 160}" cy="${i % 2 ? 420 : 90}" r="${70 + i * 8}" fill="${['#E1251B', '#FFFFFF', '#A11009'][i % 3]}" opacity="0.35"/>`).join('')}
         </g>
