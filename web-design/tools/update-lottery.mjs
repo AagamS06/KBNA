@@ -57,15 +57,23 @@ const GAMES = {
   SetForLife744:              { name: 'Set for Life',    badgeColour: '#111111' },
 };
 
-// Sydney weekday (0=Sun) -> the headline ProductId that draws that day.
-const WEEKDAY_HEADLINE = {
-  0: 'SetForLife744',              // Sunday — only Set for Life draws
-  1: 'MondayWednesdayFridayLotto', // Monday
-  2: 'OzLotto',                    // Tuesday
-  3: 'MondayWednesdayFridayLotto', // Wednesday
-  4: 'Powerball',                  // Thursday
-  5: 'MondayWednesdayFridayLotto', // Friday
-  6: 'TattsLotto',                 // Saturday
+// When more than one headline game draws on the same night, this is the order
+// the shop wants shown (higher = shown first). Powerball, then Saturday Lotto,
+// then Oz Lotto, then Weekday Windfall, then Lucky Lotteries, then Super
+// Jackpot, then Set for Life (draws nightly, so it's the lowest priority).
+// Lucky Lotteries / Super Jackpot only apply if the feed returns them.
+const PRIORITY = [
+  'Powerball',
+  'TattsLotto',                    // Saturday Lotto
+  'OzLotto',
+  'MondayWednesdayFridayLotto',    // Weekday Windfall
+  'LuckyLotteries',
+  'SuperJackpot',
+  'SetForLife744',
+];
+const priorityOf = (id) => {
+  const i = PRIORITY.indexOf(id);
+  return i === -1 ? 999 : i;
 };
 
 /* ---- Sydney date helpers (DST-correct via Intl, no deps) ------------------ */
@@ -170,13 +178,15 @@ function pickResult(drawResults, now) {
   }
 
   const target = sydneyYesterday(now);
-  const headline = WEEKDAY_HEADLINE[weekdayOf(target)];
 
-  // Primary path: yesterday's weekday -> its headline game, if that game's
-  // latest published draw actually fell on yesterday.
-  const primary = byProduct[headline];
-  if (primary && primary.DrawDate.slice(0, 10) === target) {
-    return { result: primary, path: `weekday-match (${headline} for ${target})` };
+  // Primary path: among every game that drew on the target night, show the
+  // highest-priority one (Powerball > Saturday Lotto > Oz Lotto > Weekday
+  // Windfall > Lucky Lotteries > Super Jackpot > Set for Life).
+  const onNight = Object.values(byProduct)
+    .filter((r) => r.DrawDate.slice(0, 10) === target)
+    .sort((a, b) => priorityOf(a.ProductId) - priorityOf(b.ProductId));
+  if (onNight.length) {
+    return { result: onNight[0], path: `priority-on-night (${onNight[0].ProductId} for ${target})` };
   }
 
   // Fallback: most recently published headline draw across all games. Covers the
@@ -199,7 +209,7 @@ function nextDrawOverall(openDraws) {
     .filter((d) => GAMES[d.ProductId] && d.DrawDate)
     .sort((a, b) =>
       a.DrawDate.localeCompare(b.DrawDate) ||
-      String(a.ProductId).localeCompare(String(b.ProductId)));
+      (priorityOf(a.ProductId) - priorityOf(b.ProductId)));
   return upcoming[0] || null;
 }
 
@@ -222,10 +232,17 @@ function buildRecord(result, next, prev, now) {
   const nextGameName = nextGameDef ? nextGameDef.name : '';
   let jackpot = '';
   if (next && nextGameName) {
-    const amt = formatMoney(next.Div1Amount);
-    if (amt) {
-      const est = next.IsDiv1Estimated ? ' est.' : '';
-      jackpot = `Next draw — ${nextGameName} ${shortDate(next.DrawDate.slice(0, 10))}: ${amt}${est}`;
+    const when = shortDate(next.DrawDate.slice(0, 10));
+    if (next.ProductId === 'SetForLife744') {
+      // Set for Life's top prize is an annuity, not a lump sum — show it the way
+      // the official sites do, not the Div1Amount figure.
+      jackpot = `Next draw — Set for Life ${when}: $20,000 a month for 20 years`;
+    } else {
+      const amt = formatMoney(next.Div1Amount);
+      if (amt) {
+        const est = next.IsDiv1Estimated ? ' est.' : '';
+        jackpot = `Next draw — ${nextGameName} ${when}: ${amt}${est}`;
+      }
     }
   }
 
