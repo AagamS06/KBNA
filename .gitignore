@@ -17,3 +17,8 @@ app/pubspec.lock
 Thumbs.db
 # scratch
 _archive/
+
+# stray npm (Flutter app must not have these)
+app/node_modules/
+app/package.json
+app/package-lock.json

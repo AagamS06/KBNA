@@ -1,0 +1,25 @@
+# Security response headers for Netlify / Cloudflare Pages.
+# These set the headers a <meta> tag cannot: frame-ancestors, HSTS,
+# X-Frame-Options, Permissions-Policy. On a host that ignores this file
+# (e.g. plain GitHub Pages) the equivalent <meta http-equiv> CSP in each
+# page still applies — see HOSTING-SECURITY.md for per-host setup.
+
+# NOTE: contact.html additionally needs `frame-src https://www.google.com`
+# for its Google Maps embed. It is set in that page's own <meta> CSP so the
+# rest of the site keeps the stricter policy. If you set CSP purely at the
+# edge instead of via meta, add that frame-src for /contact.html only.
+/*
+  Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self'; connect-src 'self' https://api.openverse.org; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), camera=(), microphone=(), payment=(), usb=(), interest-cohort=()
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Resource-Policy: same-origin
+
+# Never let the service worker or the lottery data be framed or sniffed.
+/sw.js
+  Cache-Control: no-cache
+/data/*
+  X-Content-Type-Options: nosniff

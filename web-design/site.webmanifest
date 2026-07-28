@@ -1,0 +1,26 @@
+{
+  "name": "Knightsbridge Newsagency",
+  "short_name": "Knightsbridge",
+  "description": "Papers, magazines, cards, gifts, toys and lotto in Castle Hill NSW. Reserve online, collect in store.",
+  "lang": "en-AU",
+  "dir": "ltr",
+  "start_url": "index.html",
+  "scope": "./",
+  "id": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#111111",
+  "background_color": "#ffffff",
+  "categories": ["shopping", "news", "lifestyle"],
+  "icons": [
+    { "src": "favicon.svg", "type": "image/svg+xml", "sizes": "any", "purpose": "any" },
+    { "src": "assets/icons/icon-192.png", "type": "image/png", "sizes": "192x192", "purpose": "any" },
+    { "src": "assets/icons/icon-512.png", "type": "image/png", "sizes": "512x512", "purpose": "any" },
+    { "src": "assets/icons/icon-maskable-512.png", "type": "image/png", "sizes": "512x512", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Products", "url": "products.html" },
+    { "name": "Your basket", "url": "cart.html" },
+    { "name": "Contact us", "url": "contact.html" }
+  ]
+}

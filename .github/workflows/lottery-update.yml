@@ -1,0 +1,65 @@
+name: Daily lottery refresh
+
+# Refreshes web-design/data/lottery.json from the official operator feed once per
+# real Australia/Sydney day, then commits ONLY that file.
+#
+# WHY TWO CRONS. GitHub Actions cron is UTC-only and has no DST. Sydney is UTC+11
+# in daylight time (AEDT, Oct–Apr) and UTC+10 in standard time (AEST, Apr–Oct),
+# so "just after Sydney midnight" lands at a different UTC hour across the year:
+#   - AEDT (UTC+11): Sydney 00:00 == 13:00 UTC
+#   - AEST (UTC+10): Sydney 00:00 == 14:00 UTC
+# Running at BOTH 13:00 and 14:00 UTC guarantees at least one run at/after Sydney
+# midnight all year round. The script itself gates on the real Australia/Sydney
+# date (it stamps `_gateSydneyDate` on the file it writes and skips if that
+# already equals today's Sydney date), so the extra run is a cheap no-op — the
+# job still acts at most once per Sydney day.
+#
+# COMPLIANCE. The script publishes only facts (winning numbers, draw number,
+# advertised jackpot) and NEVER fetches or stores a poster or trademarked logo.
+# It stamps `verified: true` only on real fetched data; the renderer keeps the
+# panel hidden otherwise. It fails soft: on any error the last good file is left
+# untouched, so a broken/empty lottery.json is never committed.
+
+on:
+  schedule:
+    - cron: "0 13 * * *"   # Sydney midnight during AEDT (UTC+11)
+    - cron: "0 14 * * *"   # Sydney midnight during AEST (UTC+10)
+  workflow_dispatch:        # manual "Run workflow" button
+
+# Least privilege: the job only needs to push the one data file back.
+permissions:
+  contents: write
+
+# Never let two refreshes race the same file.
+concurrency:
+  group: lottery-update
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"   # built-in fetch + Intl; no dependencies to install
+
+      - name: Refresh lottery.json
+        working-directory: web-design
+        run: node tools/update-lottery.mjs
+
+      - name: Commit if changed
+        run: |
+          # Stage ONLY the data file — nothing else this job could touch.
+          git add web-design/data/lottery.json
+          if git diff --cached --quiet; then
+            echo "No change to lottery.json — nothing to commit."
+            exit 0
+          fi
+          git config user.name  "knightsbridge-lottery-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git commit -m "chore(lottery): refresh daily draw [skip ci]"
+          git push

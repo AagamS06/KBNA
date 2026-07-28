@@ -1,0 +1,195 @@
+name: knightsbridge_owner
+description: >-
+  Knightsbridge Newsagency — the shop owner's counter tool. Manage stock,
+  prices, holds and view online orders. Local-first; works fully offline.
+publish_to: "none"
+version: 1.0.0+14
+
+environment:
+  # PopScope.onPopInvokedWithResult (add_edit_item_screen.dart) landed in
+  # Flutter 3.24 / Dart 3.5; the old 3.22/3.4 floor would fail to compile it.
+  sdk: ">=3.5.0 <4.0.0"
+  flutter: ">=3.24.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # --- State management -------------------------------------------------
+  # Riverpod (recommended by the brief). Chosen over Provider/Bloc because
+  # it gives compile-safe, testable providers with no BuildContext coupling,
+  # and its family/AsyncNotifier primitives map cleanly onto "load, mutate,
+  # re-read" against a local repository. We deliberately use the hand-written
+  # Notifier API (not riverpod_generator) so the project builds with a plain
+  # `flutter pub get` — no build_runner / code-gen step to run in VS Code.
+  flutter_riverpod: ^2.5.1
+
+  # --- Navigation -------------------------------------------------------
+  # go_router: declarative, deep-linkable routes and the StatefulShellRoute
+  #   that backs the bottom-tab shell (each tab keeps its own state via an
+  #   indexedStack, as the old manual shell did). Chosen over Navigator 2.0 by
+  #   hand (huge boilerplate) and auto_route (needs build_runner code-gen,
+  #   which the brief avoids). The 14.x line targets Flutter 3.24 / Dart 3.5.
+  go_router: ^14.6.2
+
+  # --- Local-first storage ----------------------------------------------
+  # sqflite chosen over drift and hive:
+  #   * drift is the nicest ORM but requires build_runner code generation,
+  #     which adds a mandatory codegen step before the app will compile.
+  #     The brief wants "runs with flutter run" with no extra ceremony.
+  #   * hive is a document store; the architecture doc models stock as an
+  #     APPEND-ONLY LEDGER (stock_movements) with a derived stock_cached.
+  #     That is a relational shape (a movements table joined to products),
+  #     which SQL expresses naturally and a key/value store does not.
+  #   * sqflite is plain SQL, zero code-gen, first-party-quality, and lets
+  #     us implement the ledger + recalc exactly as 01-architecture.md §2.4
+  #     specifies. When the Supabase backend is added later, the same SQL
+  #     shapes port across almost verbatim.
+  sqflite: ^2.3.3
+  # Desktop support so the app also runs from VS Code on Windows/macOS/Linux
+  # for demoing without a phone/emulator (mobile uses sqflite's native impl).
+  sqflite_common_ffi: ^2.3.3
+  path: ^1.9.0
+  path_provider: ^2.1.3
+
+  # --- Backend (optional; behind the ShopRepository seam) ---------------
+  # supabase_flutter: the Postgres/PostgREST/Auth backend from
+  #   01-architecture.md §2. It is ONLY initialised when SUPABASE_URL /
+  #   SUPABASE_ANON_KEY are passed via --dart-define; with no env the package
+  #   is never touched and the app runs entirely on the local sqflite store.
+  #   The website reads the same DB (the `public_products` view) with a plain
+  #   fetch(), so PostgREST is the deciding factor over Firebase. 2.x pins the
+  #   current Auth/Realtime API used by SupabaseShopRepository.
+  supabase_flutter: ^2.8.0
+  # connectivity_plus: online/offline detection for the sync worker — it kicks
+  #   the outbox drain on reconnect and skips network work while offline. The
+  #   Flutter-team-endorsed plugin; 6.x returns List<ConnectivityResult>.
+  connectivity_plus: ^6.1.0
+
+  # --- Design system ----------------------------------------------------
+  # google_fonts pulls Plus Jakarta Sans + Atkinson Hyperlegible. For a
+  # production release these two families should be bundled as assets (see
+  # README "Fonts") so there is no first-run network fetch or fallback flash,
+  # exactly as the design system mandates; google_fonts supports that too.
+  google_fonts: ^6.2.1
+
+  # --- Photo integration (03-photo-integration.md) ----------------------
+  # image_picker: the system pickers, which is the whole point of the spec.
+  #   ImageSource.gallery -> PHPickerViewController (iOS) / Android Photo
+  #   Picker — both PROMPT-FREE (no NSPhotoLibraryUsageDescription, no
+  #   READ_MEDIA_IMAGES). ImageSource.camera -> the system camera. First-party
+  #   Flutter plugin, so no bespoke platform channels to maintain.
+  image_picker: ^1.1.2
+  # flutter_image_compress: native downscale + JPEG re-encode. The re-encode is
+  #   what strips EXIF/GPS (keepExif:false) and bakes EXIF orientation
+  #   (autoCorrectionAngle) — §5.4/§5.5. Preferred over the pure-Dart `image`
+  #   package: native = fast/low-memory on 12 MP photos, and it can decode HEIC
+  #   where the platform can (iOS; Android API 28+).
+  flutter_image_compress: ^2.3.0
+  # http: the one Openverse REST call for "Find one for me".
+  http: ^1.2.2
+
+  # --- Notifications (the notification seam) -----------------------------
+  # flutter_local_notifications: on-device low-stock + new-order alerts
+  #   (01-architecture.md §5.1 "Local notifications too"), which fire even with
+  #   no signal. Only the immediate alerts are built here; the scheduled 06:30
+  #   digest is a server (pg_cron) job by design. FCM/APNs push slots in later
+  #   behind the PushRegistrar seam without touching any screen. 17.x is the
+  #   last line that builds cleanly on the Flutter 3.24 / AGP toolchain.
+  flutter_local_notifications: ^17.2.4
+
+  # --- Barcode scanning --------------------------------------------------
+  # mobile_scanner: the maintained, widely-used barcode/QR scanner. It wraps
+  #   Google's MLKit Barcode Scanning on Android and Apple's Vision/AVFoundation
+  #   on iOS (getUserMedia on web, AVFoundation on macOS), so there is no bespoke
+  #   platform channel to keep alive. Pinned to the 5.x line: it targets the
+  #   Flutter 3.24 / Dart 3.5 floor and exposes the stable
+  #   ValueNotifier<MobileScannerState> torch/lifecycle API the scan screen uses
+  #   (7.x raises the SDK floor). The scan screen only ever instantiates the
+  #   controller on camera-capable platforms (Android/iOS/macOS/web) and
+  #   degrades to manual entry everywhere else, so a bare `flutter run` on a
+  #   Windows/Linux desktop still builds and runs with no camera.
+  #
+  #   PERMISSIONS NOTE (a deliberate change to the app's near-permission-free
+  #   posture): unlike image_picker, mobile_scanner needs a LIVE camera, so it
+  #   declares android.permission.CAMERA in its own manifest and reads
+  #   NSCameraUsageDescription on iOS. That CAMERA line now appears in the merged
+  #   Android manifest by design — see STORE-READINESS.md §6a and PHOTOS.md.
+  mobile_scanner: ^5.2.3
+
+  # --- Utilities --------------------------------------------------------
+  intl: ^0.19.0        # en-AU dates + AUD currency formatting
+  collection: ^1.18.0  # groupBy for the orders list
+  uuid: ^4.4.0         # client-generated ids + idempotency keys (sync seam);
+                       # also names stored photo files (data/image_pipeline.dart)
+
+dev_dependencies:
+  flutter_lints: ^4.0.0
+  flutter_test:
+    sdk: flutter
+
+  # --- Release tooling (config-only; run manually, not at build time) ----
+  # flutter_launcher_icons: generates the per-platform app-icon set from one
+  #   1024px master. Config lives under `flutter_launcher_icons:` below.
+  flutter_launcher_icons: ^0.14.1
+  # flutter_native_splash: generates the launch screen. Config under
+  #   `flutter_native_splash:` below. Both are dev tools you run once per asset
+  #   change (`dart run flutter_launcher_icons` / `... flutter_native_splash:create`)
+  #   — they do NOT run during `flutter run`/`build`, so an app with no icon
+  #   asset yet still compiles and runs. See DEPLOYMENT.md.
+  flutter_native_splash: ^2.4.3
+
+flutter:
+  uses-material-design: true
+  # To bundle the fonts instead of fetching them at runtime, drop the .ttf
+  # files under assets/fonts/ and declare them here, then flip
+  # `GoogleFonts.config.allowRuntimeFetching = false` in main.dart. See README.
+  #
+  # fonts:
+  #   - family: Plus Jakarta Sans
+  #     fonts:
+  #       - asset: assets/fonts/PlusJakartaSans-Regular.ttf
+  #       - asset: assets/fonts/PlusJakartaSans-Medium.ttf
+  #         weight: 500
+  #       - asset: assets/fonts/PlusJakartaSans-SemiBold.ttf
+  #         weight: 600
+  #       - asset: assets/fonts/PlusJakartaSans-Bold.ttf
+  #         weight: 700
+  #       - asset: assets/fonts/PlusJakartaSans-ExtraBold.ttf
+  #         weight: 800
+  #   - family: Atkinson Hyperlegible
+  #     fonts:
+  #       - asset: assets/fonts/AtkinsonHyperlegible-Regular.ttf
+  #       - asset: assets/fonts/AtkinsonHyperlegible-Bold.ttf
+  #         weight: 700
+
+# ----------------------------------------------------------------------
+# App icon generation (config only — run `dart run flutter_launcher_icons`).
+# Drop a 1024×1024 master (white "K" mark, no transparency, no rounded
+# corners — the OS rounds it) at the path below FIRST. Palette is the brand
+# red #E1251B on which the mark sits (§1.4 / §7.2). See DEPLOYMENT.md.
+# ----------------------------------------------------------------------
+flutter_launcher_icons:
+  image_path: "assets/icon/app_icon.png"
+  android: true
+  ios: true
+  remove_alpha_ios: true
+  # Adaptive icon (Android 8+): brand red field + a foreground mark.
+  adaptive_icon_background: "#E1251B"
+  adaptive_icon_foreground: "assets/icon/app_icon_foreground.png"
+
+# ----------------------------------------------------------------------
+# Splash / launch screen (config only — run
+# `dart run flutter_native_splash:create`). White in light, ink #111111 in
+# dark, brand mark centred. Provide the two PNGs, then generate.
+# ----------------------------------------------------------------------
+flutter_native_splash:
+  color: "#FFFFFF"
+  color_dark: "#111111"
+  image: "assets/splash/splash_logo.png"
+  image_dark: "assets/splash/splash_logo_dark.png"
+  android_12:
+    color: "#FFFFFF"
+    color_dark: "#111111"
+    image: "assets/splash/splash_logo.png"
+    image_dark: "assets/splash/splash_logo_dark.png"

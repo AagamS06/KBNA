@@ -1,0 +1,9 @@
+# Knightsbridge Newsagency
+# Public shop front — crawlers welcome.
+User-agent: *
+Allow: /
+# Transactional pages carry no useful index content.
+Disallow: /cart.html
+Disallow: /success.html
+
+Sitemap: https://www.knightsbridgenews.com.au/sitemap.xml
