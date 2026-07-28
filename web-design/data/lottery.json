@@ -1,29 +1,30 @@
 {
   "verified": true,
-  "game": "Set for Life",
-  "drawNumber": 4008,
-  "drawDate": "2026-07-27",
+  "game": "Oz Lotto",
+  "drawNumber": 1693,
+  "drawDate": "2026-07-28",
   "winningNumbers": [
-    41,
-    19,
-    23,
-    15,
-    4,
-    12,
-    25
+    35,
+    42,
+    37,
+    30,
+    47,
+    40,
+    17
   ],
   "supplementary": [
-    28,
-    40
+    39,
+    43,
+    31
   ],
   "powerball": null,
-  "jackpot": "Next draw — Oz Lotto Tue, 28 July: $20 Million",
-  "nextGame": "Oz Lotto",
-  "nextDrawDate": "2026-07-28",
-  "badgeColour": "#111111",
+  "jackpot": "Next draw — Weekday Windfall Wed, 29 July: $1 Million",
+  "nextGame": "Weekday Windfall",
+  "nextDrawDate": "2026-07-29",
+  "badgeColour": "#E1251B",
   "logoSlot": "",
   "posterSlot": "",
   "ctaHref": "https://www.thelott.com/results",
-  "updated": "2026-07-27T23:57:01+10:00",
-  "_gateSydneyDate": "2026-07-27"
+  "updated": "2026-07-29T00:22:35+10:00",
+  "_gateSydneyDate": "2026-07-29"
 }

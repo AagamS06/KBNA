@@ -49,12 +49,13 @@ const CTA_HREF = 'https://www.thelott.com/results';
  * Lotteries / The Pools / Lotto Strike are intentionally excluded (ticket-style
  * or add-on games that don't fit the panel). badgeColour is restricted to the
  * site palette; js/lottery.js snaps anything else back to #E1251B anyway. */
+// Set for Life is deliberately EXCLUDED from both the latest-draw pick and the
+// next-draw line (owner's choice), so it never appears in GAMES.
 const GAMES = {
   Powerball:                  { name: 'Powerball',      badgeColour: '#111111', hasPowerball: true },
   OzLotto:                    { name: 'Oz Lotto',       badgeColour: '#E1251B' },
   TattsLotto:                 { name: 'Saturday Lotto',  badgeColour: '#E1251B' },
   MondayWednesdayFridayLotto: { name: 'Weekday Windfall',badgeColour: '#FF6E63' },
-  SetForLife744:              { name: 'Set for Life',    badgeColour: '#111111' },
 };
 
 // When more than one headline game draws on the same night, this is the order
@@ -69,7 +70,6 @@ const PRIORITY = [
   'MondayWednesdayFridayLotto',    // Weekday Windfall
   'LuckyLotteries',
   'SuperJackpot',
-  'SetForLife744',
 ];
 const priorityOf = (id) => {
   const i = PRIORITY.indexOf(id);
@@ -238,16 +238,10 @@ function buildRecord(result, next, prev, now) {
   let jackpot = '';
   if (next && nextGameName) {
     const when = shortDate(next.DrawDate.slice(0, 10));
-    if (next.ProductId === 'SetForLife744') {
-      // Set for Life's top prize is an annuity, not a lump sum — show it the way
-      // the official sites do, not the Div1Amount figure.
-      jackpot = `Next draw — Set for Life ${when}: $20,000 a month for 20 years`;
-    } else {
-      const amt = formatMoney(next.Div1Amount);
-      if (amt) {
-        const est = next.IsDiv1Estimated ? ' est.' : '';
-        jackpot = `Next draw — ${nextGameName} ${when}: ${amt}${est}`;
-      }
+    const amt = formatMoney(next.Div1Amount);
+    if (amt) {
+      const est = next.IsDiv1Estimated ? ' est.' : '';
+      jackpot = `Next draw — ${nextGameName} ${when}: ${amt}${est}`;
     }
   }
 
