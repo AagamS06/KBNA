@@ -26,8 +26,8 @@
     name: 'Knightsbridge Newsagency',
     street: 'Shop 5, 159 Ridgecrop Drive',
     suburb: 'Castle Hill NSW 2154',
-    phone: '02 9634 1591',
-    phoneHref: 'tel:+61296341591',
+    phone: '(02) 8872 0317',
+    phoneHref: 'tel:+61288720317',
     hours: [['Monday to Friday', '8am – 6pm'], ['Saturday and Sunday', '8am – 4pm']]
   };
   const LINKS = (typeof BUSINESS_LINKS !== 'undefined') ? BUSINESS_LINKS : {

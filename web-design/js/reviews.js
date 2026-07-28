@@ -19,8 +19,8 @@ const BUSINESS = {
   name: 'Knightsbridge Newsagency',
   street: 'Shop 5, 159 Ridgecrop Drive',
   suburb: 'Castle Hill NSW 2154',
-  phone: '02 9634 1591',
-  phoneHref: 'tel:+61296341591',
+  phone: '(02) 8872 0317',
+  phoneHref: 'tel:+61288720317',
   /* Confirmed by the shop. The online directories disagree with each other
      and with this, so change it here and nowhere else — the footer and the
      contact page both read from this one list. */
@@ -61,26 +61,26 @@ const REVIEW_SUMMARY = { rating: 4.2, count: 147, source: 'Google' };
    ------------------------------------------------------------------ */
 const REVIEWS = [
   {
-    quote: "Quick to come out from behind the counter and find me what I was looking for. Only a little newsagents but all the best stuff.",
-    author: 'Rosslyn',
+    quote: "Very helpful guy. Quick to come out from behind the counter and find me what I was looking for. Only a little newsagents but all the best stuff.",
+    author: 'Rosslyn Jeffery',
     stars: 5,
     source: 'Google review'
   },
   {
-    quote: "The owner of the shop is a lovely and funny guy. Me and my husband received great service and a good amount of crossword and puzzle games to pick from.",
+    quote: "The owner of the shop is a lovely and funny guy. Bought some magazines and scratchies. Me and my husband received great service and they had a good amount of crossword and puzzle games to pick from.",
     author: 'Manon',
     stars: 5,
     source: 'Google review'
   },
   {
-    quote: "A wonderful little newsagency. Nice range of gifts, lots of magazines, lottery tickets, cards. Friendly staff.",
-    author: 'Helen',
+    quote: "Best customer service. I will visit more often. Such a gentleman.",
+    author: 'Sejal Shah',
     stars: 5,
     source: 'Google review'
   },
   {
-    quote: "Great friendly service.",
-    author: 'Google reviewer',
+    quote: "Great service.",
+    author: 'Rhys Bittner',
     stars: 5,
     source: 'Google review'
   }
