@@ -817,7 +817,10 @@ address a { display: inline-flex; align-items: center; min-height: 44px; }
 .lottery-jackpot {
   margin: 0 0 1.2rem; display: inline-block;
   font-family: var(--display); font-weight: 700; font-size: .9rem;
-  background: var(--hot-wash); color: var(--hot-ink); border-radius: var(--pill); padding: .35rem 1rem;
+  /* background + border are set inline to the NEXT draw's game colour; these
+     are the fallbacks. All the game colours are dark, so white text clears AA. */
+  background: var(--hot-btn); color: #fff; border: 1px solid var(--hot-btn);
+  border-radius: var(--pill); padding: .35rem 1rem;
 }
 .lottery-actions { margin-bottom: .6rem; }
 .lottery-updated { margin: 0; font-size: .8rem; color: var(--ink-soft); }

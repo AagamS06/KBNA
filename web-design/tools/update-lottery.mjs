@@ -51,11 +51,13 @@ const CTA_HREF = 'https://www.thelott.com/results';
  * site palette; js/lottery.js snaps anything else back to #E1251B anyway. */
 // Set for Life is deliberately EXCLUDED from both the latest-draw pick and the
 // next-draw line (owner's choice), so it never appears in GAMES.
+// badgeColour is each game's own brand colour, used to tint the shop's own
+// (trademark-free) SVG badge and the next-draw highlight.
 const GAMES = {
-  Powerball:                  { name: 'Powerball',      badgeColour: '#111111', hasPowerball: true },
-  OzLotto:                    { name: 'Oz Lotto',       badgeColour: '#E1251B' },
-  TattsLotto:                 { name: 'Saturday Lotto',  badgeColour: '#E1251B' },
-  MondayWednesdayFridayLotto: { name: 'Weekday Windfall',badgeColour: '#FF6E63' },
+  Powerball:                  { name: 'Powerball',       badgeColour: '#3653A4', hasPowerball: true },
+  OzLotto:                    { name: 'Oz Lotto',        badgeColour: '#005000' },
+  TattsLotto:                 { name: 'Saturday Lotto',  badgeColour: '#DC392D' },
+  MondayWednesdayFridayLotto: { name: 'Weekday Windfall',badgeColour: '#583788' },
 };
 
 // When more than one headline game draws on the same night, this is the order
@@ -260,6 +262,7 @@ function buildRecord(result, next, prev, now) {
     // The next draw overall (any game), for a front-end that wants it separately.
     nextGame: nextGameName,
     nextDrawDate: next ? next.DrawDate.slice(0, 10) : '',
+    nextBadgeColour: nextGameDef ? nextGameDef.badgeColour : '',
     badgeColour: game.badgeColour,
     // Owner-supplied LOCAL paths — preserved verbatim, never set by this job.
     logoSlot: (prev && typeof prev.logoSlot === 'string') ? prev.logoSlot : '',
@@ -274,7 +277,7 @@ function buildRecord(result, next, prev, now) {
 function contentChanged(next, prev) {
   if (!prev) return true;
   const keys = ['verified', 'game', 'drawNumber', 'drawDate', 'winningNumbers', 'supplementary',
-    'powerball', 'jackpot', 'nextGame', 'nextDrawDate', 'badgeColour', 'logoSlot', 'posterSlot', 'ctaHref'];
+    'powerball', 'jackpot', 'nextGame', 'nextDrawDate', 'nextBadgeColour', 'badgeColour', 'logoSlot', 'posterSlot', 'ctaHref'];
   return keys.some((k) => JSON.stringify(next[k]) !== JSON.stringify(prev?.[k]));
 }
 

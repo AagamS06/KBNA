@@ -8,11 +8,12 @@
    trademarked logo or a scraped poster — the badge is drawn here as SVG, and
    poster/logo slots only ever load LOCAL owner-supplied files. */
 
-/* Palette guard — badgeColour may only be one of the shop's colours. */
-const LOTTO_PALETTE = { '#E1251B': 1, '#111111': 1, '#FF6E63': 1 };
+/* Colour guard — each game tints the badge with its own brand colour. Only a
+   plain #RRGGBB (or #RGB) hex is accepted, so the value is always a safe token
+   to drop into an SVG fill / a style attribute (never arbitrary text). */
 function safeBadgeColour(c) {
-  const v = String(c || '').trim().toUpperCase();
-  return LOTTO_PALETTE[v] ? v : '#E1251B';
+  const v = String(c || '').trim();
+  return /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(v) ? v : '#E1251B';
 }
 
 /* Own, trademark-free SVG badge: game name + a palette colour. No external art. */
@@ -126,7 +127,7 @@ function renderLotteryPanel(panel, d) {
           ${supp}
           ${pb}
         </ul>
-        ${d.jackpot ? `<p class="lottery-jackpot">${esc(d.jackpot)}</p>` : ''}
+        ${d.jackpot ? `<p class="lottery-jackpot" style="background:${safeBadgeColour(d.nextBadgeColour)};border-color:${safeBadgeColour(d.nextBadgeColour)}">${esc(d.jackpot)}</p>` : ''}
         <div class="lottery-actions">${cta}</div>
         ${updated}
       </div>

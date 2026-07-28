@@ -21,10 +21,11 @@
   "jackpot": "Next draw — Weekday Windfall Wed, 29 July: $1 Million",
   "nextGame": "Weekday Windfall",
   "nextDrawDate": "2026-07-29",
-  "badgeColour": "#E1251B",
+  "nextBadgeColour": "#583788",
+  "badgeColour": "#005000",
   "logoSlot": "",
   "posterSlot": "",
   "ctaHref": "https://www.thelott.com/results",
-  "updated": "2026-07-29T00:22:35+10:00",
+  "updated": "2026-07-29T00:30:54+10:00",
   "_gateSydneyDate": "2026-07-29"
 }
