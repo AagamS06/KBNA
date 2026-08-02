@@ -26,9 +26,9 @@ const SEED_PRODUCTS = [
   { name: 'The Saturday Herald', description: 'Saturday SMH with all the lift-outs.', price_cents: 450, stock: 28, low_stock_threshold: 8, tag: 'Paper', days: [6] },
   { name: 'The Sun-Herald', description: 'Sunday edition of the Herald.', price_cents: 320, stock: 28, low_stock_threshold: 8, tag: 'Paper', days: [0] },
   { name: 'The Australian', description: 'National daily broadsheet — weekday edition.', price_cents: 330, stock: 28, low_stock_threshold: 8, tag: 'Paper', days: [1, 2, 3, 4, 5] },
-  { name: 'The Weekend Australian', description: 'Saturday edition with the Magazine and Review.', price_cents: 480, stock: 22, low_stock_threshold: 6, tag: 'Paper', days: [6] },
+  { name: 'The Weekend Australian', description: 'Weekend edition with the Magazine and Review — Saturday and Sunday.', price_cents: 480, stock: 22, low_stock_threshold: 6, tag: 'Paper', days: [6, 0] },
   { name: 'Australian Financial Review', description: 'Weekday business and markets daily.', price_cents: 480, stock: 20, low_stock_threshold: 6, tag: 'Paper', days: [1, 2, 3, 4, 5] },
-  { name: 'AFR Weekend', description: 'The weekend Financial Review — business, life and leisure.', price_cents: 520, stock: 18, low_stock_threshold: 5, tag: 'Paper', days: [6] },
+  { name: 'AFR Weekend', description: 'The weekend Financial Review — business, life and leisure. Saturday and Sunday.', price_cents: 520, stock: 18, low_stock_threshold: 5, tag: 'Paper', days: [6, 0] },
   { name: 'Hills Shire Times', description: 'Your local Castle Hill and Hills District weekly (Wednesdays).', price_cents: 220, stock: 35, low_stock_threshold: 10, tag: 'Paper', days: [3] },
   /* ---- Magazine ---- */
   { name: "Woman's Day Magazine", description: 'Latest weekly issue.', price_cents: 620, stock: 15, low_stock_threshold: 4, tag: 'Magazine' },
