@@ -96,10 +96,37 @@ const store = {
       this._write('kn.nextId', seeded.length + 1);
       this._write('kn.seedVersion', SEED_VERSION);
       this._write('kn.cart', {});
+    } else {
+      // Same shape, but a paper's on-sale `days` may have been retuned in
+      // SEED_PRODUCTS (e.g. the weekend AFR/Australian now sell on Sunday too).
+      // Propagate just that field to returning users so the shift reaches them
+      // without a SEED_VERSION bump — which would wipe their cart. Non-
+      // destructive: only `days` is reconciled, matched by product name.
+      this._syncPaperDays();
     }
     if (!localStorage.getItem('kn.owner')) this._write('kn.owner', SHOP_CONTACT);
     if (!localStorage.getItem('kn.cart')) this._write('kn.cart', {});
     if (!localStorage.getItem('kn.orders')) this._write('kn.orders', []);
+  },
+
+  /* Reconcile persisted papers' on-sale `days` with SEED_PRODUCTS (by name).
+     Day-tagging is seed-controlled — the shopfront can't edit it (stock lives
+     in the owner's app) — so overwriting just this field is always safe and
+     leaves cart, stock and everything else untouched. */
+  _syncPaperDays() {
+    const seedDays = new Map(
+      SEED_PRODUCTS.filter(p => Array.isArray(p.days)).map(p => [p.name, p.days])
+    );
+    const list = this.products();
+    let changed = false;
+    for (const p of list) {
+      const want = seedDays.get(p.name);
+      if (want && JSON.stringify(p.days) !== JSON.stringify(want)) {
+        p.days = want.slice();
+        changed = true;
+      }
+    }
+    if (changed) this.saveProducts(list);
   },
 
   products() { return this._read('kn.products', []); },
