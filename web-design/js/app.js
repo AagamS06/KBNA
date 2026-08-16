@@ -19,16 +19,16 @@ const SEED_PRODUCTS = [
      shows only today's papers (see store.visibleProducts); e.g. Saturday shows
      the Saturday Telegraph, Saturday Herald, AFR Weekend and Weekend Australian.
      A paper with no `days` would show every day. */
-  { name: 'The Daily Telegraph', description: "Today's edition, in early every weekday morning.", price_cents: 200, stock: 40, low_stock_threshold: 10, tag: 'Paper', days: [1, 2, 3, 4, 5] },
-  { name: 'The Saturday Telegraph', description: 'Saturday edition with the weekend lift-outs.', price_cents: 320, stock: 35, low_stock_threshold: 8, tag: 'Paper', days: [6] },
-  { name: 'The Sunday Telegraph', description: 'Sunday edition — news, sport and the magazine.', price_cents: 320, stock: 35, low_stock_threshold: 8, tag: 'Paper', days: [0] },
-  { name: 'The Sydney Morning Herald', description: 'Weekday edition of the Herald.', price_cents: 300, stock: 30, low_stock_threshold: 8, tag: 'Paper', days: [1, 2, 3, 4, 5] },
-  { name: 'The Saturday Herald', description: 'Saturday SMH with all the lift-outs.', price_cents: 450, stock: 28, low_stock_threshold: 8, tag: 'Paper', days: [6] },
-  { name: 'The Sun-Herald', description: 'Sunday edition of the Herald.', price_cents: 320, stock: 28, low_stock_threshold: 8, tag: 'Paper', days: [0] },
-  { name: 'The Australian', description: 'National daily broadsheet — weekday edition.', price_cents: 330, stock: 28, low_stock_threshold: 8, tag: 'Paper', days: [1, 2, 3, 4, 5] },
-  { name: 'The Weekend Australian', description: 'Saturday edition with the Magazine and Review.', price_cents: 480, stock: 22, low_stock_threshold: 6, tag: 'Paper', days: [6] },
-  { name: 'Australian Financial Review', description: 'Weekday business and markets daily.', price_cents: 480, stock: 20, low_stock_threshold: 6, tag: 'Paper', days: [1, 2, 3, 4, 5] },
-  { name: 'AFR Weekend', description: 'The weekend Financial Review — business, life and leisure.', price_cents: 520, stock: 18, low_stock_threshold: 5, tag: 'Paper', days: [6] },
+  { name: 'The Daily Telegraph', description: "Today's edition, in early every weekday morning.", price_cents: 300, stock: 40, low_stock_threshold: 10, tag: 'Paper', days: [1, 2, 3, 4, 5] },
+  { name: 'The Saturday Telegraph', description: 'Saturday edition with the weekend lift-outs.', price_cents: 450, stock: 35, low_stock_threshold: 8, tag: 'Paper', days: [6] },
+  { name: 'The Sunday Telegraph', description: 'Sunday edition — news, sport and the magazine.', price_cents: 450, stock: 35, low_stock_threshold: 8, tag: 'Paper', days: [0] },
+  { name: 'The Sydney Morning Herald', description: 'Weekday edition of the Herald.', price_cents: 480, stock: 30, low_stock_threshold: 8, tag: 'Paper', days: [1, 2, 3, 4, 5] },
+  { name: 'The Saturday Herald', description: 'Saturday SMH with all the lift-outs.', price_cents: 580, stock: 28, low_stock_threshold: 8, tag: 'Paper', days: [6] },
+  { name: 'The Sun-Herald', description: 'Sunday edition of the Herald.', price_cents: 480, stock: 28, low_stock_threshold: 8, tag: 'Paper', days: [0] },
+  { name: 'The Australian', description: 'National daily broadsheet — weekday edition.', price_cents: 450, stock: 28, low_stock_threshold: 8, tag: 'Paper', days: [1, 2, 3, 4, 5] },
+  { name: 'The Weekend Australian', description: 'Weekend edition with the Magazine and Review — Saturday and Sunday.', price_cents: 550, stock: 22, low_stock_threshold: 6, tag: 'Paper', days: [6, 0] },
+  { name: 'Australian Financial Review', description: 'Weekday business and markets daily.', price_cents: 550, stock: 20, low_stock_threshold: 6, tag: 'Paper', days: [1, 2, 3, 4, 5] },
+  { name: 'AFR Weekend', description: 'The weekend Financial Review — business, life and leisure. Saturday and Sunday.', price_cents: 600, stock: 18, low_stock_threshold: 5, tag: 'Paper', days: [6, 0] },
   { name: 'Hills Shire Times', description: 'Your local Castle Hill and Hills District weekly (Wednesdays).', price_cents: 220, stock: 35, low_stock_threshold: 10, tag: 'Paper', days: [3] },
   /* ---- Magazine ---- */
   { name: "Woman's Day Magazine", description: 'Latest weekly issue.', price_cents: 620, stock: 15, low_stock_threshold: 4, tag: 'Magazine' },
@@ -96,10 +96,40 @@ const store = {
       this._write('kn.nextId', seeded.length + 1);
       this._write('kn.seedVersion', SEED_VERSION);
       this._write('kn.cart', {});
+    } else {
+      // Same shape, but the seed's fixed catalogue facts (cover price, on-sale
+      // `days`, description) may have been retuned in SEED_PRODUCTS — e.g. a
+      // newspaper price rise, or the weekend AFR/Australian now selling on
+      // Sunday too. Propagate just those fields to returning users so the change
+      // reaches them without a SEED_VERSION bump (which would wipe their cart).
+      this._syncSeedCatalogue();
     }
     if (!localStorage.getItem('kn.owner')) this._write('kn.owner', SHOP_CONTACT);
     if (!localStorage.getItem('kn.cart')) this._write('kn.cart', {});
     if (!localStorage.getItem('kn.orders')) this._write('kn.orders', []);
+  },
+
+  /* Reconcile persisted products' seed-controlled fields with SEED_PRODUCTS
+     (matched by name): cover price, on-sale `days` and description. These are
+     fixed catalogue facts the shopfront never edits — stock lives in the
+     owner's app — so overwriting just them is always safe and leaves stock,
+     cart and everything else untouched. */
+  _syncSeedCatalogue() {
+    const SYNC_FIELDS = ['price_cents', 'days', 'description'];
+    const seedByName = new Map(SEED_PRODUCTS.map(p => [p.name, p]));
+    const list = this.products();
+    let changed = false;
+    for (const p of list) {
+      const seed = seedByName.get(p.name);
+      if (!seed) continue;
+      for (const f of SYNC_FIELDS) {
+        if (f in seed && JSON.stringify(p[f]) !== JSON.stringify(seed[f])) {
+          p[f] = Array.isArray(seed[f]) ? seed[f].slice() : seed[f];
+          changed = true;
+        }
+      }
+    }
+    if (changed) this.saveProducts(list);
   },
 
   products() { return this._read('kn.products', []); },
