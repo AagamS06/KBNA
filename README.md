@@ -49,12 +49,18 @@ Full run and publish steps: [`app/README.md`](app/README.md),
 
 ## The lottery panel
 
-A GitHub Action ([`.github/workflows/lottery-update.yml`](.github/workflows/lottery-update.yml))
-runs at Sydney midnight, pulls the latest NSW draw's winning numbers from the
-official `api.thelott.com` feed, and writes `web-design/data/lottery.json`. The
-home page shows it under the hero. Only facts (numbers, jackpot) are used; the
-draw badge is an own-drawn SVG and the poster slot is an owner-supplied local
-file — no scraped posters or trademarked logos.
+Refreshed once a day at ~4am Sydney time (not right at midnight, so results
+have time to finish publishing on the operator's feed): a Claude Code cloud
+routine runs primarily, and [`.github/workflows/lottery-update.yml`](.github/workflows/lottery-update.yml)
+runs ~20 minutes later as a backup in case the cloud routine's environment is
+unreachable or blocked. Both call the same script,
+[`web-design/tools/update-lottery.mjs`](web-design/tools/update-lottery.mjs),
+which pulls the latest NSW draw's winning numbers from the official
+`api.thelott.com` feed and writes `web-design/data/lottery.json`. The home page
+shows it under the hero. Only facts (numbers, jackpot) are used; the draw badge
+is an own-drawn SVG and the poster slot is an owner-supplied local file — no
+scraped posters or trademarked logos. See [`AUTOMATION.md`](AUTOMATION.md) for
+how the schedule and the backup are wired up.
 
 ## Security
 

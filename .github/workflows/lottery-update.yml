@@ -1,0 +1,90 @@
+name: Daily lottery refresh (backup)
+
+# BACKUP ONLY. The primary schedule for this job is a Claude Code cloud
+# routine (see AUTOMATION.md for its trigger id and how to inspect/re-run it),
+# which fires ~20 minutes before this workflow does. This workflow exists so
+# the site's lottery.json still gets refreshed once a day even if the Claude
+# cloud routine's environment is unreachable, blocked by the operator's edge,
+# or the Claude cloud service itself is having an outage — a second, fully
+# independent system on a different network.
+#
+# Refreshes web-design/data/lottery.json from the official operator feed once
+# per real Australia/Sydney day, then commits ONLY that file.
+#
+# WHY TWO CRONS, AND WHY 4AM NOT MIDNIGHT. GitHub Actions cron is UTC-only and
+# has no DST, so a fixed UTC time lands at a different Sydney clock time across
+# the year. We target ~4am Sydney (not right at midnight) so a late-drawing
+# game's result has time to finish publishing on the operator's feed before we
+# ask for it:
+#   - AEDT (UTC+11): Sydney 04:00 == 17:00 UTC the previous day
+#   - AEST (UTC+10): Sydney 04:00 == 18:00 UTC the previous day
+# Running at both 17:20 and 18:20 UTC (20 min after the Claude routine's own
+# 17:00/18:00 fires) guarantees at least one run at/after Sydney 4am all year
+# round, landing after the primary routine has had a chance to already do the
+# work. The script itself gates on the real Australia/Sydney date (it stamps
+# `_gateSydneyDate` on the file it writes and skips the network entirely if
+# that already equals today's Sydney date), so on a normal day — when the
+# Claude routine has already succeeded — this run is a fast no-op.
+#
+# COMPLIANCE. The script publishes only facts (winning numbers, draw number,
+# advertised jackpot) and NEVER fetches or stores a poster or trademarked logo.
+# It stamps `verified: true` only on real fetched data; the renderer keeps the
+# panel hidden otherwise. It fails soft: on any error the last good file is
+# left untouched, so a broken/empty lottery.json is never committed.
+
+on:
+  schedule:
+    - cron: "20 17 * * *"   # ~4am Sydney during AEDT (UTC+11)
+    - cron: "20 18 * * *"   # ~4am Sydney during AEST (UTC+10)
+  workflow_dispatch:         # manual "Run workflow" button
+
+# Least privilege: the job only needs to push the one data file back.
+permissions:
+  contents: write
+
+# Never let two backup runs race each other.
+concurrency:
+  group: lottery-update
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"   # built-in fetch + Intl; no dependencies to install
+
+      - name: Refresh lottery.json
+        working-directory: web-design
+        run: node tools/update-lottery.mjs
+
+      - name: Commit and push if changed
+        run: |
+          set -e
+          git add web-design/data/lottery.json
+          if git diff --cached --quiet; then
+            echo "No change to lottery.json — nothing to commit (the Claude cloud routine likely already refreshed today)."
+            exit 0
+          fi
+          git config user.name  "Knightsbridge Automation"
+          git config user.email "automation@knightsbridgenews.com.au"
+          git commit -m "chore(lottery): refresh daily draw (backup run) [skip ci]"
+
+          # Guard against a race with the Claude Code cloud routine landing a
+          # commit moments earlier: retry the push after rebasing onto
+          # whatever's new upstream, rather than just failing.
+          for attempt in 1 2 3; do
+            if git push; then
+              echo "Pushed on attempt $attempt."
+              exit 0
+            fi
+            echo "Push rejected (attempt $attempt) — pulling and rebasing, then retrying..."
+            git pull --rebase origin "${GITHUB_REF_NAME}"
+          done
+          echo "::error::Push failed after retries."
+          exit 1

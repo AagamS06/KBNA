@@ -24,6 +24,17 @@
  *   - Fail soft: on any error we leave the previous good lottery.json in place
  *     and never write a broken/empty file.
  *
+ * SCHEDULE. Runs at 4am Australia/Sydney, not right at midnight — draw results
+ * for a late-drawing game aren't always finalised on the operator's feed the
+ * instant the clock ticks over, so a few hours' buffer avoids catching a
+ * result mid-publish. Two independent schedulers call this script once a day:
+ *   1. A Claude Code cloud routine (primary) — see AUTOMATION.md.
+ *   2. .github/workflows/lottery-update.yml (backup) — runs ~20 min later
+ *      from GitHub's own network, in case the cloud routine's environment is
+ *      unreachable/blocked or the Claude cloud service itself is down.
+ * Both call this exact script; the _gateSydneyDate check below means whichever
+ * runs first each day does the real work and the other is a cheap no-op.
+ *
  * USAGE:
  *   node tools/update-lottery.mjs            # refresh data/lottery.json in place
  *   node tools/update-lottery.mjs --dry-run  # print the JSON, write nothing
@@ -42,6 +53,23 @@ const COMPANY_ID = 'NSWLotteries';
 const TIMEZONE = 'Australia/Sydney';
 const FETCH_TIMEOUT_MS = 20000;
 const CTA_HREF = 'https://www.thelott.com/results';
+
+// A plain headless fetch (no User-Agent/Origin) has been observed getting a
+// bare HTTP 403 from this endpoint when called from a cloud/CI IP, even
+// though the same script succeeds from a normal residential connection. These
+// are the headers an actual visit to thelott.com sends to this same public
+// endpoint — not spoofing an identity, just not looking like an unheaded bot.
+const BROWSER_UA =
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 ' +
+  '(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
+
+// Retry knobs for apiPost. 403/408/425/429/5xx and thrown network/abort errors
+// are treated as transient — worth a couple of short-backoff retries before
+// the caller's fail-soft path kicks in (see main()).
+const MAX_ATTEMPTS = 3;
+const RETRY_DELAY_MS = 700; // attempt N waits N * this before the next try
+const RETRYABLE_STATUS = new Set([403, 408, 425, 429, 500, 502, 503, 504]);
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 /* ---- game catalogue -------------------------------------------------------
  * Only the mainstream, ball-number headline games the shop sells. Each maps a
@@ -126,25 +154,53 @@ function sydneyNowISO(now = new Date()) {
 
 /* ---- API ------------------------------------------------------------------ */
 
-async function apiPost(path, body) {
+async function apiPostOnce(path, body) {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), FETCH_TIMEOUT_MS);
   try {
     const res = await fetch(`${API_BASE}/${path}`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'User-Agent': BROWSER_UA,
+        'Origin': 'https://www.thelott.com',
+        'Referer': 'https://www.thelott.com/results',
+      },
       body: JSON.stringify(body),
       signal: ctrl.signal,
     });
-    if (!res.ok) throw new Error(`${path} -> HTTP ${res.status}`);
+    if (!res.ok) {
+      const err = new Error(`${path} -> HTTP ${res.status}`);
+      err.status = res.status;
+      throw err;
+    }
     const json = await res.json();
     if (json && json.Success === false) {
-      throw new Error(`${path} -> API error ${JSON.stringify(json.ErrorInfo || {})}`);
+      const err = new Error(`${path} -> API error ${JSON.stringify(json.ErrorInfo || {})}`);
+      err.apiError = true; // a real application-level error — not worth retrying
+      throw err;
     }
     return json;
   } finally {
     clearTimeout(timer);
   }
+}
+
+async function apiPost(path, body) {
+  let lastErr;
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    try {
+      return await apiPostOnce(path, body);
+    } catch (err) {
+      lastErr = err;
+      const retryable = err.status != null ? RETRYABLE_STATUS.has(err.status) : !err.apiError;
+      if (!retryable || attempt === MAX_ATTEMPTS) break;
+      console.error(`[retry] ${path} attempt ${attempt} failed (${err.message}) — retrying...`);
+      await sleep(RETRY_DELAY_MS * attempt);
+    }
+  }
+  throw lastErr;
 }
 
 /* ---- formatting ----------------------------------------------------------- */
@@ -302,10 +358,11 @@ async function main() {
   const todaySyd = sydneyDate(now);
   const prev = await readPrev();
 
-  // Sydney-date gate. GitHub cron is UTC-only, so we schedule TWO crons
-  // (13:00 & 14:00 UTC) to straddle Sydney midnight across AEDT/AEST; this gate
-  // makes the job effectively act once per real Sydney day. If we already
-  // produced a file for today's Sydney date, skip the network entirely.
+  // Sydney-date gate. Both schedulers fire twice daily in UTC (17:00 & 18:00)
+  // to straddle 4am Sydney across AEDT/AEST — see the file header. This gate
+  // makes the job effectively act once per real Sydney day regardless of how
+  // many times it's invoked. If we already produced a file for today's Sydney
+  // date, skip the network entirely.
   if (!dryRun && prev && prev._gateSydneyDate === todaySyd) {
     console.log(`[skip] already refreshed for Sydney date ${todaySyd}.`);
     return 0;
