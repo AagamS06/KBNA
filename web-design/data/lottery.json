@@ -1,29 +1,27 @@
 {
   "verified": true,
-  "game": "Weekday Windfall",
-  "drawNumber": 4744,
-  "drawDate": "2026-08-19",
+  "game": "Powerball",
+  "drawNumber": 1579,
+  "drawDate": "2026-08-20",
   "winningNumbers": [
-    30,
-    42,
-    28,
-    45,
-    33,
-    12
+    11,
+    14,
+    22,
+    29,
+    13,
+    3,
+    9
   ],
-  "supplementary": [
-    9,
-    35
-  ],
-  "powerball": null,
-  "jackpot": "Next draw — Powerball Thu, 20 Aug: $5 Million",
-  "nextGame": "Powerball",
-  "nextDrawDate": "2026-08-20",
-  "nextBadgeColour": "#3653A4",
-  "badgeColour": "#583788",
+  "supplementary": [],
+  "powerball": 20,
+  "jackpot": "Next draw — Weekday Windfall Fri, 21 Aug: $1 Million",
+  "nextGame": "Weekday Windfall",
+  "nextDrawDate": "2026-08-21",
+  "nextBadgeColour": "#583788",
+  "badgeColour": "#3653A4",
   "logoSlot": "",
   "posterSlot": "",
   "ctaHref": "https://www.thelott.com/results",
-  "updated": "2026-08-20T03:44:51+10:00",
-  "_gateSydneyDate": "2026-08-20"
+  "updated": "2026-08-21T03:49:18+10:00",
+  "_gateSydneyDate": "2026-08-21"
 }
