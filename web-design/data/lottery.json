@@ -1,29 +1,29 @@
 {
   "verified": true,
-  "game": "Saturday Lotto",
-  "drawNumber": 4707,
-  "drawDate": "2026-08-29",
+  "game": "Weekday Windfall",
+  "drawNumber": 4749,
+  "drawDate": "2026-08-31",
   "winningNumbers": [
-    27,
-    45,
-    33,
+    29,
+    2,
+    31,
+    1,
     25,
-    17,
-    23
+    24
   ],
   "supplementary": [
-    26,
-    43
+    7,
+    37
   ],
   "powerball": null,
-  "jackpot": "Next draw — Weekday Windfall Mon, 31 Aug: $1 Million",
-  "nextGame": "Weekday Windfall",
-  "nextDrawDate": "2026-08-31",
-  "nextBadgeColour": "#583788",
-  "badgeColour": "#DC392D",
+  "jackpot": "Next draw — Oz Lotto Tue, 1 Sept: $4 Million",
+  "nextGame": "Oz Lotto",
+  "nextDrawDate": "2026-09-01",
+  "nextBadgeColour": "#005000",
+  "badgeColour": "#583788",
   "logoSlot": "",
   "posterSlot": "",
   "ctaHref": "https://www.thelott.com/results",
-  "updated": "2026-08-30T05:47:37+10:00",
-  "_gateSydneyDate": "2026-08-30"
+  "updated": "2026-09-01T07:55:29+10:00",
+  "_gateSydneyDate": "2026-09-01"
 }
