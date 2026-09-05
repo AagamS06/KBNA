@@ -1,29 +1,29 @@
 {
   "verified": true,
-  "game": "Weekday Windfall",
-  "drawNumber": 4751,
-  "drawDate": "2026-09-04",
+  "game": "Saturday Lotto",
+  "drawNumber": 4709,
+  "drawDate": "2026-09-05",
   "winningNumbers": [
-    17,
-    42,
-    32,
-    14,
+    40,
     27,
-    25
+    17,
+    43,
+    5,
+    38
   ],
   "supplementary": [
-    19,
-    8
+    2,
+    39
   ],
   "powerball": null,
-  "jackpot": "Next draw — Saturday Lotto Sat, 5 Sept: $20 Million",
-  "nextGame": "Saturday Lotto",
-  "nextDrawDate": "2026-09-05",
-  "nextBadgeColour": "#DC392D",
-  "badgeColour": "#583788",
+  "jackpot": "Next draw — Weekday Windfall Mon, 7 Sept: $1 Million",
+  "nextGame": "Weekday Windfall",
+  "nextDrawDate": "2026-09-07",
+  "nextBadgeColour": "#583788",
+  "badgeColour": "#DC392D",
   "logoSlot": "",
   "posterSlot": "",
   "ctaHref": "https://www.thelott.com/results",
-  "updated": "2026-09-05T05:40:18+10:00",
-  "_gateSydneyDate": "2026-09-05"
+  "updated": "2026-09-06T05:05:34+10:00",
+  "_gateSydneyDate": "2026-09-06"
 }
