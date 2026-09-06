@@ -2,8 +2,9 @@
 
 ## Reporting a vulnerability
 
-If you find a security issue in the Knightsbridge Newsagency website or owner
-app, please report it privately — do **not** open a public GitHub issue.
+If you find a security issue in the Knightsbridge Newsagency website (or the
+owner admin area under `web-design/admin/`), please report it privately —
+do **not** open a public GitHub issue.
 
 - **Email:** owner@knightsbridgenews.com.au
 - Include steps to reproduce and, if you can, the impact.
@@ -18,8 +19,8 @@ violations, data destruction, and service disruption.
 | Area | Documented in |
 |---|---|
 | Website (CSP, headers, HTTPS, `security.txt`) | [`web-design/HOSTING-SECURITY.md`](web-design/HOSTING-SECURITY.md) |
-| App (secrets, secure storage, release hardening) | [`app/SECURITY.md`](app/SECURITY.md) |
-| Backend authorisation (Row Level Security) | [`app/supabase/schema.sql`](app/supabase/schema.sql) |
+| Backend authorisation (Row Level Security) | [`_archive/app/supabase/schema.sql`](_archive/app/supabase/schema.sql) — schema is being reused for the web admin area |
+| Retired Flutter app (reference only) | [`_archive/app/SECURITY.md`](_archive/app/SECURITY.md) |
 
 ## Handled by design
 

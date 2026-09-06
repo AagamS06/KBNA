@@ -1,20 +1,23 @@
 # Knightsbridge Newsagency
 
-Website and owner app for **Knightsbridge Newsagency** — Shop 5, 159 Ridgecrop
-Drive, Castle Hill NSW 2154, Australia. Papers, magazines, cards, gifts, toys
-and lotto. Open 7 days (weekdays 8am–6pm, weekends 8am–4pm).
+Website for **Knightsbridge Newsagency** — Shop 5, 159 Ridgecrop Drive, Castle
+Hill NSW 2154, Australia. Papers, magazines, cards, gifts, toys and lotto.
+Open 7 days (weekdays 8am–6pm, weekends 8am–4pm).
 
-This repo holds three things: the public website, a cross-platform owner app,
-and the design specs that drive them.
+This repo holds the public website and the design specs that drive it. Owner
+stock/order management is being folded back into the website (owner login area,
+online reserve-and-collect with SMS + web-push notifications). The former
+Flutter owner app has been retired and lives under [`_archive/app/`](_archive/app/)
+for reference only.
 
 ## What's here
 
 | Path | What it is |
 |---|---|
-| [`web-design/`](web-design/) | The public website — static HTML/CSS/JS, no build step. Shop, cart, reviews, gallery, daily lottery panel. |
-| [`app/`](app/) | The owner app — Flutter (iOS + Android). Stock, orders, photos, settings. Replaces the old web owner portal. |
-| [`app-design/`](app-design/) | Architecture, UX, and photo-integration specifications. |
-| [`.github/workflows/`](.github/workflows/) | CI, and the daily lottery-results updater. |
+| [`web-design/`](web-design/) | The public website — static HTML/CSS/JS, no build step. Shop, cart, reviews, gallery, daily lottery panel. Owner admin area is being added under `web-design/admin/`. |
+| [`app-design/`](app-design/) | Architecture, UX, and photo-integration specifications (from the archived Flutter app; still useful as reference for the web admin build-out). |
+| [`_archive/app/`](_archive/app/) | Retired Flutter owner app. Kept for reference; no longer built or tested. |
+| [`.github/workflows/`](.github/workflows/) | CI-related workflows. The daily lottery-results updater now runs as a Claude Code cloud routine (see below). |
 
 ## The website
 
@@ -29,23 +32,18 @@ feed. Owner stock management is **not** on the website — it lives in the app.
 cd web-design && python -m http.server 8000   # then open http://localhost:8000
 ```
 
-## The owner app
+## The owner admin area (in progress)
 
-Flutter (Dart 3, Material 3, Riverpod, go_router). Local-first: it runs fully
-offline on a seeded local database, and syncs to Supabase when a backend is
-configured. Photos come from the phone's own picker (so iCloud / Google Photos
-appear as sources), with EXIF/GPS stripped.
+The owner-side of the business — product/stock management, incoming online
+orders, sign-in — is being built into the website under `web-design/admin/`,
+gated by Supabase Auth (max 5 owner accounts). Customers can reserve items
+online and collect in store; owners receive SMS + web-push notifications for
+each new order and mark it ready/collected in the admin dashboard.
 
-**Run it (needs the Flutter SDK + VS Code Flutter extension):**
-```bash
-cd app
-flutter create .          # generates the android/ios platform folders
-flutter pub get
-flutter run               # runs local-only; no backend needed
-```
-Full run and publish steps: [`app/README.md`](app/README.md),
-[`app/DEPLOYMENT.md`](app/DEPLOYMENT.md),
-[`app/STORE-READINESS.md`](app/STORE-READINESS.md).
+The retired Flutter app that used to do this lives under
+[`_archive/app/`](_archive/app/); its Supabase schema
+([`_archive/app/supabase/schema.sql`](_archive/app/supabase/schema.sql))
+is the starting point for the web admin backend.
 
 ## The lottery panel
 
@@ -66,24 +64,21 @@ how the schedule and the backup are wired up.
 
 - Website: Content-Security-Policy on every page, edge headers (`_headers` /
   `.htaccess`), `security.txt`. See [`web-design/HOSTING-SECURITY.md`](web-design/HOSTING-SECURITY.md).
-- App: only the Supabase anon key ships; Row Level Security is the authorisation
-  model. See [`app/SECURITY.md`](app/SECURITY.md) and
-  [`app/supabase/schema.sql`](app/supabase/schema.sql).
+- Admin area (in progress): only the Supabase anon key ships; Row Level Security
+  is the authorisation model. Schema:
+  [`_archive/app/supabase/schema.sql`](_archive/app/supabase/schema.sql).
 - Reporting: [`SECURITY.md`](SECURITY.md).
 
 ## Branches
 
-- **`KBNA-App`** — the full project (app + website + lottery + specs). Active line.
-- **`KBNA-Web`** — a website-only snapshot.
-- **`main`** — landing branch; receives the full project when the open PR merges.
+- **`main`** — the active line for the website + admin build-out.
 
 ## Status
 
-Website is production-ready (swap the placeholder domain first). App core is
-built and read-verified; barcode-scanner, analytics, and click-&-collect
-screens are the next round. Publishing to the App Store / Google Play needs the
-developer accounts, signing, a real Supabase project, and a domain — all listed
-in [`app/STORE-READINESS.md`](app/STORE-READINESS.md).
+Website is production-ready (swap the placeholder domain first). Owner admin
+area (login, product/stock CRUD, incoming orders, SMS + web-push notifications)
+is being built directly into the website; the retired Flutter app under
+`_archive/app/` is reference material only.
 
 ## Licence
 
