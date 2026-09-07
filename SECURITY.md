@@ -19,8 +19,8 @@ violations, data destruction, and service disruption.
 | Area | Documented in |
 |---|---|
 | Website (CSP, headers, HTTPS, `security.txt`) | [`web-design/HOSTING-SECURITY.md`](web-design/HOSTING-SECURITY.md) |
-| Backend authorisation (Row Level Security) | [`_archive/app/supabase/schema.sql`](_archive/app/supabase/schema.sql) — schema is being reused for the web admin area |
-| Retired Flutter app (reference only) | [`_archive/app/SECURITY.md`](_archive/app/SECURITY.md) |
+| Backend authorisation (Row Level Security) | `app/supabase/schema.sql` on the `archive/flutter-owner-app` branch — schema is being reused for the web admin area |
+| Retired Flutter app (reference only) | `app/SECURITY.md` on the `archive/flutter-owner-app` branch |
 
 ## Handled by design
 
