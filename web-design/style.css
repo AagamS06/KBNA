@@ -116,14 +116,17 @@ img, svg { max-width: 100%; display: block; }
 }
 .nav-brand { display: flex; flex-direction: column; justify-content: center; }
 .brand-link {
-  font-family: var(--display); font-weight: 800; letter-spacing: -.03em; line-height: 1;
-  font-size: clamp(1.15rem, 2.4vw, 1.6rem); color: var(--ink); text-decoration: none;
-  display: inline-flex; align-items: center;
+  display: inline-flex; align-items: center; text-decoration: none; color: var(--ink);
+  transition: opacity .18s ease;
 }
-.brand-link:hover { color: var(--hot-ink); }
+.brand-link:hover, .brand-link:focus-visible { opacity: .78; }
 .brand-sub { font-size: .72rem; color: var(--ink-soft); margin-top: .15rem; }
-/* On desktop the text brand shows; the wordmark image hides. Swap on mobile below. */
-.brand-wordmark { display: none; }
+/* Wordmark PNG (transparent background) — same asset on desktop and mobile,
+   just sized differently below. Source is 255x90 (aspect ~2.83:1). */
+.brand-wordmark {
+  display: block; height: 44px; width: auto; max-width: min(46vw, 220px);
+  object-fit: contain;
+}
 
 /* Hamburger toggle — visible only on mobile via the media query below. */
 .nav-toggle {
@@ -224,14 +227,10 @@ mark.search-hit { background: var(--gold, #ffd54a); color: #111; padding: 0 .1em
   .nav-tools  { grid-area: tools; }
   .nav-toggle { grid-area: toggle; display: inline-flex; }
 
-  /* Hide the text wordmark; show the image wordmark. Sized so it doesn't
-     dominate the header but is still legible for older eyes. The source
-     image is 255x90 (aspect 2.83:1) with the shop name stacked over two
-     lines, so it needs ~52px+ height to be readable. */
-  .brand-link .brand-text { display: none; }
+  /* Wordmark bumped a touch bigger on phones for legibility (the shop name
+     is stacked over two lines in the artwork). */
   .brand-wordmark {
-    display: block; height: 52px; width: auto; max-width: min(48vw, 200px);
-    object-fit: contain;
+    height: 52px; max-width: min(48vw, 200px);
   }
   .brand-sub { display: none; }
 
@@ -1065,31 +1064,30 @@ address a { display: inline-flex; align-items: center; min-height: 44px; }
 .how-it-works .steps strong { color: var(--ink); }
 
 /* ============================================================
-   Persistent "Call us" button on the hero carousel (#7)
-   Sits over every slide, sized generously for elderly / low-dexterity.
+   Hero slide-actions row: slide-specific CTA + persistent "Call us"
+   pill, side by side. Elderly-friendly tap targets on both.
    ============================================================ */
-.hero-carousel { position: relative; }
-.hero-call-btn {
-  position: absolute; top: 1rem; right: 1rem; z-index: 4;
+.slide-actions {
+  display: flex; flex-wrap: wrap; gap: .6rem .8rem; align-items: center;
+  margin-top: .4rem;
+}
+.btn-call {
   display: inline-flex; align-items: center; gap: .5rem;
   min-height: 48px; padding: .7rem 1.15rem;
-  background: var(--hot); color: #fff; text-decoration: none;
+  background: #fff; color: var(--hot-ink);
+  border: 2px solid #fff;
   font-family: var(--display); font-weight: 700; font-size: 1rem;
-  border-radius: var(--pill);
-  box-shadow: 0 3px 12px rgba(0,0,0,.25);
-  transition: background-color .18s ease, transform .18s ease;
+  border-radius: var(--pill); text-decoration: none;
+  transition: background-color .18s ease, color .18s ease, transform .18s ease;
 }
-.hero-call-btn:hover, .hero-call-btn:focus-visible {
-  background: var(--hot-btn); color: #fff;
+.btn-call:hover, .btn-call:focus-visible {
+  background: transparent; color: #fff;
   transform: translateY(-1px);
 }
-.hero-call-btn svg { flex: 0 0 auto; }
+.btn-call svg { flex: 0 0 auto; }
 @media (max-width: 40rem) {
-  .hero-call-btn {
-    top: .6rem; right: .6rem;
-    min-height: 44px; padding: .55rem .9rem;
-    font-size: .95rem;
-  }
+  .slide-actions { justify-content: center; }
+  .btn-call { min-height: 44px; padding: .55rem 1rem; font-size: .95rem; }
 }
 
 /* ============================================================

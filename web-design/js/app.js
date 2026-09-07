@@ -319,8 +319,7 @@ function renderShell(currentPage) {
     <div class="nav-bar">
       <div class="nav-brand">
         <a class="brand-link" href="index.html" aria-label="${esc(BUSINESS.name)} — home">
-          <span class="brand-text">Knightsbridge<span aria-hidden="true"> </span>Newsagency</span>
-          <img class="brand-wordmark" src="assets/icons/newsagency-wordmark.jpg" alt="" aria-hidden="true">
+          <img class="brand-wordmark" src="assets/icons/newsagency-wordmark.png" alt="${esc(BUSINESS.name)}">
         </a>
         <span class="brand-sub">Castle Hill NSW · Open 7 days</span>
       </div>
@@ -345,12 +344,16 @@ function renderShell(currentPage) {
           </button>
         </form>
         <a class="nav-basket" href="cart.html" ${currentPage === 'cart' ? 'aria-current="page"' : ''}
-           aria-label="Basket, ${cartCount} item${cartCount === 1 ? '' : 's'}">
-          <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false">
-            <!-- Modern shopping bag: rounded body, top handle. Filled variant reads clearly at small sizes. -->
-            <path d="M6 8h12a1 1 0 0 1 1 1.1l-1 10.8A2 2 0 0 1 16 22H8a2 2 0 0 1-2-1.9L5 9.1A1 1 0 0 1 6 8z"
-                  fill="currentColor" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
-            <path d="M9 8V6.5a3 3 0 0 1 6 0V8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+           aria-label="Cart, ${cartCount} item${cartCount === 1 ? '' : 's'}">
+          <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" focusable="false">
+            <!-- Modern shopping cart: hooked handle top-left, trapezoidal basket,
+                 two wheels at the base. Stroked so it reads clearly at any size. -->
+            <path d="M3 4h2.2a1 1 0 0 1 1 .8l.55 2.7"
+                  fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M6.75 7.5h13.4a.6.6 0 0 1 .58.75l-1.6 6.4a1.6 1.6 0 0 1-1.55 1.2H9.2a1.6 1.6 0 0 1-1.57-1.28L6.15 6.5"
+                  fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="9.5" cy="20" r="1.6" fill="currentColor"/>
+            <circle cx="17.5" cy="20" r="1.6" fill="currentColor"/>
           </svg>
           <span class="cart-count" aria-hidden="true">${cartCount}</span>
         </a>

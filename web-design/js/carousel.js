@@ -23,14 +23,15 @@ function initHeroCarousel(mountId, slides, { interval = 6000 } = {}) {
   root.setAttribute('aria-roledescription', 'carousel');
   root.setAttribute('aria-label', 'Featured departments');
 
-  // Persistent "Call us" button sits on top of every slide — sized generously
-  // for elderly / low-dexterity users, and tel: opens the phone dialler on
-  // mobile and prompts the desktop's default call handler otherwise.
+  // "Call us" pill sits alongside each slide's own CTA (Shop papers, Shop
+  // magazines, …) rather than as a floating overlay. Its text and target
+  // never change with the slide — only the slide-specific CTA does.
   const phoneHref = (typeof BUSINESS_LINKS !== 'undefined' && BUSINESS_LINKS.phone) || 'tel:+61288720317';
   const phoneNum  = (typeof BUSINESS !== 'undefined' && BUSINESS.phone) || '(02) 8872 0317';
-  const callBtn = `
-    <a class="hero-call-btn" href="${phoneHref}" aria-label="Call the shop on ${phoneNum}">
-      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+  const callBtn = (i) => `
+    <a class="btn btn-call btn-arrow-none" href="${phoneHref}" ${i === 0 ? '' : 'tabindex="-1"'}
+       aria-label="Call the shop on ${phoneNum}">
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
         <path d="M6.6 10.8a15 15 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.24 11 11 0 0 0 3.4.54 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1 11 11 0 0 0 .54 3.4 1 1 0 0 1-.24 1z"
               fill="currentColor"/>
       </svg>
@@ -38,7 +39,6 @@ function initHeroCarousel(mountId, slides, { interval = 6000 } = {}) {
     </a>`;
 
   root.innerHTML = `
-    ${callBtn}
     <div class="carousel-viewport" id="${mountId}-slides" aria-live="off">
       ${slides.map((s, i) => `
         <div class="carousel-slide ${i === 0 ? 'is-active' : ''}"
@@ -50,7 +50,10 @@ function initHeroCarousel(mountId, slides, { interval = 6000 } = {}) {
             <p class="slide-eyebrow">${s.eyebrow}</p>
             <h2 class="slide-heading">${s.heading}</h2>
             <p class="slide-body">${s.body}</p>
-            <a class="btn btn-primary btn-arrow" href="${s.cta.href}" ${i === 0 ? '' : 'tabindex="-1"'}>${s.cta.label}</a>
+            <div class="slide-actions">
+              <a class="btn btn-primary btn-arrow" href="${s.cta.href}" ${i === 0 ? '' : 'tabindex="-1"'}>${s.cta.label}</a>
+              ${callBtn(i)}
+            </div>
           </div>
         </div>`).join('')}
     </div>
