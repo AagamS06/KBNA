@@ -114,7 +114,7 @@ img, svg { max-width: 100%; display: block; }
   display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 1rem;
   max-width: var(--wrap); margin: 0 auto; padding: .55rem 1rem;
 }
-.nav-brand { display: flex; flex-direction: column; justify-content: center; }
+.nav-brand { display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
 .brand-link {
   display: inline-flex; align-items: center; text-decoration: none; color: var(--ink);
   transition: opacity .18s ease;
@@ -228,7 +228,10 @@ mark.search-hit { background: var(--gold, #ffd54a); color: #111; padding: 0 .1em
   .nav-toggle { grid-area: toggle; display: inline-flex; }
 
   /* Wordmark bumped a touch bigger on phones for legibility (the shop name
-     is stacked over two lines in the artwork). */
+     is stacked over two lines in the artwork). Left-align it inside the
+     brand cell — centring only makes sense on desktop, where the sub-text
+     stacks under the wordmark. */
+  .nav-brand { align-items: flex-start; text-align: left; }
   .brand-wordmark {
     height: 52px; max-width: min(48vw, 200px);
   }

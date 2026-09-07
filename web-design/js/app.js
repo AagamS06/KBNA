@@ -321,7 +321,7 @@ function renderShell(currentPage) {
         <a class="brand-link" href="index.html" aria-label="${esc(BUSINESS.name)} — home">
           <img class="brand-wordmark" src="assets/icons/newsagency-wordmark.png" alt="${esc(BUSINESS.name)}">
         </a>
-        <span class="brand-sub">Castle Hill NSW · Open 7 days</span>
+        <span class="brand-sub">Castle Hill, NSW 2154</span>
       </div>
       <button class="nav-toggle" type="button" aria-controls="primary-nav" aria-expanded="false" aria-label="Menu">
         <span class="nav-toggle-bar" aria-hidden="true"></span>
