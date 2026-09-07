@@ -23,3 +23,4 @@ app/node_modules/
 app/package.json
 app/package-lock.json
 .vercel
+.env*
