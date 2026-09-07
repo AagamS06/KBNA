@@ -305,9 +305,6 @@ function productCardHTML(p) {
 /* Shared masthead + footer so every page renders the same shell. */
 function renderShell(currentPage) {
   const cartCount = store.cartCount();
-  // No owner entry point here by design — stock is managed only in the
-  // owner's mobile app. See _archive/owner.html for the retired portal.
-  // Traditional bar: name left, menu centre, search + basket right.
   const nav = [
     { href: 'index.html', label: 'Home', key: 'home' },
     { href: 'products.html', label: 'Products', key: 'products' },
@@ -318,13 +315,21 @@ function renderShell(currentPage) {
 
   document.getElementById('site-header').innerHTML = `
     <a class="skip-link" href="#main">Skip to main content</a>
-    <p class="top-banner">Open 7 days · Mon–Fri 8am–6pm, Sat–Sun 8am–4pm · <a href="${BUSINESS_LINKS.phone}">${BUSINESS.phone}</a> · Reserve online, collect in store</p>
+    <p class="top-banner">Open 7 days · Mon–Fri 8am–6pm, Sat–Sun 8am–4pm · <a href="${BUSINESS_LINKS.phone}">${BUSINESS.phone}</a> · Reserve online, pay &amp; collect in store</p>
     <div class="nav-bar">
       <div class="nav-brand">
-        <a class="brand-link" href="index.html">Knightsbridge<span aria-hidden="true"> </span>Newsagency</a>
+        <a class="brand-link" href="index.html" aria-label="${esc(BUSINESS.name)} — home">
+          <span class="brand-text">Knightsbridge<span aria-hidden="true"> </span>Newsagency</span>
+          <img class="brand-wordmark" src="assets/icons/newsagency-wordmark.jpg" alt="" aria-hidden="true">
+        </a>
         <span class="brand-sub">Castle Hill NSW · Open 7 days</span>
       </div>
-      <nav class="nav-menu" aria-label="Main menu">
+      <button class="nav-toggle" type="button" aria-controls="primary-nav" aria-expanded="false" aria-label="Menu">
+        <span class="nav-toggle-bar" aria-hidden="true"></span>
+        <span class="nav-toggle-bar" aria-hidden="true"></span>
+        <span class="nav-toggle-bar" aria-hidden="true"></span>
+      </button>
+      <nav class="nav-menu" id="primary-nav" aria-label="Main menu">
         <ul>${nav.map(n => `<li><a href="${n.href}" ${n.key === currentPage ? 'aria-current="page"' : ''}>${esc(n.label)}</a></li>`).join('')}</ul>
       </nav>
       <div class="nav-tools">
@@ -342,14 +347,27 @@ function renderShell(currentPage) {
         <a class="nav-basket" href="cart.html" ${currentPage === 'cart' ? 'aria-current="page"' : ''}
            aria-label="Basket, ${cartCount} item${cartCount === 1 ? '' : 's'}">
           <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false">
-            <path d="M6 7h12l-1 12a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-            <path d="M9 7a3 3 0 0 1 6 0" fill="none" stroke="currentColor" stroke-width="2"/>
+            <!-- Modern shopping bag: rounded body, top handle. Filled variant reads clearly at small sizes. -->
+            <path d="M6 8h12a1 1 0 0 1 1 1.1l-1 10.8A2 2 0 0 1 16 22H8a2 2 0 0 1-2-1.9L5 9.1A1 1 0 0 1 6 8z"
+                  fill="currentColor" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+            <path d="M9 8V6.5a3 3 0 0 1 6 0V8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
           </svg>
           <span class="cart-count" aria-hidden="true">${cartCount}</span>
         </a>
       </div>
     </div>
     <p class="nav-search-status visually-hidden" id="nav-search-status" role="status" aria-live="polite"></p>`;
+
+  // Hamburger toggle — collapsed by default on mobile, ignored on desktop where CSS shows the menu inline.
+  const toggle = document.querySelector('.nav-toggle');
+  const menu = document.getElementById('primary-nav');
+  if (toggle && menu) {
+    toggle.addEventListener('click', () => {
+      const open = toggle.getAttribute('aria-expanded') === 'true';
+      toggle.setAttribute('aria-expanded', String(!open));
+      menu.classList.toggle('is-open', !open);
+    });
+  }
 
   if (typeof initNavSearch === 'function') initNavSearch(currentPage);
 
@@ -378,7 +396,6 @@ function renderShell(currentPage) {
         <ul class="footer-links">
           <li><a href="${BUSINESS_LINKS.reviews}" target="_blank" rel="noopener">Our Google reviews</a></li>
           <li><a href="${BUSINESS_LINKS.writeReview}" target="_blank" rel="noopener">Write us a review</a></li>
-          <li><a href="${BUSINESS_LINKS.centre}" target="_blank" rel="noopener">Knightsbridge Shopping Centre</a></li>
           <li><a href="${BUSINESS_LINKS.lott}" target="_blank" rel="noopener">Check your Lotto numbers</a></li>
         </ul>
       </section>
@@ -389,7 +406,7 @@ function renderShell(currentPage) {
         </ul>
       </section>
     </div>
-    <p class="footer-fineprint">© ${new Date().getFullYear()} ${BUSINESS.name} · Rated ${REVIEW_SUMMARY.rating} stars by our local customers · Demo build — data stored in your browser only.</p>`;
+    <p class="footer-fineprint">© ${new Date().getFullYear()} ${BUSINESS.name} · Rated ${REVIEW_SUMMARY.rating} stars by our local customers · <a class="staff-link" href="admin/login.html" rel="nofollow">Staff</a></p>`;
 }
 
 store.init();

@@ -118,9 +118,28 @@ img, svg { max-width: 100%; display: block; }
 .brand-link {
   font-family: var(--display); font-weight: 800; letter-spacing: -.03em; line-height: 1;
   font-size: clamp(1.15rem, 2.4vw, 1.6rem); color: var(--ink); text-decoration: none;
+  display: inline-flex; align-items: center;
 }
 .brand-link:hover { color: var(--hot-ink); }
 .brand-sub { font-size: .72rem; color: var(--ink-soft); margin-top: .15rem; }
+/* On desktop the text brand shows; the wordmark image hides. Swap on mobile below. */
+.brand-wordmark { display: none; }
+
+/* Hamburger toggle — visible only on mobile via the media query below. */
+.nav-toggle {
+  display: none;
+  align-items: center; justify-content: center;
+  width: 44px; height: 44px; padding: 0;
+  background: transparent; border: 1.5px solid var(--line-ui); border-radius: 10px;
+  cursor: pointer; color: var(--ink);
+}
+.nav-toggle-bar {
+  display: block; width: 22px; height: 2px; background: currentColor;
+  margin: 3px 0; border-radius: 2px; transition: transform .18s ease, opacity .18s ease;
+}
+.nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(1) { transform: translateY(5px) rotate(45deg); }
+.nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(2) { opacity: 0; }
+.nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(3) { transform: translateY(-5px) rotate(-45deg); }
 
 .nav-menu ul { list-style: none; margin: 0; padding: 0; display: flex; justify-content: center; flex-wrap: wrap; gap: .1rem; }
 .nav-menu a {
@@ -191,18 +210,67 @@ mark.search-hit { background: var(--gold, #ffd54a); color: #111; padding: 0 .1em
 .photo-ph.is-wide { aspect-ratio: 16 / 9; }
 .band-grey .photo-ph, .band-soft .photo-ph { background: repeating-linear-gradient(45deg, #fff, #fff 14px, #f0f0f0 14px, #f0f0f0 28px); }
 
-/* Below the centred-column breakpoint, stack the bar so older users still get
-   big tap targets and nothing is cramped. */
+/* Below the centred-column breakpoint, use a proper hamburger drawer so older
+   users can see every destination at a glance instead of having to swipe a
+   horizontal menu strip. Everything in the header targets 44px+ tap targets. */
 @media (max-width: 60rem) {
-  .nav-bar { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem 1rem; }
-  .nav-brand { flex: 1 1 auto; min-width: 0; }
-  .nav-tools { flex: 0 0 auto; }
-  /* Menu drops to its own full-width row and scrolls sideways if it can't fit,
-     so it never widens the page. */
-  .nav-menu { flex: 1 0 100%; min-width: 0; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .nav-menu ul { justify-content: flex-start; flex-wrap: nowrap; width: max-content; }
-  .nav-menu a { white-space: nowrap; }
-  .nav-search input { width: clamp(5.5rem, 32vw, 12rem); }
+  .nav-bar {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    grid-template-areas: "brand tools toggle";
+    align-items: center; gap: .5rem;
+  }
+  .nav-brand  { grid-area: brand; min-width: 0; }
+  .nav-tools  { grid-area: tools; }
+  .nav-toggle { grid-area: toggle; display: inline-flex; }
+
+  /* Hide the text wordmark; show the image wordmark. Sized so it doesn't
+     dominate the header but is still legible for older eyes. The source
+     image is 255x90 (aspect 2.83:1) with the shop name stacked over two
+     lines, so it needs ~52px+ height to be readable. */
+  .brand-link .brand-text { display: none; }
+  .brand-wordmark {
+    display: block; height: 52px; width: auto; max-width: min(48vw, 200px);
+    object-fit: contain;
+  }
+  .brand-sub { display: none; }
+
+  /* Search input hidden on phones — the drawer covers navigation and search
+     is a power-user feature; hiding it frees the header row for the
+     wordmark, cart, and hamburger. */
+  .nav-search { display: none; }
+
+  /* Nav collapses into a full-width drawer below the header. Not shown until
+     the hamburger toggles is-open, which our JS also mirrors on aria-expanded. */
+  .nav-menu {
+    grid-column: 1 / -1;
+    max-height: 0; overflow: hidden;
+    transition: max-height .25s ease;
+    background: var(--canvas);
+    border-top: 1px solid transparent;
+  }
+  .nav-menu.is-open {
+    max-height: 32rem;
+    border-top-color: var(--line);
+    margin-top: .5rem;
+  }
+  .nav-menu ul {
+    flex-direction: column; align-items: stretch;
+    width: auto; padding: .4rem 0;
+    justify-content: flex-start; flex-wrap: nowrap;
+  }
+  .nav-menu li { width: 100%; }
+  .nav-menu a {
+    width: 100%; min-height: 48px;
+    padding: .8rem 1rem; border-radius: 0;
+    font-size: 1.02rem;
+  }
+  .nav-menu a::after { display: none; }
+  .nav-menu a[aria-current="page"] {
+    background: var(--canvas-2);
+  }
+
+  .nav-search input { width: clamp(5.5rem, 32vw, 10rem); }
 }
 
 /* ---------------- Layout ---------------- */
@@ -995,3 +1063,78 @@ address a { display: inline-flex; align-items: center; min-height: 44px; }
 }
 .how-it-works .steps li::before { color: var(--hot-ink); }
 .how-it-works .steps strong { color: var(--ink); }
+
+/* ============================================================
+   Persistent "Call us" button on the hero carousel (#7)
+   Sits over every slide, sized generously for elderly / low-dexterity.
+   ============================================================ */
+.hero-carousel { position: relative; }
+.hero-call-btn {
+  position: absolute; top: 1rem; right: 1rem; z-index: 4;
+  display: inline-flex; align-items: center; gap: .5rem;
+  min-height: 48px; padding: .7rem 1.15rem;
+  background: var(--hot); color: #fff; text-decoration: none;
+  font-family: var(--display); font-weight: 700; font-size: 1rem;
+  border-radius: var(--pill);
+  box-shadow: 0 3px 12px rgba(0,0,0,.25);
+  transition: background-color .18s ease, transform .18s ease;
+}
+.hero-call-btn:hover, .hero-call-btn:focus-visible {
+  background: var(--hot-btn); color: #fff;
+  transform: translateY(-1px);
+}
+.hero-call-btn svg { flex: 0 0 auto; }
+@media (max-width: 40rem) {
+  .hero-call-btn {
+    top: .6rem; right: .6rem;
+    min-height: 44px; padding: .55rem .9rem;
+    font-size: .95rem;
+  }
+}
+
+/* ============================================================
+   Discrete "Staff" link in the footer fine print (#5)
+   Blends into the copyright line — only staff know to look for it.
+   ============================================================ */
+.footer-fineprint .staff-link {
+  color: inherit; opacity: .55;
+  text-decoration: none; margin-left: .35rem;
+  border-bottom: 1px dotted currentColor;
+}
+.footer-fineprint .staff-link:hover,
+.footer-fineprint .staff-link:focus-visible {
+  opacity: 1; color: var(--hot-ink);
+}
+
+/* ============================================================
+   Mobile centering + readability pass (#9)
+   Ensures hero art, section heads, badges and CTAs read cleanly on
+   phones without pinch-zoom, while still allowing users to zoom in.
+   Nothing here uses `user-scalable=no` — that stays forbidden.
+   ============================================================ */
+@media (max-width: 40rem) {
+  /* Section heads centred on phones so nothing looks left-lonely. */
+  .section-head { text-align: center; }
+  .section-head > * { margin-left: auto; margin-right: auto; }
+  .section-head p { max-width: 32rem; }
+
+  /* Hero copy stack: centred, generous line-height, single column. */
+  .slide-copy { text-align: center; align-items: center; }
+  .slide-copy .btn { align-self: center; }
+
+  /* Lottery panel: stack head (badge) above body and centre both. */
+  .lottery-inner { grid-template-columns: 1fr !important; text-align: center; }
+  .lottery-head, .lottery-body { justify-items: center; align-items: center; }
+  .lottery-badge { margin: 0 auto; max-width: 260px; }
+  .lottery-balls { justify-content: center; }
+  .lottery-actions { justify-content: center; }
+
+  /* Product / feature cards: centre content on narrow screens. */
+  .feature-card, .product-card { text-align: center; }
+  .feature-card address { font-style: normal; }
+  .hero-actions { justify-content: center; }
+
+  /* Stat grid: centre each stat and give it breathing room. */
+  .stat-grid { justify-content: center; text-align: center; }
+  .stat { align-items: center; }
+}

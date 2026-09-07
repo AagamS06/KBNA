@@ -41,8 +41,6 @@ const BUSINESS_LINKS = {
   writeReview: GOOGLE_PLACE_ID
     ? `https://search.google.com/local/writereview?placeid=${GOOGLE_PLACE_ID}`
     : `https://www.google.com/maps/search/?api=1&query=${MAPS_QUERY}`,
-  centre: 'https://www.knightsbridgeshoppingcentre.com.au/knightsbridge-newsagency/',
-  yelp: 'https://www.yelp.com/biz/knightsbridge-newsagency-castle-hill',
   lott: 'https://www.thelott.com/',
   phone: BUSINESS.phoneHref
 };

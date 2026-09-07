@@ -1,6 +1,15 @@
 /* Contact page wiring. Loaded with `defer` after the shared libraries.
    The form validates inline and accessibly (aria-invalid + per-field error
-   text + focus to the first problem) instead of a blocking alert(). */
+   text + focus to the first problem) instead of a blocking alert().
+
+   Submission: the form is POSTed to a form-forwarding endpoint that emails
+   the owner. Two options that both work with a static site:
+     - Formspree:   https://formspree.io/f/XXXXXXXX   (recommended)
+     - Web3Forms:   https://api.web3forms.com/submit  (uses an access_key)
+   Set FORM_ENDPOINT once you've created the account and copied the URL.
+   Until then, the form falls back to the previous mailto: behaviour so it
+   still works locally without breaking. */
+const FORM_ENDPOINT = ''; // e.g. 'https://formspree.io/f/xxxxxxx'
 renderShell('contact');
 
 document.getElementById('visit-address').innerHTML =
@@ -12,10 +21,8 @@ document.getElementById('hours-list').innerHTML =
 
 document.getElementById('online-links').innerHTML = [
   ['Open in Google Maps', BUSINESS_LINKS.maps],
-  [`Read our ${REVIEW_SUMMARY.count} Google reviews`, BUSINESS_LINKS.reviews],
+  ['Read our Google reviews here', BUSINESS_LINKS.reviews],
   ['Write us a Google review', BUSINESS_LINKS.writeReview],
-  ['Our page on the Knightsbridge Shopping Centre site', BUSINESS_LINKS.centre],
-  ['Our Yelp listing', BUSINESS_LINKS.yelp],
   ['Check your Lotto numbers at the Lott', BUSINESS_LINKS.lott]
 ].map(([label, href]) =>
   `<li><a href="${href}" target="_blank" rel="noopener">${esc(label)}</a></li>`
@@ -83,10 +90,39 @@ form.addEventListener('submit', e => {
 
   if (firstBad) { firstBad.focus(); return; }
 
-  const contact = [
-    email.value.trim() && `<${email.value.trim()}>`,
-    phone.value.trim() && `phone ${phone.value.trim()}`
-  ].filter(Boolean).join(', ');
-  const body = `From: ${name.value.trim()} ${contact}\n\n${message.value.trim()}`;
-  location.href = `mailto:${store.owner().email}?subject=${encodeURIComponent('Website enquiry from ' + name.value.trim())}&body=${encodeURIComponent(body)}`;
+  const payload = {
+    name: name.value.trim(),
+    email: email.value.trim(),
+    phone: phone.value.trim(),
+    message: message.value.trim(),
+    _subject: 'Website enquiry from ' + name.value.trim()
+  };
+
+  // Fallback to mailto if no endpoint is configured yet — keeps the form
+  // usable during local dev / before the owner sets up the form service.
+  if (!FORM_ENDPOINT) {
+    const contact = [
+      payload.email && `<${payload.email}>`,
+      payload.phone && `phone ${payload.phone}`
+    ].filter(Boolean).join(', ');
+    const body = `From: ${payload.name} ${contact}\n\n${payload.message}`;
+    location.href = `mailto:${store.owner().email}?subject=${encodeURIComponent(payload._subject)}&body=${encodeURIComponent(body)}`;
+    return;
+  }
+
+  const submitBtn = form.querySelector('button[type="submit"]');
+  if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Sending…'; }
+
+  fetch(FORM_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  }).then(res => {
+    if (!res.ok) throw new Error('send failed');
+    form.innerHTML = `<p class="form-success" role="status">
+      Thanks — we've got your message and will get back to you shortly.</p>`;
+  }).catch(() => {
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Send message'; }
+    setReachError('Something went wrong sending that. Please call us on ' + BUSINESS.phone + '.');
+  });
 });

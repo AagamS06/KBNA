@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!-- Security headers (also set at the edge via _headers; meta covers static hosts like GitHub Pages) -->
 <!-- frame-src for the Google Maps embed is added HERE only (this page); other pages keep the stricter policy. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self'; connect-src 'self' https://api.openverse.org; frame-src https://www.google.com; child-src https://www.google.com; manifest-src 'self'; worker-src 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self'; connect-src 'self' https://api.openverse.org https://formspree.io https://api.web3forms.com; frame-src https://www.google.com; child-src https://www.google.com; manifest-src 'self'; worker-src 'self'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Contact &amp; opening hours — Knightsbridge Newsagency, Castle Hill</title>
 <meta name="description" content="Find Knightsbridge Newsagency at Shop 5, 159 Ridgecrop Drive, Castle Hill NSW 2154. Phone (02) 8872 0317. Open weekdays 8am–6pm, weekends 8am–4pm.">
@@ -14,9 +14,9 @@
 <meta name="color-scheme" content="light">
 
 <!-- Icons & PWA -->
-<link rel="icon" href="favicon.ico" sizes="any">
-<link rel="icon" href="favicon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/jpeg" href="assets/icons/newsagency-mark.jpg">
+<link rel="icon" type="image/jpeg" sizes="any" href="assets/icons/newsagency-mark.jpg">
+<link rel="apple-touch-icon" href="assets/icons/newsagency-mark.jpg">
 <link rel="manifest" href="site.webmanifest">
 <meta name="application-name" content="Knightsbridge Newsagency">
 <meta name="apple-mobile-web-app-title" content="Knightsbridge">
@@ -93,7 +93,7 @@
   <div class="contact-grid">
     <section aria-labelledby="form-h">
       <h2 id="form-h">Send us a message</h2>
-      <p class="notice">Without a server this form can't reach Resend directly. It opens your email app pre-filled instead. (When deployed with Node, the same form posts straight to the owner's inbox via Resend.)</p>
+      <p class="notice">Fill this in and we'll get back to you shortly. If your email app opens instead of a "Thanks" message, the owner's form service isn't wired up yet — send the pre-filled draft to reach us the same way.</p>
       <form class="stacked-form" id="contact-form" novalidate>
         <div class="field">
           <label for="c-name">Your name (required)</label>

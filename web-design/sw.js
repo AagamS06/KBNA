@@ -7,7 +7,7 @@
 
    Bump CACHE_VERSION whenever the shell assets change to retire old caches. */
 
-const CACHE_VERSION = 'kn-v10';
+const CACHE_VERSION = 'kn-v11';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -25,7 +25,8 @@ const SHELL = [
   'site.webmanifest',
   'favicon.svg', 'favicon.ico', 'apple-touch-icon.png',
   'assets/icons/icon-192.png', 'assets/icons/icon-512.png',
-  'assets/icons/icon-maskable-512.png'
+  'assets/icons/icon-maskable-512.png',
+  'assets/icons/newsagency-mark.jpg', 'assets/icons/newsagency-wordmark.jpg'
 ];
 
 const FONT_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com'];

@@ -133,7 +133,7 @@ function renderLotteryPanel(panel, d) {
       </div>
       ${poster}
     </div>
-    <p class="lottery-disclaimer">Numbers shown for convenience — always confirm your ticket in store or with the official operator.<br>The convenience numbers refresh at roughly 4am the next day.</p>`;
+    <p class="lottery-disclaimer">Numbers shown for convenience — always confirm your ticket in store or with the official operator.<br>The numbers refresh early in the morning the following day.</p>`;
 
   // Poster: hide the whole slot if the local file is missing.
   const posterImg = panel.querySelector('[data-lotto-poster]');
