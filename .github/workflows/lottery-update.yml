@@ -73,7 +73,12 @@ jobs:
           fi
           git config user.name  "Knightsbridge Automation"
           git config user.email "automation@knightsbridgenews.com.au"
-          git commit -m "chore(lottery): refresh daily draw (backup run) [skip ci]"
+          # Do NOT include [skip ci] here — Vercel treats it as an
+          # opt-out signal and won't redeploy, so the fresh lottery.json
+          # sits on GitHub without reaching the live site. The workflow
+          # itself is not push-triggered (schedule + manual only), so
+          # there's no CI loop to worry about.
+          git commit -m "chore(lottery): refresh daily draw (backup run)"
 
           # Guard against a race with the Claude Code cloud routine landing a
           # commit moments earlier: retry the push after rebasing onto
