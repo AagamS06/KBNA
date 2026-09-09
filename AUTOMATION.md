@@ -103,3 +103,4 @@ If both systems fail on the same day, the panel keeps showing the last good
 verified draw (it never shows stale data as if it were current beyond that —
 see the "refreshes at roughly 4am" note on the page) and no broken file is
 ever written.
+
