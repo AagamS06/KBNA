@@ -1,0 +1,70 @@
+name: Daily lottery refresh (safety net)
+
+# SAFETY NET. Fires 30 minutes after the primary workflow
+# (`lottery-update.yml`). Runs the same script against the same repo, so on a
+# normal day — when the primary has already committed today's numbers — this
+# is a fast no-op thanks to the script's Sydney-date gate. Its whole purpose
+# is to cover a rare bad day for the primary (network hiccup, transient 5xx,
+# GitHub Actions rare outage in one region, workflow paused by mistake).
+#
+# Same commit-message rules as the primary — no `[skip ci]`, so Vercel
+# auto-deploys any commit this workflow lands.
+
+on:
+  schedule:
+    - cron: "30 17 * * *"   # ~4:30am Sydney during AEDT (UTC+11)
+    - cron: "30 18 * * *"   # ~4:30am Sydney during AEST (UTC+10)
+  workflow_dispatch:         # manual "Run workflow" button
+
+permissions:
+  contents: write
+
+# Share the concurrency group with the primary so two runs can't race
+# the same file.
+concurrency:
+  group: lottery-update
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Refresh lottery.json
+        working-directory: web-design
+        run: node tools/update-lottery.mjs
+
+      - name: Commit and push if changed
+        run: |
+          set -e
+          git add web-design/data/lottery.json
+          if git diff --cached --quiet; then
+            echo "No change to lottery.json — nothing to commit (the primary workflow already refreshed today)."
+            exit 0
+          fi
+          git config user.name  "Knightsbridge Automation"
+          git config user.email "automation@knightsbridgenews.com.au"
+          # No [skip ci] — Vercel needs to see this as a normal commit.
+          git commit -m "chore(lottery): refresh daily draw (safety net)"
+
+          # Race protection: if the primary landed a commit moments earlier
+          # (unlikely thanks to the shared concurrency group, but possible if
+          # this ran because the primary genuinely failed), retry after
+          # rebasing so this run finishes cleanly.
+          for attempt in 1 2 3; do
+            if git push; then
+              echo "Pushed on attempt $attempt."
+              exit 0
+            fi
+            echo "Push rejected (attempt $attempt) — pulling and rebasing, then retrying..."
+            git pull --rebase origin "${GITHUB_REF_NAME}"
+          done
+          echo "::error::Push failed after retries."
+          exit 1
