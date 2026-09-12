@@ -16,14 +16,14 @@
     14
   ],
   "powerball": null,
-  "jackpot": "Next draw — Saturday Lotto Sat, 12 Sept: $10 Million",
-  "nextGame": "Saturday Lotto",
-  "nextDrawDate": "2026-09-12",
-  "nextBadgeColour": "#DC392D",
+  "jackpot": "Next draw — Weekday Windfall Mon, 14 Sept: $1 Million",
+  "nextGame": "Weekday Windfall",
+  "nextDrawDate": "2026-09-14",
+  "nextBadgeColour": "#583788",
   "badgeColour": "#583788",
   "logoSlot": "",
   "posterSlot": "",
   "ctaHref": "https://www.thelott.com/results",
-  "updated": "2026-09-12T10:58:56+10:00",
-  "_gateSydneyDate": "2026-09-11"
+  "updated": "2026-09-12T23:54:37+10:00",
+  "_gateSydneyDate": "2026-09-12"
 }
