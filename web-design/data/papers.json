@@ -1,0 +1,93 @@
+{
+  "$comment": "Newspaper catalogue for the shop. Owner-editable — no code change needed. `days` is Sydney weekdays 0=Sun..6=Sat; the shop shows only today's papers. Prices are in cents. `low_stock_threshold` is when the auto-hold kicks in on the owner side.",
+  "papers": [
+    {
+      "name": "The Daily Telegraph",
+      "description": "Today's edition, in early every weekday morning.",
+      "price_cents": 300,
+      "stock": 40,
+      "low_stock_threshold": 10,
+      "days": [1, 2, 3, 4, 5]
+    },
+    {
+      "name": "The Saturday Telegraph",
+      "description": "Saturday edition with the weekend lift-outs.",
+      "price_cents": 450,
+      "stock": 35,
+      "low_stock_threshold": 8,
+      "days": [6]
+    },
+    {
+      "name": "The Sunday Telegraph",
+      "description": "Sunday edition — news, sport and the magazine.",
+      "price_cents": 450,
+      "stock": 35,
+      "low_stock_threshold": 8,
+      "days": [0]
+    },
+    {
+      "name": "The Sydney Morning Herald",
+      "description": "Weekday edition of the Herald.",
+      "price_cents": 480,
+      "stock": 30,
+      "low_stock_threshold": 8,
+      "days": [1, 2, 3, 4, 5]
+    },
+    {
+      "name": "The Saturday Herald",
+      "description": "Saturday SMH with all the lift-outs.",
+      "price_cents": 580,
+      "stock": 28,
+      "low_stock_threshold": 8,
+      "days": [6]
+    },
+    {
+      "name": "The Sun-Herald",
+      "description": "Sunday edition of the Herald.",
+      "price_cents": 480,
+      "stock": 28,
+      "low_stock_threshold": 8,
+      "days": [0]
+    },
+    {
+      "name": "The Australian",
+      "description": "National daily broadsheet — weekday edition.",
+      "price_cents": 450,
+      "stock": 28,
+      "low_stock_threshold": 8,
+      "days": [1, 2, 3, 4, 5]
+    },
+    {
+      "name": "The Weekend Australian",
+      "description": "Weekend edition with the Magazine and Review — Saturday and Sunday.",
+      "price_cents": 550,
+      "stock": 22,
+      "low_stock_threshold": 6,
+      "days": [6, 0]
+    },
+    {
+      "name": "Australian Financial Review",
+      "description": "Weekday business and markets daily.",
+      "price_cents": 550,
+      "stock": 20,
+      "low_stock_threshold": 6,
+      "days": [1, 2, 3, 4, 5]
+    },
+    {
+      "name": "AFR Weekend",
+      "description": "The weekend Financial Review — business, life and leisure. Saturday and Sunday.",
+      "price_cents": 600,
+      "stock": 18,
+      "low_stock_threshold": 5,
+      "days": [6, 0]
+    },
+    {
+      "name": "Hills Shire Times",
+      "description": "Your local Castle Hill and Hills District weekly (Wednesdays).",
+      "price_cents": 220,
+      "stock": 35,
+      "low_stock_threshold": 10,
+      "days": [3]
+    }
+  ]
+}

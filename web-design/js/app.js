@@ -15,21 +15,13 @@ const CHECK_IN_STORE_DEFAULTS = { price_cents: 0, stock: 0, low_stock_threshold:
 
 const SEED_PRODUCTS = [
   /* ---- Paper ----
-     `days` = Sydney weekdays this edition is on sale (0=Sun … 6=Sat). The shop
-     shows only today's papers (see store.visibleProducts); e.g. Saturday shows
-     the Saturday Telegraph, Saturday Herald, AFR Weekend and Weekend Australian.
-     A paper with no `days` would show every day. */
-  { name: 'The Daily Telegraph', description: "Today's edition, in early every weekday morning.", price_cents: 300, stock: 40, low_stock_threshold: 10, tag: 'Paper', days: [1, 2, 3, 4, 5] },
-  { name: 'The Saturday Telegraph', description: 'Saturday edition with the weekend lift-outs.', price_cents: 450, stock: 35, low_stock_threshold: 8, tag: 'Paper', days: [6] },
-  { name: 'The Sunday Telegraph', description: 'Sunday edition — news, sport and the magazine.', price_cents: 450, stock: 35, low_stock_threshold: 8, tag: 'Paper', days: [0] },
-  { name: 'The Sydney Morning Herald', description: 'Weekday edition of the Herald.', price_cents: 480, stock: 30, low_stock_threshold: 8, tag: 'Paper', days: [1, 2, 3, 4, 5] },
-  { name: 'The Saturday Herald', description: 'Saturday SMH with all the lift-outs.', price_cents: 580, stock: 28, low_stock_threshold: 8, tag: 'Paper', days: [6] },
-  { name: 'The Sun-Herald', description: 'Sunday edition of the Herald.', price_cents: 480, stock: 28, low_stock_threshold: 8, tag: 'Paper', days: [0] },
-  { name: 'The Australian', description: 'National daily broadsheet — weekday edition.', price_cents: 450, stock: 28, low_stock_threshold: 8, tag: 'Paper', days: [1, 2, 3, 4, 5] },
-  { name: 'The Weekend Australian', description: 'Weekend edition with the Magazine and Review — Saturday and Sunday.', price_cents: 550, stock: 22, low_stock_threshold: 6, tag: 'Paper', days: [6, 0] },
-  { name: 'Australian Financial Review', description: 'Weekday business and markets daily.', price_cents: 550, stock: 20, low_stock_threshold: 6, tag: 'Paper', days: [1, 2, 3, 4, 5] },
-  { name: 'AFR Weekend', description: 'The weekend Financial Review — business, life and leisure. Saturday and Sunday.', price_cents: 600, stock: 18, low_stock_threshold: 5, tag: 'Paper', days: [6, 0] },
-  { name: 'Hills Shire Times', description: 'Your local Castle Hill and Hills District weekly (Wednesdays).', price_cents: 220, stock: 35, low_stock_threshold: 10, tag: 'Paper', days: [3] },
+     Papers live in data/papers.json, not here — updating a title or price
+     is a one-line JSON edit and needs no code change. The catalogue is
+     hydrated by hydratePapers() below on first load and any time the
+     JSON on the server has changed. `days` is the Sydney weekday (0=Sun
+     … 6=Sat) so the shop shows only today's papers (see
+     store.visibleProducts) — e.g. Saturday only lists the Saturday
+     Telegraph, Saturday Herald, AFR Weekend and Weekend Australian. */
   /* ---- Magazine ---- */
   { name: "Woman's Day Magazine", description: 'Latest weekly issue.', price_cents: 620, stock: 15, low_stock_threshold: 4, tag: 'Magazine' },
   { name: 'National Geographic', description: 'Current monthly issue.', price_cents: 1450, stock: 8, low_stock_threshold: 3, tag: 'Magazine' },
@@ -413,6 +405,63 @@ function renderShell(currentPage) {
 }
 
 store.init();
+
+/* Papers are the one product category the owner can edit without touching
+   JS: data/papers.json is the single source of truth. This hydration runs
+   after init() so the seed catalogue exists first, then fetches the JSON
+   and merges any adds/updates into localStorage. Cache-busted per load so
+   an owner edit reaches visitors on their next page view. Fails silently —
+   if the fetch dies, the previously hydrated papers stay in localStorage. */
+async function hydratePapers() {
+  try {
+    const res = await fetch('data/papers.json', { cache: 'no-cache' });
+    if (!res || !res.ok) return;
+    const data = await res.json();
+    if (!data || !Array.isArray(data.papers)) return;
+
+    const list = store.products();
+    const byName = new Map(list.filter(p => p.tag === 'Paper').map(p => [p.name, p]));
+    const wantedNames = new Set(data.papers.map(p => p.name));
+    const SYNC_FIELDS = ['description', 'price_cents', 'stock', 'low_stock_threshold', 'days'];
+
+    let changed = false;
+    let maxId = list.reduce((m, p) => Math.max(m, p.id || 0), 0);
+
+    for (const paper of data.papers) {
+      const existing = byName.get(paper.name);
+      if (existing) {
+        for (const f of SYNC_FIELDS) {
+          if (f in paper && JSON.stringify(existing[f]) !== JSON.stringify(paper[f])) {
+            existing[f] = paper[f];
+            changed = true;
+          }
+        }
+      } else {
+        list.push({
+          id: ++maxId, active: true, held: false, tag: 'Paper',
+          name: paper.name, description: paper.description || '',
+          price_cents: paper.price_cents || 0, stock: paper.stock || 0,
+          low_stock_threshold: paper.low_stock_threshold || 0,
+          days: Array.isArray(paper.days) ? paper.days.slice() : undefined
+        });
+        changed = true;
+      }
+    }
+    // Retire papers that are no longer in the JSON (soft-delete via active:false).
+    for (const p of list) {
+      if (p.tag === 'Paper' && !wantedNames.has(p.name) && p.active) {
+        p.active = false;
+        changed = true;
+      }
+    }
+
+    if (changed) {
+      store.saveProducts(list);
+      window.dispatchEvent(new CustomEvent('kn:products-updated'));
+    }
+  } catch { /* fail-soft: last-good papers stay */ }
+}
+hydratePapers();
 
 /* Progressive enhancement: register the service worker so the shell works
    offline after the first visit. Guarded so it never throws where it can't

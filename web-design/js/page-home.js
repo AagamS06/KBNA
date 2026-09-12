@@ -41,8 +41,14 @@ document.getElementById('tag-list').innerHTML =
 function renderPopular() {
   const picks = store.visibleProducts().filter(p => !p.held && p.stock > 0).slice(0, 4);
   document.getElementById('popular-grid').innerHTML = picks.map(productCardHTML).join('');
+  // Refresh the category chip list too — papers arriving may add or remove a tag.
+  document.getElementById('tag-list').innerHTML =
+    store.distinctTags().map(t => `<li><a class="tag-chip" href="products.html?tag=${encodeURIComponent(t)}">${esc(t)}</a></li>`).join('')
+    + `<li><a class="tag-chip" href="products.html">Everything</a></li>`;
 }
 renderPopular();
+/* Re-render when the async papers.json hydration lands. */
+window.addEventListener('kn:products-updated', renderPopular);
 
 document.addEventListener('click', e => {
   const id = e.target.closest('[data-add]')?.dataset.add;

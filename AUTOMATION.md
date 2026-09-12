@@ -23,8 +23,8 @@ notes.
 ## 1. Primary — GitHub Actions
 
 - **File:** [`.github/workflows/lottery-update.yml`](.github/workflows/lottery-update.yml)
-- **Schedule:** `0 17 * * *` and `0 18 * * *` (UTC) — the two UTC hours that
-  correspond to 4am Sydney under AEDT (UTC+11, ~Oct–Apr) and AEST (UTC+10,
+- **Schedule:** `0 12 * * *` and `0 13 * * *` (UTC) — the two UTC hours that
+  correspond to 11pm Sydney under AEDT (UTC+11, ~Oct–Apr) and AEST (UTC+10,
   ~Apr–Oct). Whichever fires first each day does the real work; the second
   is a no-op via the script's Sydney-date gate.
 - **What it does:** runs the script, and if `web-design/data/lottery.json`
@@ -36,7 +36,7 @@ notes.
 ## 2. Safety net — GitHub Actions
 
 - **File:** [`.github/workflows/lottery-safety-net.yml`](.github/workflows/lottery-safety-net.yml)
-- **Schedule:** `30 17 * * *` and `30 18 * * *` (UTC) — 30 minutes after the
+- **Schedule:** `30 12 * * *` and `30 13 * * *` (UTC) — 30 minutes after the
   primary's fire times.
 - **Why it exists:** the primary could miss a fire for lots of small reasons
   (workflow paused, a transient GitHub Actions incident in one region, a
@@ -49,25 +49,25 @@ notes.
 Both workflows share the same concurrency group (`lottery-update`) so two
 runs can't race the same file.
 
-## Why 4am, and why two fire times per workflow
+## Why 11pm, and why two fire times per workflow
 
-**4am, not midnight:** a late-drawing game's result isn't always finalised on
-the operator's feed the instant the clock ticks over. Waiting a few hours
-gives it time to finish publishing, so the script's "yesterday's draw" lookup
-doesn't catch a result mid-publish. The site itself says as much next to the
-numbers: *"The numbers refresh early in the morning the following day."*
+**11pm the same night as the draw:** the operator's headline draws close at
+8:30pm Sydney and the feed usually finishes publishing final results within
+the following hour or two. Firing at 11pm the same day catches the numbers
+the same evening the draw ran, rather than the next morning, so a customer
+who checks after their evening ticket-check already sees the result up.
 
 **Two fire times per workflow, not one:** GitHub Actions cron is UTC-only and
 has no concept of daylight saving. A single fixed UTC time drifts by an hour
 on the Sydney clock across the DST boundary. Firing at both UTC hours that
-correspond to 4am Sydney under AEDT and AEST guarantees a fire at the right
+correspond to 11pm Sydney under AEDT and AEST guarantees a fire at the right
 *local* time year-round; the script's own `_gateSydneyDate` check makes the
 "extra" fire each day a harmless no-op.
 
 | Sydney time | AEDT (UTC+11, ~Oct–Apr) | AEST (UTC+10, ~Apr–Oct) |
 |---|---|---|
-| 4:00am | 17:00 UTC (prev. day) | 18:00 UTC (prev. day) |
-| 4:30am | 17:30 UTC (prev. day) | 18:30 UTC (prev. day) |
+| 11:00pm | 12:00 UTC (same day) | 13:00 UTC (same day) |
+| 11:30pm | 12:30 UTC (same day) | 13:30 UTC (same day) |
 
 ## Never use `[skip ci]` in the commit message
 

@@ -89,3 +89,7 @@ document.addEventListener('click', e => {
 });
 
 render();
+
+/* Papers hydrate asynchronously from data/papers.json — re-render when
+   they arrive so first-load visitors see them the moment the fetch lands. */
+window.addEventListener('kn:products-updated', render);

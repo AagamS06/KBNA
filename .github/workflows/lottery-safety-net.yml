@@ -12,8 +12,8 @@ name: Daily lottery refresh (safety net)
 
 on:
   schedule:
-    - cron: "30 17 * * *"   # ~4:30am Sydney during AEDT (UTC+11)
-    - cron: "30 18 * * *"   # ~4:30am Sydney during AEST (UTC+10)
+    - cron: "30 12 * * *"   # ~11:30pm Sydney during AEDT (UTC+11) — same day
+    - cron: "30 13 * * *"   # ~11:30pm Sydney during AEST (UTC+10) — same day
   workflow_dispatch:         # manual "Run workflow" button
 
 permissions:
