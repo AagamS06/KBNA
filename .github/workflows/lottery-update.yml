@@ -12,14 +12,14 @@ name: Daily lottery refresh (primary)
 # Refreshes web-design/data/lottery.json from the official operator feed once
 # per real Australia/Sydney day, then commits ONLY that file.
 #
-# WHY TWO CRONS, AND WHY 11PM. GitHub Actions cron is UTC-only and has no DST,
+# WHY TWO CRONS, AND WHY 10PM. GitHub Actions cron is UTC-only and has no DST,
 # so a fixed UTC time lands at a different Sydney clock time across the year.
-# We fire at ~11pm Sydney the same day as the draw — a couple of hours after
-# the operator's 8:30pm draws, so the result is finalised on the feed by the
+# We fire at 10pm Sydney the same day as the draw — 90 minutes after the
+# operator's 8:30pm draws, so the result is finalised on the feed by the
 # time we ask for it:
-#   - AEDT (UTC+11): Sydney 23:00 == 12:00 UTC the same day
-#   - AEST (UTC+10): Sydney 23:00 == 13:00 UTC the same day
-# Running at both 12:00 and 13:00 UTC guarantees a fire at 11pm Sydney all year
+#   - AEDT (UTC+11): Sydney 22:00 == 11:00 UTC the same day
+#   - AEST (UTC+10): Sydney 22:00 == 12:00 UTC the same day
+# Running at both 11:00 and 12:00 UTC guarantees a fire at 10pm Sydney all year
 # round. The script gates on the real Australia/Sydney date (it stamps
 # `_gateSydneyDate` on the file it writes and skips the network entirely if
 # that already equals today's Sydney date), so the second daily fire — plus
@@ -33,8 +33,8 @@ name: Daily lottery refresh (primary)
 
 on:
   schedule:
-    - cron: "0 12 * * *"    # 11pm Sydney during AEDT (UTC+11) — same day
-    - cron: "0 13 * * *"    # 11pm Sydney during AEST (UTC+10) — same day
+    - cron: "0 11 * * *"    # 10pm Sydney during AEDT (UTC+11) — same day
+    - cron: "0 12 * * *"    # 10pm Sydney during AEST (UTC+10) — same day
   workflow_dispatch:         # manual "Run workflow" button
 
 # Least privilege: the job only needs to push the one data file back.

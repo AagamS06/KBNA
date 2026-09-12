@@ -1,7 +1,7 @@
 name: Daily lottery refresh (safety net)
 
-# SAFETY NET. Fires 30 minutes after the primary workflow
-# (`lottery-update.yml`). Runs the same script against the same repo, so on a
+# SAFETY NET. Fires 1 hour after the primary workflow (at 11pm Sydney vs
+# the primary's 10pm Sydney). Runs the same script against the same repo, so on a
 # normal day — when the primary has already committed today's numbers — this
 # is a fast no-op thanks to the script's Sydney-date gate. Its whole purpose
 # is to cover a rare bad day for the primary (network hiccup, transient 5xx,
@@ -12,8 +12,8 @@ name: Daily lottery refresh (safety net)
 
 on:
   schedule:
-    - cron: "30 12 * * *"   # ~11:30pm Sydney during AEDT (UTC+11) — same day
-    - cron: "30 13 * * *"   # ~11:30pm Sydney during AEST (UTC+10) — same day
+    - cron: "0 12 * * *"    # 11pm Sydney during AEDT (UTC+11) — same day
+    - cron: "0 13 * * *"    # 11pm Sydney during AEST (UTC+10) — same day
   workflow_dispatch:         # manual "Run workflow" button
 
 permissions:

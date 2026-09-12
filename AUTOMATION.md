@@ -23,8 +23,8 @@ notes.
 ## 1. Primary — GitHub Actions
 
 - **File:** [`.github/workflows/lottery-update.yml`](.github/workflows/lottery-update.yml)
-- **Schedule:** `0 12 * * *` and `0 13 * * *` (UTC) — the two UTC hours that
-  correspond to 11pm Sydney under AEDT (UTC+11, ~Oct–Apr) and AEST (UTC+10,
+- **Schedule:** `0 11 * * *` and `0 12 * * *` (UTC) — the two UTC hours that
+  correspond to 10pm Sydney under AEDT (UTC+11, ~Oct–Apr) and AEST (UTC+10,
   ~Apr–Oct). Whichever fires first each day does the real work; the second
   is a no-op via the script's Sydney-date gate.
 - **What it does:** runs the script, and if `web-design/data/lottery.json`
@@ -36,8 +36,8 @@ notes.
 ## 2. Safety net — GitHub Actions
 
 - **File:** [`.github/workflows/lottery-safety-net.yml`](.github/workflows/lottery-safety-net.yml)
-- **Schedule:** `30 12 * * *` and `30 13 * * *` (UTC) — 30 minutes after the
-  primary's fire times.
+- **Schedule:** `0 12 * * *` and `0 13 * * *` (UTC) — 1 hour after the
+  primary's fire times (11pm Sydney vs the primary's 10pm).
 - **Why it exists:** the primary could miss a fire for lots of small reasons
   (workflow paused, a transient GitHub Actions incident in one region, a
   one-off API 5xx that outlasts the primary's retry budget). The safety net
@@ -49,25 +49,26 @@ notes.
 Both workflows share the same concurrency group (`lottery-update`) so two
 runs can't race the same file.
 
-## Why 11pm, and why two fire times per workflow
+## Why 10pm/11pm, and why two fire times per workflow
 
-**11pm the same night as the draw:** the operator's headline draws close at
-8:30pm Sydney and the feed usually finishes publishing final results within
-the following hour or two. Firing at 11pm the same day catches the numbers
-the same evening the draw ran, rather than the next morning, so a customer
-who checks after their evening ticket-check already sees the result up.
+**Primary at 10pm, safety net at 11pm — same night as the draw:** the
+operator's headline draws close at 8:30pm Sydney and the feed usually
+finishes publishing final results within an hour or so. Firing the primary
+at 10pm same day catches the numbers the evening the draw ran; the safety
+net at 11pm re-covers the (rare) case where the primary hits a transient
+5xx that outlasts its retry budget or the workflow was paused.
 
 **Two fire times per workflow, not one:** GitHub Actions cron is UTC-only and
 has no concept of daylight saving. A single fixed UTC time drifts by an hour
 on the Sydney clock across the DST boundary. Firing at both UTC hours that
-correspond to 11pm Sydney under AEDT and AEST guarantees a fire at the right
-*local* time year-round; the script's own `_gateSydneyDate` check makes the
-"extra" fire each day a harmless no-op.
+correspond to the target Sydney time under AEDT and AEST guarantees a fire
+at the right *local* time year-round; the script's own `_gateSydneyDate`
+check makes the "extra" fire each day a harmless no-op.
 
 | Sydney time | AEDT (UTC+11, ~Oct–Apr) | AEST (UTC+10, ~Apr–Oct) |
 |---|---|---|
-| 11:00pm | 12:00 UTC (same day) | 13:00 UTC (same day) |
-| 11:30pm | 12:30 UTC (same day) | 13:30 UTC (same day) |
+| 10:00pm (primary) | 11:00 UTC (same day) | 12:00 UTC (same day) |
+| 11:00pm (safety net) | 12:00 UTC (same day) | 13:00 UTC (same day) |
 
 ## Never use `[skip ci]` in the commit message
 
