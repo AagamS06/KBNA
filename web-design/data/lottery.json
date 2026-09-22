@@ -1,29 +1,31 @@
 {
   "verified": true,
-  "game": "Weekday Windfall",
-  "drawNumber": 4758,
-  "drawDate": "2026-09-21",
+  "game": "Oz Lotto",
+  "drawNumber": 1701,
+  "drawDate": "2026-09-22",
   "winningNumbers": [
-    17,
-    14,
-    30,
-    31,
+    21,
+    35,
+    36,
+    4,
     7,
-    6
+    14,
+    41
   ],
   "supplementary": [
-    42,
-    28
+    26,
+    32,
+    20
   ],
   "powerball": null,
-  "jackpot": "Next draw — Oz Lotto Tue, 22 Sept: $8 Million",
-  "nextGame": "Oz Lotto",
-  "nextDrawDate": "2026-09-22",
-  "nextBadgeColour": "#005000",
-  "badgeColour": "#583788",
+  "jackpot": "Next draw — Weekday Windfall Wed, 23 Sept: $1 Million",
+  "nextGame": "Weekday Windfall",
+  "nextDrawDate": "2026-09-23",
+  "nextBadgeColour": "#583788",
+  "badgeColour": "#005000",
   "logoSlot": "",
   "posterSlot": "",
   "ctaHref": "https://www.thelott.com/results",
-  "updated": "2026-09-22T02:49:29+10:00",
-  "_gateSydneyDate": "2026-09-22"
+  "updated": "2026-09-23T01:26:36+10:00",
+  "_gateSydneyDate": "2026-09-23"
 }
