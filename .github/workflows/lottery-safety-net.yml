@@ -49,8 +49,12 @@ jobs:
             echo "No change to lottery.json — nothing to commit (the primary workflow already refreshed today)."
             exit 0
           fi
-          git config user.name  "Knightsbridge Automation"
-          git config user.email "automation@knightsbridgenews.com.au"
+          # Commit as the repo owner so Vercel recognises the author and
+          # actually deploys the push. See lottery-update.yml for the full
+          # story on why an "automation@…" email trips Vercel's git-author
+          # check on Hobby tier.
+          git config user.name  "AShah-01"
+          git config user.email "aagamshah250506@gmail.com"
           # No [skip ci] — Vercel needs to see this as a normal commit.
           git commit -m "chore(lottery): refresh daily draw (safety net)"
 

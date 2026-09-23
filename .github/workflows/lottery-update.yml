@@ -70,8 +70,13 @@ jobs:
             echo "No change to lottery.json — nothing to commit (already refreshed for today's Sydney date)."
             exit 0
           fi
-          git config user.name  "Knightsbridge Automation"
-          git config user.email "automation@knightsbridgenews.com.au"
+          # Commit as the repo owner so Vercel recognises the author and
+          # actually deploys the push (an unrecognised email — e.g. a made-up
+          # "automation@…" — lands on GitHub fine but Vercel's Hobby-tier
+          # git-author check skips the build, and the fresh lottery.json
+          # never reaches the live site).
+          git config user.name  "AShah-01"
+          git config user.email "aagamshah250506@gmail.com"
           # Do NOT include [skip ci] here — Vercel treats it as an
           # opt-out signal and won't redeploy, so the fresh lottery.json
           # sits on GitHub without reaching the live site. The workflow
