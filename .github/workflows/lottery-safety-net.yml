@@ -12,9 +12,11 @@ name: Daily lottery refresh (safety net)
 
 on:
   schedule:
-    - cron: "0 12 * * *"    # 11pm Sydney during AEDT (UTC+11) — same day
-    - cron: "0 13 * * *"    # 11pm Sydney during AEST (UTC+10) — same day
-  workflow_dispatch:         # manual "Run workflow" button
+    # Mon-Sat only (skip Sunday night Sydney per owner request), matching
+    # the primary. Cron weekday: 0=Sun, 1=Mon .. 6=Sat.
+    - cron: "0 12 * * 1-6"  # 11pm Sydney during AEDT (UTC+11) — same day
+    - cron: "0 13 * * 1-6"  # 11pm Sydney during AEST (UTC+10) — same day
+  workflow_dispatch:         # manual "Run workflow" button — fires any day
 
 permissions:
   contents: write

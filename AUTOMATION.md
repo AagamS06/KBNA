@@ -23,9 +23,10 @@ notes.
 ## 1. Primary — GitHub Actions
 
 - **File:** [`.github/workflows/lottery-update.yml`](.github/workflows/lottery-update.yml)
-- **Schedule:** `0 11 * * *` and `0 12 * * *` (UTC) — the two UTC hours that
-  correspond to 10pm Sydney under AEDT (UTC+11, ~Oct–Apr) and AEST (UTC+10,
-  ~Apr–Oct). Whichever fires first each day does the real work; the second
+- **Schedule:** `0 11 * * 1-6` and `0 12 * * 1-6` (UTC) — the two UTC hours
+  that correspond to 10pm Sydney under AEDT (UTC+11, ~Oct–Apr) and AEST
+  (UTC+10, ~Apr–Oct), Mon–Sat only (Sunday night Sydney skipped per owner
+  request). Whichever fires first each day does the real work; the second
   is a no-op via the script's Sydney-date gate.
 - **What it does:** runs the script, and if `web-design/data/lottery.json`
   changed, commits **only that file** with the message
@@ -36,8 +37,8 @@ notes.
 ## 2. Safety net — GitHub Actions
 
 - **File:** [`.github/workflows/lottery-safety-net.yml`](.github/workflows/lottery-safety-net.yml)
-- **Schedule:** `0 12 * * *` and `0 13 * * *` (UTC) — 1 hour after the
-  primary's fire times (11pm Sydney vs the primary's 10pm).
+- **Schedule:** `0 12 * * 1-6` and `0 13 * * 1-6` (UTC) — 1 hour after the
+  primary's fire times (11pm Sydney vs the primary's 10pm), Mon–Sat only.
 - **Why it exists:** the primary could miss a fire for lots of small reasons
   (workflow paused, a transient GitHub Actions incident in one region, a
   one-off API 5xx that outlasts the primary's retry budget). The safety net

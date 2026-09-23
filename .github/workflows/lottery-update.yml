@@ -33,9 +33,13 @@ name: Daily lottery refresh (primary)
 
 on:
   schedule:
-    - cron: "0 11 * * *"    # 10pm Sydney during AEDT (UTC+11) — same day
-    - cron: "0 12 * * *"    # 10pm Sydney during AEST (UTC+10) — same day
-  workflow_dispatch:         # manual "Run workflow" button
+    # Mon-Sat only (skip Sunday night Sydney per owner request). Cron
+    # weekday field: 0=Sun, 1=Mon .. 6=Sat, so 1-6 = Mon-Sat. Because 10pm
+    # Sydney falls on the same UTC calendar day as the Sydney day at both
+    # 11:00 and 12:00 UTC, "1-6" in UTC cron also excludes Sunday Sydney.
+    - cron: "0 11 * * 1-6"  # 10pm Sydney during AEDT (UTC+11) — same day
+    - cron: "0 12 * * 1-6"  # 10pm Sydney during AEST (UTC+10) — same day
+  workflow_dispatch:         # manual "Run workflow" button — fires any day
 
 # Least privilege: the job only needs to push the one data file back.
 permissions:
