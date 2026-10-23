@@ -1,27 +1,29 @@
 {
   "verified": true,
-  "game": "Powerball",
-  "drawNumber": 1588,
-  "drawDate": "2026-10-22",
+  "game": "Weekday Windfall",
+  "drawNumber": 4772,
+  "drawDate": "2026-10-23",
   "winningNumbers": [
-    4,
-    26,
-    22,
-    13,
-    34,
-    20,
-    33
+    45,
+    39,
+    12,
+    18,
+    30,
+    11
   ],
-  "supplementary": [],
-  "powerball": 13,
-  "jackpot": "Next draw — Weekday Windfall Fri, 23 Oct: $1 Million",
-  "nextGame": "Weekday Windfall",
-  "nextDrawDate": "2026-10-23",
-  "nextBadgeColour": "#583788",
-  "badgeColour": "#3653A4",
+  "supplementary": [
+    38,
+    28
+  ],
+  "powerball": null,
+  "jackpot": "Next draw — Saturday Lotto Sat, 24 Oct: $6 Million",
+  "nextGame": "Saturday Lotto",
+  "nextDrawDate": "2026-10-24",
+  "nextBadgeColour": "#DC392D",
+  "badgeColour": "#583788",
   "logoSlot": "",
   "posterSlot": "",
   "ctaHref": "https://www.thelott.com/results",
-  "updated": "2026-10-23T02:48:22+11:00",
-  "_gateSydneyDate": "2026-10-23"
+  "updated": "2026-10-24T02:39:23+11:00",
+  "_gateSydneyDate": "2026-10-24"
 }
